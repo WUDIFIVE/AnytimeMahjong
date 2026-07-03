@@ -1,0 +1,171 @@
+.mahjong-tile {
+  width: 48px;
+  height: 64px;
+  background: linear-gradient(135deg, #f5f0e8 0%, #ede4d3 50%, #f5f0e8 100%);
+  border: 1px solid #c4b998;
+  border-left: 4px solid #c4b998;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: default;
+  position: relative;
+  user-select: none;
+  box-shadow: 1px 2px 4px rgba(0, 0, 0, 0.2), inset 0 1px 2px rgba(255, 255, 255, 0.3);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  overflow: hidden;
+}
+
+.mahjong-tile::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 0, 0, 0.015) 2px,
+      rgba(0, 0, 0, 0.015) 4px
+    );
+  pointer-events: none;
+  border-radius: 5px;
+}
+
+.mahjong-tile.tile-small {
+  width: 36px;
+  height: 48px;
+  border-radius: 4px;
+  border-left-width: 3px;
+}
+
+.mahjong-tile.tile-clickable {
+  cursor: pointer;
+}
+
+.mahjong-tile.tile-clickable:hover {
+  transform: translateY(-3px);
+  box-shadow: 2px 4px 8px rgba(0, 0, 0, 0.3), inset 0 1px 2px rgba(255, 255, 255, 0.3);
+}
+
+.mahjong-tile.tile-selected {
+  transform: translateY(-6px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.35), inset 0 1px 2px rgba(255, 255, 255, 0.3);
+  border-color: #f0c040;
+}
+
+.tile-selected-indicator {
+  position: absolute;
+  bottom: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 6px;
+  background: #f0c040;
+  border-radius: 50%;
+  box-shadow: 0 0 4px #f0c040;
+}
+
+.mahjong-tile.tile-highlighted {
+  animation: tile-pulse 0.8s ease-in-out infinite;
+  border-color: #f0c040;
+}
+
+@keyframes tile-pulse {
+  0%, 100% { box-shadow: 0 0 4px rgba(240, 192, 64, 0.3); }
+  50% { box-shadow: 0 0 12px rgba(240, 192, 64, 0.6); }
+}
+
+.tile-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  z-index: 1;
+}
+
+.tile-char {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.tile-small .tile-char {
+  font-size: 15px;
+}
+
+.tile-suit {
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.tile-small .tile-suit {
+  font-size: 8px;
+}
+
+/* Face-down */
+.mahjong-tile.tile-face-down {
+  background: linear-gradient(135deg, #2a5a3a 0%, #1a3a2a 50%, #2a5a3a 100%);
+  border: 1px solid #3a6a4a;
+  border-left: 4px solid #3a6a4a;
+}
+
+.tile-face-down .tile-back-pattern {
+  width: 100%;
+  height: 100%;
+  background:
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 3px,
+      rgba(255, 255, 255, 0.05) 3px,
+      rgba(255, 255, 255, 0.05) 6px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 3px,
+      rgba(255, 255, 255, 0.05) 3px,
+      rgba(255, 255, 255, 0.05) 6px
+    );
+  border-radius: 3px;
+}
+
+.tile-small.tile-face-down {
+  border-left-width: 3px;
+}
+
+.tile-face-down .tile-back-pattern::after {
+  content: '🀄';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 18px;
+  opacity: 0.3;
+}
+
+.tile-small.tile-face-down .tile-back-pattern::after {
+  font-size: 13px;
+}
+
+/* Suit border colors */
+.mahjong-tile.tile-wan { border-left-color: #c0392b; }
+.mahjong-tile.tile-tiao { border-left-color: #27ae60; }
+.mahjong-tile.tile-tong { border-left-color: #2980b9; }
+.mahjong-tile.tile-feng { border-left-color: #8e44ad; }
+.mahjong-tile.tile-jian { border-left-color: #d4a017; }
+
+.tile-face-down.tile-wan,
+.tile-face-down.tile-tiao,
+.tile-face-down.tile-tong,
+.tile-face-down.tile-feng,
+.tile-face-down.tile-jian {
+  border-left-color: #3a6a4a;
+}

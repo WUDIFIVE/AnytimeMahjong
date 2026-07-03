@@ -1,0 +1,219 @@
+.player-area {
+  display: flex;
+  position: relative;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  padding: 8px;
+  transition: border-color 0.3s ease;
+}
+
+.player-area.current-turn {
+  border-color: rgba(240, 192, 64, 0.6);
+  animation: turn-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes turn-pulse {
+  0%, 100% { border-color: rgba(240, 192, 64, 0.4); }
+  50% { border-color: rgba(240, 192, 64, 0.8); }
+}
+
+/* Position Layouts */
+
+.position-bottom {
+  flex-direction: column;
+  align-items: center;
+}
+
+.position-top {
+  flex-direction: column;
+  align-items: center;
+}
+
+.position-left {
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.position-right {
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+/* Player Info */
+.player-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+  margin-bottom: 4px;
+  white-space: nowrap;
+}
+
+.player-name {
+  color: #e8dcc8;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.dealer-star {
+  color: #f0c040;
+  margin-right: 2px;
+}
+
+.player-wind {
+  color: #a0a080;
+  font-size: 11px;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 1px 6px;
+  border-radius: 3px;
+}
+
+.player-score {
+  color: #f0c040;
+  font-size: 12px;
+  font-weight: 600;
+  margin-left: auto;
+}
+
+/* Cards container */
+.player-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.position-left .player-cards,
+.position-right .player-cards {
+  flex-direction: column;
+}
+
+/* Melds row */
+.melds-row {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.meld-group {
+  display: flex;
+  gap: 1px;
+  align-items: flex-end;
+  position: relative;
+}
+
+.meld-type-label {
+  font-size: 9px;
+  color: #c0b87a;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 1px 4px;
+  border-radius: 2px;
+  position: absolute;
+  bottom: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+/* Hand row */
+.hand-row {
+  display: flex;
+  gap: 2px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.face-down-row {
+  gap: 2px;
+}
+
+/* Discards row */
+.discards-row {
+  display: flex;
+  gap: 2px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+
+.row-label {
+  font-size: 10px;
+  color: #807860;
+  margin-right: 4px;
+  white-space: nowrap;
+}
+
+/* Position-specific adjustments */
+
+.position-bottom {
+  padding: 12px 8px 8px;
+}
+
+.position-bottom .player-cards {
+  flex-direction: column;
+}
+
+.position-top .hand-row {
+  flex-direction: row-reverse;
+}
+
+.position-left .hand-row {
+  flex-direction: column;
+  align-items: center;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.position-right .hand-row {
+  flex-direction: column-reverse;
+  align-items: center;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.position-left .meld-group,
+.position-right .meld-group {
+  flex-direction: column;
+  gap: 1px;
+}
+
+.position-left .melds-row,
+.position-right .melds-row {
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Current user highlight */
+.current-user .player-info {
+  background: rgba(240, 192, 64, 0.15);
+  border: 1px solid rgba(240, 192, 64, 0.3);
+}
+
+.current-user .player-name {
+  color: #f0c040;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .player-area {
+    padding: 4px;
+  }
+
+  .player-info {
+    padding: 2px 6px;
+    font-size: 11px;
+  }
+
+  .player-name {
+    font-size: 11px;
+  }
+
+  .position-left .hand-row,
+  .position-right .hand-row {
+    max-height: 200px;
+  }
+}
