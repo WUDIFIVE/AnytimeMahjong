@@ -704,11 +704,14 @@ export function serializePlayer(player: Player): any {
     name: player.name,
     seatIndex: player.seatIndex,
     isAI: player.isAI,
+    wind: player.windPosition,
+    windPosition: player.windPosition,
     handSize: player.hand.length,
     melds: player.melds.map(serializeMeld),
     discards: player.discards.map(serializeTile),
     isDealer: player.isDealer,
-    windPosition: player.windPosition,
+    isCurrentTurn: false,
+    score: 0,
   };
 }
 
@@ -716,14 +719,18 @@ export function serializeGameState(state: GameState): any {
   return {
     roomId: state.roomId,
     phase: state.phase,
-    wallSize: state.wall.length,
+    currentWind: 'east',
+    wallCount: state.wall.length,
     deadWallSize: state.deadWall.length,
     players: state.players.map(serializePlayer),
     currentPlayerIndex: state.currentPlayerIndex,
     turnCount: state.turnCount,
     settings: state.settings,
     pendingDiscard: state.pendingDiscard ? serializeTile(state.pendingDiscard) : null,
-    pendingClaims: state.pendingClaims,
+    pendingClaims: state.pendingClaims.map(c => ({
+      ...c,
+      playerId: state.players[c.playerIndex]?.id,
+    })),
     lastDraw: state.lastDraw ? serializeTile(state.lastDraw) : null,
     winnerIndex: state.winnerIndex,
   };

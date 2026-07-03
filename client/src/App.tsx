@@ -54,9 +54,14 @@ function App() {
         break;
 
       case 'game_start':
+        console.log('[App] game_start payload keys:', Object.keys(payload));
+        console.log('[App] gameStart.gameState:', payload.gameState ? 'exists' : 'MISSING', payload.gameState?.phase);
         setView('game');
         if (payload.gameState) {
           setGameState(payload.gameState);
+          console.log('[App] setGameState done, players:', payload.gameState.players?.length);
+        } else {
+          console.error('[App] game_start missing gameState!');
         }
         break;
 
@@ -186,6 +191,10 @@ function App() {
           onWin={handleWin}
           onPass={handlePass}
         />
+      )}
+
+      {view === 'game' && !gameState && (
+        <div className="loading-screen">加载游戏中...</div>
       )}
 
       {view === 'settlement' && gameState?.winResult && (
