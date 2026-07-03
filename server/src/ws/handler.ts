@@ -235,13 +235,13 @@ export function setupWebSocketHandler(
         return;
       }
 
-      const { type } = message;
+      const { type, payload = {} } = message;
 
       if (type === 'create_room') {
-        const playerName = message.nickname || message.playerName;
-        const roomPwd = message.password || message.roomPwd || '';
-        const allowChi = (message.settings && message.settings.allowChi) ?? message.allowChi ?? true;
-        const allowDianpao = (message.settings && message.settings.allowDianpao) ?? message.allowDianpao ?? true;
+        const playerName = payload.nickname || payload.playerName;
+        const roomPwd = payload.password || payload.roomPwd || '';
+        const allowChi = (payload.settings && payload.settings.allowChi) ?? payload.allowChi ?? true;
+        const allowDianpao = (payload.settings && payload.settings.allowDianpao) ?? payload.allowDianpao ?? true;
         const key = roomPwd;
         
         
@@ -264,9 +264,9 @@ export function setupWebSocketHandler(
       }
 
       if (type === 'join_room') {
-        const roomId = message.roomId;
-        const playerName = message.nickname || message.playerName;
-        const roomPwd = message.password || message.roomPwd || '';
+        const roomId = payload.roomId;
+        const playerName = payload.nickname || payload.playerName;
+        const roomPwd = payload.password || payload.roomPwd || '';
         const key = roomPwd || '';
         if (!roomId || !playerName) {
           ws.send(JSON.stringify({ type: 'error', message: 'roomId and playerName required' }));
@@ -308,7 +308,7 @@ export function setupWebSocketHandler(
           ws.send(JSON.stringify({ type: 'error', message: 'Only host can change settings' }));
           return;
         }
-        const { setting, value } = message;
+        const { setting, value } = payload;
         if (setting === 'allowChi') r.settings.allowChi = value;
         if (setting === 'allowDianpao') r.settings.allowDianpao = value;
         broadcast(info.roomId, {
