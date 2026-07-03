@@ -46,7 +46,8 @@ function App() {
             settings: payload.settings,
             hostId: payload.hostId,
           });
-          if (payload.playerId) {
+          // Only set playerId once (from the server response to OUR action)
+          if (type === 'room_state' && payload.playerId) {
             setPlayerId(payload.playerId);
           }
         }
