@@ -242,6 +242,7 @@ export function setupWebSocketHandler(
         const roomPwd = payload.password || payload.roomPwd || '';
         const allowChi = (payload.settings && payload.settings.allowChi) ?? payload.allowChi ?? true;
         const allowDianpao = (payload.settings && payload.settings.allowDianpao) ?? payload.allowDianpao ?? true;
+        const maxPlayers = (payload.settings && payload.settings.maxPlayers) ?? payload.maxPlayers ?? 4;
         const key = roomPwd;
         
         
@@ -249,7 +250,7 @@ export function setupWebSocketHandler(
           ws.send(JSON.stringify({ type: 'error', message: 'playerName required' }));
           return;
         }
-        const room = roomManager.createRoom(playerName, key, allowChi, allowDianpao);
+        const room = roomManager.createRoom(playerName, key, allowChi, allowDianpao, maxPlayers);
         const player = room.players[0];
         clients.set(ws, { ws, playerId: player.id, roomId: room.id });
         ws.send(JSON.stringify({
@@ -338,7 +339,7 @@ export function setupWebSocketHandler(
             return sp;
           });
           sendToPlayer(player.id, info.roomId, {
-            type: 'game_started',
+            type: 'game_start',
             gameState: playerView,
           });
         }

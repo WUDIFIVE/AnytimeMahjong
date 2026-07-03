@@ -34,7 +34,7 @@ export class RoomManager {
   /**
    * Create a new room
    */
-  createRoom(hostName: string, roomKey: string, allowChi: boolean, allowDianpao: boolean): Room {
+  createRoom(hostName: string, roomKey: string, allowChi: boolean, allowDianpao: boolean, maxPlayers: number = 4): Room {
     const id = this.generateRoomId();
     const hostId = `player_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
 
@@ -53,6 +53,7 @@ export class RoomManager {
     const settings: GameSettings = {
       allowChi,
       allowDianpao,
+      maxPlayers,
     };
 
     const room: Room = {
@@ -61,6 +62,7 @@ export class RoomManager {
       hostId,
       players: [host],
       settings,
+      maxPlayers,
       gameState: null,
       createdAt: Date.now(),
     };
@@ -81,9 +83,9 @@ export class RoomManager {
     // Check if game already started
     if (room.gameState && room.gameState.phase === 'playing') return null;
 
-    // Max 4 players, count non-AI
+    // Max players as per room settings, count non-AI
     const humanCount = room.players.filter(p => !p.isAI).length;
-    if (humanCount >= 4) return null;
+    if (humanCount >= room.maxPlayers) return null;
 
     const playerId = `player_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
     const seatIndex = room.players.length; // next available seat
@@ -152,10 +154,10 @@ export class RoomManager {
     if (!room) return null;
     if (room.hostId !== hostId) return null; // only host can start
 
-    // Fill to 4 players with AI
+    // Fill to maxPlayers with AI
     const aiNames = ['AI-小张', 'AI-小李', 'AI-小王', 'AI-小陈'];
     let aiIndex = 0;
-    while (room.players.length < 4) {
+    while (room.players.length < room.maxPlayers) {
       const seatIndex = room.players.length;
       room.players.push({
         id: `ai_${roomId}_${seatIndex}`,

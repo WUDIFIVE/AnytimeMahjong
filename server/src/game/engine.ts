@@ -72,6 +72,8 @@ export interface SerializedWinResult {
 export interface GameSettings {
   allowChi: boolean;
   allowDianpao: boolean;
+  maxPlayers: number;
+  password?: string;
 }
 
 export interface GameState {
@@ -103,6 +105,7 @@ export interface Room {
   settings: GameSettings;
   gameState: GameState | null;
   createdAt: number;
+  maxPlayers: number;
 }
 
 // --- Tile helpers ---
@@ -668,7 +671,7 @@ export function isTing(hand: Tile[], melds: Meld[]): boolean {
   for (let v = 1; v <= 4; v++) allPossibleTiles.push({ suit: Suit.Wind, value: v });
   for (let v = 1; v <= 3; v++) allPossibleTiles.push({ suit: Suit.Dragon, value: v });
 
-  const settings: GameSettings = { allowChi: true, allowDianpao: true };
+  const settings: GameSettings = { allowChi: true, allowDianpao: true, maxPlayers: 4 };
 
   for (let i = 0; i < hand.length; i++) {
     const reducedHand = hand.filter((_, idx) => idx !== i);
