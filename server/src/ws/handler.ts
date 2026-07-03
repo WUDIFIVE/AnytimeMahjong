@@ -238,34 +238,35 @@ export function setupWebSocketHandler(
       const { type } = message;
 
       if (type === 'create_room') {
-        const { playerName, roomPwd, allowChi, allowDianpao } = message;
-        const key = roomPwd || '';
-        const ac = allowChi !== undefined ? allowChi : true;
-        const ad = allowDianpao !== undefined ? allowDianpao : true;
+        const playerName = message.nickname || message.playerName;
+        const roomPwd = message.password || message.roomPwd || '';
+        const allowChi = (message.settings && message.settings.allowChi) ?? message.allowChi ?? true;
+        const allowDianpao = (message.settings && message.settings.allowDianpao) ?? message.allowDianpao ?? true;
+        const key = roomPwd;
+        
+        
         if (!playerName) {
           ws.send(JSON.stringify({ type: 'error', message: 'playerName required' }));
           return;
         }
-        const room = roomManager.createRoom(playerName, key, ac, ad);
+        const room = roomManager.createRoom(playerName, key, allowChi, allowDianpao);
         const player = room.players[0];
         clients.set(ws, { ws, playerId: player.id, roomId: room.id });
         ws.send(JSON.stringify({
-          type: 'room_created',
+          type: 'room_state',
           roomId: room.id,
           playerId: player.id,
-          room: {
-            id: room.id,
-            hostId: room.hostId,
-            players: room.players.map(serializePlayer),
-            settings: room.settings,
-            hasLock: !!key,
-          },
+          players: room.players.map(serializePlayer),
+          settings: room.settings,
+          hostId: room.hostId,
         }));
         return;
       }
 
       if (type === 'join_room') {
-        const { roomId, playerName, roomPwd } = message;
+        const roomId = message.roomId;
+        const playerName = message.nickname || message.playerName;
+        const roomPwd = message.password || message.roomPwd || '';
         const key = roomPwd || '';
         if (!roomId || !playerName) {
           ws.send(JSON.stringify({ type: 'error', message: 'roomId and playerName required' }));
@@ -279,24 +280,21 @@ export function setupWebSocketHandler(
         clients.set(ws, { ws, playerId: player.id, roomId });
         const r = roomManager.getRoom(roomId)!;
         ws.send(JSON.stringify({
-          type: 'room_joined',
+          type: 'room_state',
+          roomId: r.id,
           playerId: player.id,
-          room: {
-            id: r.id,
-            hostId: r.hostId,
-            players: r.players.map(serializePlayer),
-            settings: r.settings,
-            hasLock: !!r.roomKey,
-          },
+          players: r.players.map(serializePlayer),
+          settings: r.settings,
+          hostId: r.hostId,
         }));
         broadcast(roomId, {
-          type: 'player_joined',
-          player: serializePlayer(player),
-          room: {
-            id: r.id,
-            hostId: r.hostId,
-            players: r.players.map(serializePlayer),
-          },
+          type: 'player_join',
+          roomId: r.id,
+          playerId: player.id,
+          playerName: player.name,
+          players: r.players.map(serializePlayer),
+          settings: r.settings,
+          hostId: r.hostId,
         });
         return;
       }
