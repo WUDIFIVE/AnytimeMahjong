@@ -186,7 +186,7 @@ export function setupWebSocketHandler(
         return;
       }
 
-      const discardIdx = evaluateDiscard(player.hand, player.melds);
+      const discardIdx = evaluateDiscard(player.hand, player.melds, gameState, gameState.currentPlayerIndex);
       const discardTile = player.hand[discardIdx];
       player.hand.splice(discardIdx, 1);
       player.discards.push(discardTile);
