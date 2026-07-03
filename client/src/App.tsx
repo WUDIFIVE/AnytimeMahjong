@@ -31,7 +31,9 @@ function App() {
   useEffect(() => {
     if (!lastMessage) return;
 
-    const { type, payload } = lastMessage;
+    const { type, payload: rawPayload } = lastMessage;
+    // Server may send flat fields or {type, payload} wrapper
+    const payload = rawPayload || lastMessage;
 
     switch (type) {
       case 'room_state':
