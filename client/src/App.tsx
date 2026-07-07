@@ -38,6 +38,7 @@ function App() {
     switch (type) {
       case 'room_state':
       case 'player_join':
+      case 'player_left':
       case 'player_leave':
         if (payload.roomId && payload.players) {
           setRoomState({
@@ -54,35 +55,32 @@ function App() {
         break;
 
       case 'game_start':
-        console.log('[App] game_start payload keys:', Object.keys(payload));
-        console.log('[App] gameStart.gameState:', payload.gameState ? 'exists' : 'MISSING', payload.gameState?.phase);
-        setView('game');
+      case 'game_state':
+      case 'turn_change':
+      case 'discard':
+      case 'pending_claims':
+      case 'pong_executed':
+      case 'chi_executed':
+      case 'minggang_executed':
+      case 'angang_executed':
+      case 'jiagang_executed':
         if (payload.gameState) {
           setGameState(payload.gameState);
-          console.log('[App] setGameState done, players:', payload.gameState.players?.length);
-        } else {
-          console.error('[App] game_start missing gameState!');
+          setView('game');
+        } else if (payload.roomId && payload.players) {
+          setGameState(payload as GameState);
+          setView('game');
         }
         break;
 
-      case 'game_state':
-        if (payload) {
-          setGameState(payload);
-        }
-        break;
-
+      case 'game_over':
       case 'game_end':
       case 'settlement':
-        if (payload) {
+        if (payload.gameState) {
+          setGameState({ ...payload.gameState, winResult: payload.winResult ?? payload.gameState.winResult ?? null });
+        }
+        if (payload.winResult || payload.gameState?.winnerIndex !== undefined) {
           setView('settlement');
-          // Keep gameState for settlement display
-          if (payload.winResult) {
-            setGameState(prev => prev ? {
-              ...prev,
-              status: 'finished',
-              winResult: payload.winResult,
-            } : null);
-          }
         }
         break;
 

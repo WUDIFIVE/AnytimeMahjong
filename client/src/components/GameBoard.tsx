@@ -45,9 +45,11 @@ const GameBoard: React.FC<GameBoardProps> = ({
 
   // Reorder players so current user is at bottom
   const orderedPlayers = [...gameState.players];
-  // Rotate so player is at position 0 (bottom)
-  while (orderedPlayers[0]?.id !== playerId && orderedPlayers.length > 0) {
-    orderedPlayers.push(orderedPlayers.shift()!);
+  const selfIndexInList = orderedPlayers.findIndex(p => p.id === playerId);
+  if (selfIndexInList > 0) {
+    for (let i = 0; i < selfIndexInList; i++) {
+      orderedPlayers.push(orderedPlayers.shift()!);
+    }
   }
 
   const handleTileClick = useCallback((tile: TileType) => {

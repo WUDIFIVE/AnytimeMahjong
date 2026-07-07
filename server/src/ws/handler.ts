@@ -162,7 +162,7 @@ export function setupWebSocketHandler(
         const tileIds = player.hand
           .filter(t => tileEquals(t, anGangOptions[0]))
           .map(t => t.id);
-        executeAnGang(player, tileIds, gameState);
+        executeAnGang(player, tileIds.map((id: number | string) => Number(id)), gameState);
         broadcast(roomId, {
           type: 'angang',
           playerIndex: gameState.currentPlayerIndex,
@@ -235,7 +235,15 @@ export function setupWebSocketHandler(
         return;
       }
 
-      const { type, payload = {} } = message;
+      let { type, payload = {} } = message;
+      if (type === 'claim') {
+        const claimType = payload.type;
+        type = claimType === 'ming-gang' ? 'minggang'
+          : claimType === 'an-gang' ? 'angang'
+          : claimType === 'jia-gang' ? 'jiagang'
+          : claimType === 'hu' ? 'win'
+          : claimType;
+      }
 
       if (type === 'create_room') {
         const playerName = payload.nickname || payload.playerName;
@@ -332,9 +340,10 @@ export function setupWebSocketHandler(
           const playerView = serializeGameState(gameState);
           playerView.players = gameState.players.map((p) => {
             const sp = serializePlayer(p);
-            if (p.id === player.id) {
-              sp.hand = p.hand.map(serializeTile);
-              delete sp.handSize;
+            sp.isCurrentTurn = p.seatIndex === gameState.currentPlayerIndex;
+            if (p.id !== player.id) {
+              sp.hand = Array.from({ length: p.hand.length }, (_unused, idx) => ({ id: `hidden-${p.id}-${idx}`, suit: 'wan', value: 1 }));
+              sp.handSize = p.hand.length;
             }
             return sp;
           });
@@ -362,9 +371,9 @@ export function setupWebSocketHandler(
           return;
         }
 
-        const { tileId } = message;
+        const { tileId } = payload;
         const player = gameState.players[gameState.currentPlayerIndex];
-        const idx = player.hand.findIndex(t => t.id === tileId);
+        const idx = player.hand.findIndex(t => String(t.id) === String(tileId));
         if (idx < 0) {
           ws.send(JSON.stringify({ type: 'error', message: 'Tile not in hand' }));
           return;
@@ -450,7 +459,7 @@ export function setupWebSocketHandler(
           return;
         }
 
-        const { optionIndex = 0 } = message;
+        const { optionIndex = 0 } = payload;
         if (optionIndex >= claim.chiOptions.length) {
           ws.send(JSON.stringify({ type: 'error', message: 'Invalid chi option' }));
           return;
@@ -517,13 +526,19 @@ export function setupWebSocketHandler(
         }
 
         const player = gameState.players[gameState.currentPlayerIndex];
-        const { tileIds } = message;
+        let { tileIds } = payload;
+        if (!tileIds) {
+          const option = canAnGang(player.hand);
+          if (option.length > 0) {
+            tileIds = player.hand.filter(t => tileEquals(t, option[0])).map(t => t.id);
+          }
+        }
         if (!tileIds || !Array.isArray(tileIds) || tileIds.length !== 4) {
           ws.send(JSON.stringify({ type: 'error', message: 'Need 4 tile IDs' }));
           return;
         }
 
-        const tiles: Tile[] = tileIds.map((id: number) => player.hand.find(t => t.id === id)).filter(Boolean) as Tile[];
+        const tiles: Tile[] = tileIds.map((id: number | string) => player.hand.find(t => String(t.id) === String(id))).filter(Boolean) as Tile[];
         if (tiles.length !== 4) {
           ws.send(JSON.stringify({ type: 'error', message: 'Tiles not found' }));
           return;
@@ -533,7 +548,7 @@ export function setupWebSocketHandler(
           return;
         }
 
-        executeAnGang(player, tileIds, gameState);
+        executeAnGang(player, tileIds.map((id: number | string) => Number(id)), gameState);
         broadcast(info.roomId, {
           type: 'angang_executed',
           playerIndex: gameState.currentPlayerIndex,
@@ -556,9 +571,9 @@ export function setupWebSocketHandler(
         }
 
         const player = gameState.players[gameState.currentPlayerIndex];
-        const { tileId } = message;
+        const { tileId } = payload;
         const drawnTile = gameState.lastDraw;
-        if (!drawnTile || drawnTile.id !== tileId) {
+        if (!drawnTile || String(drawnTile.id) !== String(tileId)) {
           ws.send(JSON.stringify({ type: 'error', message: 'Can only jia gang drawn tile' }));
           return;
         }

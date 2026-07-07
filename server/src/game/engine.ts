@@ -686,13 +686,35 @@ export function isTing(hand: Tile[], melds: Meld[]): boolean {
 
 // --- Serialization helpers ---
 
+function serializeSuit(suit: Suit): string {
+  if (suit === Suit.Wind) return 'feng';
+  if (suit === Suit.Dragon) return 'jian';
+  return suit;
+}
+
+function serializeMeldType(type: MeldType): string {
+  if (type === 'pong') return 'peng';
+  if (type === 'minggang') return 'ming-gang';
+  if (type === 'angang') return 'an-gang';
+  if (type === 'jiagang') return 'jia-gang';
+  return type;
+}
+
+function serializeClaimType(type: Claim['type']): string {
+  if (type === 'minggang') return 'ming-gang';
+  if (type === 'angang') return 'an-gang';
+  if (type === 'jiagang') return 'jia-gang';
+  if (type === 'win') return 'hu';
+  return type;
+}
+
 export function serializeTile(tile: Tile): any {
-  return { id: tile.id, suit: tile.suit, value: tile.value, name: tile.name };
+  return { id: String(tile.id), suit: serializeSuit(tile.suit), value: tile.value, name: tile.name };
 }
 
 export function serializeMeld(meld: Meld): any {
   return {
-    type: meld.type,
+    type: serializeMeldType(meld.type),
     tiles: meld.tiles.map(serializeTile),
     sourcePlayer: meld.sourcePlayer,
   };
@@ -706,6 +728,7 @@ export function serializePlayer(player: Player): any {
     isAI: player.isAI,
     wind: player.windPosition,
     windPosition: player.windPosition,
+    hand: player.hand.map(serializeTile),
     handSize: player.hand.length,
     melds: player.melds.map(serializeMeld),
     discards: player.discards.map(serializeTile),
@@ -719,17 +742,24 @@ export function serializeGameState(state: GameState): any {
   return {
     roomId: state.roomId,
     phase: state.phase,
+    status: state.phase,
     currentWind: 'east',
     wallCount: state.wall.length,
     deadWallSize: state.deadWall.length,
-    players: state.players.map(serializePlayer),
+    players: state.players.map((player, index) => ({
+      ...serializePlayer(player),
+      isCurrentTurn: index === state.currentPlayerIndex,
+    })),
     currentPlayerIndex: state.currentPlayerIndex,
     turnCount: state.turnCount,
     settings: state.settings,
     pendingDiscard: state.pendingDiscard ? serializeTile(state.pendingDiscard) : null,
+    lastDiscard: state.pendingDiscard ? serializeTile(state.pendingDiscard) : null,
     pendingClaims: state.pendingClaims.map(c => ({
       ...c,
+      type: serializeClaimType(c.type),
       playerId: state.players[c.playerIndex]?.id,
+      chiOptions: c.chiOptions?.map(option => option.map(serializeTile)),
     })),
     lastDraw: state.lastDraw ? serializeTile(state.lastDraw) : null,
     winnerIndex: state.winnerIndex,

@@ -27,8 +27,9 @@ const PlayerArea: React.FC<PlayerAreaProps> = ({
   onTileClick,
   selectedTileId,
 }) => {
-  const sortedHand = sortTiles(player.hand);
-  const recentDiscards = player.discards.slice(-10);
+  const hand = player.hand ?? [];
+  const sortedHand = sortTiles(hand);
+  const recentDiscards = (player.discards ?? []).slice(-10);
 
   const handleTileClick = (tile: TileType) => {
     if (onTileClick) {
@@ -103,7 +104,7 @@ const PlayerArea: React.FC<PlayerAreaProps> = ({
           </div>
         ) : (
           <div className="hand-row face-down-row">
-            {player.hand.map((_, i) => (
+            {hand.map((_, i) => (
               <Tile
                 key={`fd-${i}`}
                 tile={{ suit: 'wan', value: 1, id: `fd-${i}` }}
