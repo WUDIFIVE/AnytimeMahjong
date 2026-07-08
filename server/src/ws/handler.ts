@@ -83,9 +83,11 @@ export function setupWebSocketHandler(
     gameState.pendingClaims = [];
     const currentIdx = gameState.currentPlayerIndex;
 
-    for (let i = 0; i < 4; i++) {
+    const playerCount = gameState.players.length;
+    for (let i = 0; i < playerCount; i++) {
       if (i === currentIdx) continue;
       const player = gameState.players[i];
+      if (!player) continue;
 
       if (checkWin(player.hand, player.melds, discardTile, false, gameState.settings)) {
         gameState.pendingClaims.push({ playerIndex: i, type: 'win' });
@@ -98,7 +100,7 @@ export function setupWebSocketHandler(
         gameState.pendingClaims.push({ playerIndex: i, type: 'pong' });
       }
       if (gameState.settings.allowChi) {
-        const nextIdx = (currentIdx + 1) % 4;
+        const nextIdx = (currentIdx + 1) % playerCount;
         if (i === nextIdx) {
           const chiOptions = canChi(player.hand, discardTile);
           if (chiOptions.length > 0) {
@@ -116,14 +118,14 @@ export function setupWebSocketHandler(
   function advanceTurn(gameState: GameState): void {
     gameState.pendingDiscard = null;
     gameState.pendingClaims = [];
-    gameState.currentPlayerIndex = (gameState.currentPlayerIndex + 1) % 4;
+    gameState.currentPlayerIndex = (gameState.currentPlayerIndex + 1) % gameState.players.length;
     gameState.turnCount++;
     gameState.lastDraw = null;
   }
 
   function handleAITurn(gameState: GameState, roomId: string): void {
     const player = gameState.players[gameState.currentPlayerIndex];
-    if (!player.isAI) return;
+    if (!player || !player.isAI) return;
 
     setTimeout(() => {
       const tile = drawTile(gameState.wall);
@@ -220,6 +222,7 @@ export function setupWebSocketHandler(
 
   function checkAndHandleAI(gameState: GameState, roomId: string): void {
     const player = gameState.players[gameState.currentPlayerIndex];
+    if (!player) return;
     if (player.isAI) {
       handleAITurn(gameState, roomId);
     }

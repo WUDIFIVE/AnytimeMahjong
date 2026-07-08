@@ -154,10 +154,11 @@ export class RoomManager {
     if (!room) return null;
     if (room.hostId !== hostId) return null; // only host can start
 
-    // Fill to maxPlayers with AI
+    // Mahjong is always a 4-player game; fill missing seats with AI.
+    const targetPlayerCount = 4;
     const aiNames = ['AI-小张', 'AI-小李', 'AI-小王', 'AI-小陈'];
     let aiIndex = 0;
-    while (room.players.length < room.maxPlayers) {
+    while (room.players.length < targetPlayerCount) {
       const seatIndex = room.players.length;
       room.players.push({
         id: `ai_${roomId}_${seatIndex}`,
@@ -185,6 +186,10 @@ export class RoomManager {
       player.melds = [];
       player.discards = [];
     });
+
+    // Keep the public setting aligned with the actual game size.
+    room.settings.maxPlayers = targetPlayerCount;
+    room.maxPlayers = targetPlayerCount;
 
     const gameState: GameState = {
       roomId,

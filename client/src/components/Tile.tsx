@@ -1,5 +1,5 @@
 import React from 'react';
-import { Tile as TileType, tileDisplayChar, getTileColor, getTileSuitSymbol } from '../game/types';
+import { Tile as TileType, tileDisplayChar, getTileColor } from '../game/types';
 import './Tile.css';
 
 interface TileProps {
@@ -11,6 +11,51 @@ interface TileProps {
   onClick?: (tile: TileType) => void;
 }
 
+const NUMBER_CHARS = ['', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
+
+function renderDots(value: number) {
+  return (
+    <div className={`tile-art dots dots-${value}`}>
+      {Array.from({ length: Math.max(1, Math.min(9, value)) }).map((_, i) => (
+        <span key={i} className={`dot dot-${i}`} />
+      ))}
+    </div>
+  );
+}
+
+function renderBamboo(value: number) {
+  return (
+    <div className={`tile-art bamboo bamboo-${value}`}>
+      {Array.from({ length: Math.max(1, Math.min(9, value)) }).map((_, i) => (
+        <span key={i} className={`bamboo-stick stick-${i}`}>
+          <i />
+        </span>
+      ))}
+    </div>
+  );
+}
+
+function renderWan(value: number) {
+  return (
+    <div className="tile-art wan-art">
+      <span className="wan-number">{NUMBER_CHARS[value] || value}</span>
+      <span className="wan-cloud">万</span>
+    </div>
+  );
+}
+
+function renderHonor(tile: TileType) {
+  const char = tileDisplayChar(tile);
+  const isDragon = tile.suit === 'jian';
+  return (
+    <div className={`tile-art honor-art ${isDragon ? 'dragon-art' : 'wind-art'}`}>
+      <span className="honor-halo" />
+      <span className="honor-char">{char}</span>
+      <span className="honor-label">{isDragon ? '箭' : '风'}</span>
+    </div>
+  );
+}
+
 const Tile: React.FC<TileProps> = ({
   tile,
   small = false,
@@ -19,6 +64,9 @@ const Tile: React.FC<TileProps> = ({
   highlighted = false,
   onClick,
 }) => {
+  const safeSuit = tile?.suit ?? 'wan';
+  const color = getTileColor(safeSuit);
+
   const handleClick = () => {
     if (onClick && !faceDown) {
       onClick(tile);
@@ -32,13 +80,9 @@ const Tile: React.FC<TileProps> = ({
     }
   };
 
-  const color = getTileColor(tile.suit);
-  const displayChar = tileDisplayChar(tile);
-  const suitSymbol = tile.suit === 'feng' || tile.suit === 'jian' ? '' : getTileSuitSymbol(tile.suit);
-
   const classNames = [
     'mahjong-tile',
-    `tile-${tile.suit}`,
+    `tile-${safeSuit}`,
     small ? 'tile-small' : '',
     faceDown ? 'tile-face-down' : '',
     selected ? 'tile-selected' : '',
@@ -55,10 +99,20 @@ const Tile: React.FC<TileProps> = ({
         role={onClick ? 'button' : undefined}
         tabIndex={onClick ? 0 : undefined}
       >
-        <div className="tile-back-pattern" />
+        <div className="tile-back-pattern">
+          <span className="back-flower">✿</span>
+        </div>
       </div>
     );
   }
+
+  const art = safeSuit === 'tong'
+    ? renderDots(tile.value)
+    : safeSuit === 'tiao'
+      ? renderBamboo(tile.value)
+      : safeSuit === 'wan'
+        ? renderWan(tile.value)
+        : renderHonor(tile);
 
   return (
     <div
@@ -67,14 +121,13 @@ const Tile: React.FC<TileProps> = ({
       onKeyDown={handleKeyDown}
       role={onClick ? 'button' : undefined}
       tabIndex={onClick ? 0 : undefined}
-      style={{ borderLeftColor: color }}
+      style={{ ['--tile-accent' as string]: color }}
+      aria-label={tileDisplayChar(tile)}
     >
-      <div className="tile-content">
-        <span className="tile-char" style={{ color }}>{displayChar}</span>
-        {suitSymbol && (
-          <span className="tile-suit" style={{ color }}>{suitSymbol}</span>
-        )}
-      </div>
+      <div className="felt-grain" />
+      <div className="tile-corner corner-top">{tileDisplayChar(tile)}</div>
+      <div className="tile-content">{art}</div>
+      <div className="tile-corner corner-bottom">{tileDisplayChar(tile)}</div>
       {selected && <div className="tile-selected-indicator" />}
     </div>
   );
