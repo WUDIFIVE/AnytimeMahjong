@@ -347,3 +347,146 @@
     min-height: 120px;
   }
 }
+
+/* Central discard pond */
+.center-status-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+
+.wall-indicator.compact {
+  flex-direction: row;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+}
+
+.wall-indicator.compact .wall-icon {
+  font-size: 18px;
+}
+
+.wall-indicator.compact .wall-count {
+  font-size: 16px;
+}
+
+.central-discards {
+  width: min(620px, 100%);
+  min-height: 260px;
+  display: grid;
+  grid-template-areas:
+    ". top ."
+    "left center right"
+    ". bottom .";
+  grid-template-columns: 1fr 1.25fr 1fr;
+  grid-template-rows: auto 1fr auto;
+  gap: 8px;
+  padding: 14px;
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(240,192,64,0.12), transparent 58%),
+    rgba(0, 0, 0, 0.22);
+  border: 1px solid rgba(240, 192, 64, 0.22);
+  box-shadow: inset 0 0 28px rgba(0,0,0,0.24);
+}
+
+.central-discards::before {
+  content: '弃牌区';
+  grid-area: center;
+  place-self: center;
+  color: rgba(240, 192, 64, 0.18);
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: 0.3em;
+  pointer-events: none;
+}
+
+.central-discard-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  min-width: 0;
+}
+
+.discard-row-top { grid-area: top; justify-content: center; }
+.discard-row-bottom { grid-area: bottom; justify-content: center; }
+.discard-row-left { grid-area: left; flex-direction: column; justify-content: center; }
+.discard-row-right { grid-area: right; flex-direction: column; justify-content: center; }
+
+.central-discard-name {
+  font-size: 11px;
+  color: rgba(233, 222, 157, 0.72);
+  white-space: nowrap;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+
+.central-discard-tiles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  justify-content: center;
+  max-width: 210px;
+}
+
+.discard-row-left .central-discard-tiles,
+.discard-row-right .central-discard-tiles {
+  max-width: 115px;
+}
+
+.central-discard-tiles .mahjong-tile.tile-small {
+  transform: scale(0.78);
+  margin: -4px -3px;
+}
+
+.central-discard-tiles .mahjong-tile.tile-highlighted {
+  filter: drop-shadow(0 0 8px rgba(255, 226, 90, 0.9));
+  z-index: 2;
+}
+
+/* Lift action bar above the player's hand instead of occupying the bottom edge */
+.action-bar {
+  position: absolute;
+  left: 50%;
+  top: 46px;
+  transform: translateX(-50%);
+  min-height: 42px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(240, 192, 64, 0.28);
+  background: rgba(7, 22, 15, 0.72);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.28);
+  z-index: 5;
+}
+
+.action-bar:empty {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .central-discards {
+    min-height: 210px;
+    padding: 10px;
+    grid-template-columns: 0.9fr 1fr 0.9fr;
+  }
+
+  .central-discard-tiles {
+    max-width: 150px;
+  }
+
+  .discard-row-left .central-discard-tiles,
+  .discard-row-right .central-discard-tiles {
+    max-width: 90px;
+  }
+
+  .action-bar {
+    top: 40px;
+    left: 8px;
+    right: 8px;
+    transform: none;
+    border-radius: 18px;
+  }
+}

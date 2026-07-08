@@ -29,7 +29,6 @@ const PlayerArea: React.FC<PlayerAreaProps> = ({
 }) => {
   const hand = player.hand ?? [];
   const sortedHand = sortTiles(hand);
-  const recentDiscards = (player.discards ?? []).slice(-10);
 
   const handleTileClick = (tile: TileType) => {
     if (onTileClick) {
@@ -109,21 +108,6 @@ const PlayerArea: React.FC<PlayerAreaProps> = ({
                 key={`fd-${i}`}
                 tile={{ suit: 'wan', value: 1, id: `fd-${i}` }}
                 faceDown
-              />
-            ))}
-          </div>
-        )}
-
-        {/* Discards Row */}
-        {recentDiscards.length > 0 && (
-          <div className="discards-row">
-            <span className="row-label">弃牌</span>
-            {recentDiscards.map((tile, i) => (
-              <Tile
-                key={`discard-${i}`}
-                tile={tile}
-                small
-                onClick={handleTileClick}
               />
             ))}
           </div>

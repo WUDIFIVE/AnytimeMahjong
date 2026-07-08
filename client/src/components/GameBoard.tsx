@@ -160,38 +160,35 @@ const GameBoard: React.FC<GameBoardProps> = ({
 
           {/* Center Area */}
           <div className="table-center">
-            {/* Last Discard */}
-            {gameState.lastDiscard && (
-              <div className="last-discard-display">
-                <span className="discard-label">最新弃牌</span>
-                <Tile tile={gameState.lastDiscard} />
+            <div className="center-status-row">
+              <div className="wall-indicator compact">
+                <div className="wall-icon">🀄</div>
+                <div className="wall-count">{gameState.wallCount}</div>
+                <div className="wall-label">剩余</div>
+              </div>
+
+              <div className="turn-indicator">
+                <div className="turn-dot" />
                 {(() => {
-                  const discarder = gameState.players.find(p =>
-                    p.discards.some(d => d.id === gameState.lastDiscard!.id)
-                  );
-                  return discarder ? (
-                    <span className="discard-by">by {discarder.name}</span>
+                  const turnPlayer = gameState.players[gameState.currentPlayerIndex];
+                  return turnPlayer ? (
+                    <span className="turn-name">{turnPlayer.name} 的回合</span>
                   ) : null;
                 })()}
               </div>
-            )}
-
-            {/* Wall Indicator */}
-            <div className="wall-indicator">
-              <div className="wall-icon">🀄</div>
-              <div className="wall-count">{gameState.wallCount}</div>
-              <div className="wall-label">剩余</div>
             </div>
 
-            {/* Turn Indicator */}
-            <div className="turn-indicator">
-              <div className="turn-dot" />
-              {(() => {
-                const turnPlayer = gameState.players[gameState.currentPlayerIndex];
-                return turnPlayer ? (
-                  <span className="turn-name">{turnPlayer.name} 的回合</span>
-                ) : null;
-              })()}
+            <div className="central-discards" aria-label="中央弃牌区">
+              {orderedPlayers.map((player, idx) => (
+                <div key={player.id} className={`central-discard-row discard-row-${POSITIONS[idx]}`}>
+                  <div className="central-discard-name">{player.name}</div>
+                  <div className="central-discard-tiles">
+                    {(player.discards ?? []).slice(-18).map(tile => (
+                      <Tile key={tile.id} tile={tile} small highlighted={gameState.lastDiscard?.id === tile.id} />
+                    ))}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 

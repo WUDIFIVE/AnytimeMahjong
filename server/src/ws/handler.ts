@@ -446,6 +446,8 @@ export function setupWebSocketHandler(
         executePong(player, gameState.pendingDiscard!, gameState);
         gameState.currentPlayerIndex = claim.playerIndex;
         gameState.turnCount++;
+        gameState.pendingClaims = [];
+        gameState.pendingDiscard = null;
 
         broadcast(info.roomId, {
           type: 'pong_executed',
@@ -486,6 +488,8 @@ export function setupWebSocketHandler(
         executeChi(player, gameState.pendingDiscard!, [tiles[0], tiles[1]], gameState);
         gameState.currentPlayerIndex = claim.playerIndex;
         gameState.turnCount++;
+        gameState.pendingClaims = [];
+        gameState.pendingDiscard = null;
 
         broadcast(info.roomId, {
           type: 'chi_executed',
@@ -519,6 +523,8 @@ export function setupWebSocketHandler(
         executeMingGang(player, gameState.pendingDiscard!, gameState);
         gameState.currentPlayerIndex = claim.playerIndex;
         gameState.turnCount++;
+        gameState.pendingClaims = [];
+        gameState.pendingDiscard = null;
 
         broadcast(info.roomId, {
           type: 'minggang_executed',
