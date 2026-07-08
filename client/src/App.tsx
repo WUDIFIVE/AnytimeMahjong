@@ -47,9 +47,9 @@ function App() {
             settings: payload.settings,
             hostId: payload.hostId,
           });
-          // Only set playerId once (from the server response to OUR action)
-          if (type === 'room_state' && payload.playerId) {
-            setPlayerId(payload.playerId);
+          // Only direct room_state carries this client's identity.
+          if (type === 'room_state' && (payload.selfPlayerId || payload.playerId)) {
+            setPlayerId(payload.selfPlayerId || payload.playerId);
           }
         }
         break;
@@ -65,6 +65,9 @@ function App() {
       case 'angang_executed':
       case 'jiagang_executed':
         if (payload.gameState) {
+          if (payload.selfPlayerId || payload.playerId) {
+            setPlayerId(payload.selfPlayerId || payload.playerId);
+          }
           setGameState(payload.gameState);
           setView('game');
         } else if (payload.roomId && payload.players) {

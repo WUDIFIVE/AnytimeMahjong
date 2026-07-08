@@ -63,6 +63,15 @@ export function setupWebSocketHandler(
     }
   }
 
+  function broadcastExcept(roomId: string, excludedWs: WebSocket, message: any): void {
+    const data = JSON.stringify(message);
+    for (const [ws, info] of clients) {
+      if (ws !== excludedWs && info.roomId === roomId && ws.readyState === WebSocket.OPEN) {
+        ws.send(data);
+      }
+    }
+  }
+
   function sendToPlayer(playerId: string, roomId: string, message: any): void {
     const data = JSON.stringify(message);
     for (const [ws, info] of clients) {
@@ -268,6 +277,7 @@ export function setupWebSocketHandler(
           type: 'room_state',
           roomId: room.id,
           playerId: player.id,
+          selfPlayerId: player.id,
           players: room.players.map(serializePlayer),
           settings: room.settings,
           hostId: room.hostId,
@@ -295,14 +305,15 @@ export function setupWebSocketHandler(
           type: 'room_state',
           roomId: r.id,
           playerId: player.id,
+          selfPlayerId: player.id,
           players: r.players.map(serializePlayer),
           settings: r.settings,
           hostId: r.hostId,
         }));
-        broadcast(roomId, {
+        broadcastExcept(roomId, ws, {
           type: 'player_join',
           roomId: r.id,
-          playerId: player.id,
+          joinedPlayerId: player.id,
           playerName: player.name,
           players: r.players.map(serializePlayer),
           settings: r.settings,
@@ -352,6 +363,8 @@ export function setupWebSocketHandler(
           });
           sendToPlayer(player.id, info.roomId, {
             type: 'game_start',
+            selfPlayerId: player.id,
+            playerId: player.id,
             gameState: playerView,
           });
         }
