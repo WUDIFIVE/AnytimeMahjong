@@ -42,10 +42,16 @@ const Settlement: React.FC<SettlementProps> = ({
       setShareStatus('正在生成结算长图...');
 
       const scale = Math.min(3, Math.max(2, window.devicePixelRatio || 2));
-      const width = 900;
+      const width = 960;
       const rowHeight = 54;
       const fanRows = isDraw ? 0 : Math.max(1, safeFans.length);
-      const height = 420 + ranking.length * rowHeight + safePayouts.length * 38 + fanRows * 34;
+      const handRows = isDraw ? 0 : 3 + Math.ceil(Math.max(sortedConcealed.length + (winningTile ? 1 : 0), 1) / 10);
+      const meldRows = isDraw || melds.length === 0 ? 0 : Math.ceil(melds.length / 2);
+      const payoutRows = Math.max(0, safePayouts.length);
+      const height = Math.max(
+        980,
+        360 + ranking.length * rowHeight + fanRows * 48 + payoutRows * 42 + handRows * 42 + meldRows * 44
+      );
       const canvas = document.createElement('canvas');
       canvas.width = width * scale;
       canvas.height = height * scale;
@@ -79,7 +85,7 @@ const Settlement: React.FC<SettlementProps> = ({
       ctx.arc(width / 2, 160, 330, 0, Math.PI * 2);
       ctx.fill();
 
-      roundedRect(50, 44, 800, height - 88, 28);
+      roundedRect(48, 44, width - 96, height - 88, 28);
       ctx.fillStyle = 'rgba(0,0,0,0.25)';
       ctx.fill();
       ctx.strokeStyle = 'rgba(240,192,64,0.38)';
@@ -91,7 +97,7 @@ const Settlement: React.FC<SettlementProps> = ({
       fillText(`${isDraw ? '无人胡牌' : winner?.name || '???'} · ${winTypeLabel} · ${winResult?.totalFan ?? 0} 番`, width / 2, 188, 22, '#e8d3a2', 800, 'center');
 
       let y = 238;
-      roundedRect(82, y, 736, 54 + ranking.length * rowHeight, 18);
+      roundedRect(82, y, width - 164, 54 + ranking.length * rowHeight, 18);
       ctx.fillStyle = 'rgba(255,255,255,0.07)';
       ctx.fill();
       fillText('房间累计积分排名', 110, y + 36, 22, '#f0c040', 900);
@@ -104,8 +110,8 @@ const Settlement: React.FC<SettlementProps> = ({
         }, 0);
         fillText(`#${item.rank}`, 112, y + 30, 21, '#f7ead0', 900);
         fillText(item.playerName, 180, y + 30, 21, item.playerId === playerId ? '#f0c040' : '#f7ead0', 800);
-        fillText(`${delta >= 0 ? '+' : ''}${delta}`, 620, y + 30, 21, delta >= 0 ? '#6ee08d' : '#ff8075', 900, 'right');
-        fillText(`${item.score} 分`, 790, y + 30, 21, '#f7ead0', 800, 'right');
+        fillText(`${delta >= 0 ? '+' : ''}${delta}`, width - 260, y + 30, 21, delta >= 0 ? '#6ee08d' : '#ff8075', 900, 'right');
+        fillText(`${item.score} 分`, width - 128, y + 30, 21, '#f7ead0', 800, 'right');
         y += rowHeight;
       });
 
@@ -113,13 +119,26 @@ const Settlement: React.FC<SettlementProps> = ({
         y += 24;
         fillText('牌墙已摸完，无人胡牌。本局不产生输赢积分。', width / 2, y + 34, 22, '#d9ccb0', 700, 'center');
       } else {
-        y += 26;
+        y += 28;
+        roundedRect(82, y, width - 164, 132 + meldRows * 42, 18);
+        ctx.fillStyle = 'rgba(255,255,255,0.06)';
+        ctx.fill();
+        fillText('胡牌牌型', 110, y + 36, 22, '#f0c040', 900);
+        fillText(`完整手牌：${sortedHand.map(formatTile).join('、') || '暂无'}`, 110, y + 74, 18, '#f7ead0', 700);
+        fillText(`暗手：${sortedConcealed.map(formatTile).join('、') || '暂无'}${winningTile ? `　胡牌张：${formatTile(winningTile)}` : ''}`, 110, y + 108, 17, '#d9ccb0', 650);
+        y += 134;
+        if (melds.length > 0) {
+          fillText(`副露：${melds.map(m => m.tiles.map(formatTile).join('')).join('　/　')}`, 110, y, 17, '#d9ccb0', 650);
+          y += 42 * meldRows;
+        }
+        y += 24;
         fillText('番型明细', 110, y, 22, '#f0c040', 900);
         y += 34;
         (safeFans.length ? safeFans : [{ icon: '•', name: '无番型数据', fanValue: 0, description: '' }]).forEach(fan => {
           fillText(`${fan.icon || '•'} ${fan.name}`, 120, y, 19, '#f7ead0', 800);
-          fillText(`${fan.fanValue} 番`, 770, y, 19, '#f0c040', 900, 'right');
-          y += 34;
+          fillText(`${fan.fanValue} 番`, width - 160, y, 19, '#f0c040', 900, 'right');
+          if (fan.description) fillText(fan.description.slice(0, 34), 300, y, 15, '#cfc2a2', 600);
+          y += 44;
         });
       }
 
@@ -131,7 +150,7 @@ const Settlement: React.FC<SettlementProps> = ({
           const fromPlayer = safePlayers.find(p => p.id === payout.fromId);
           const toPlayer = safePlayers.find(p => p.id === payout.toId);
           fillText(`${fromPlayer?.name || '???'} → ${toPlayer?.name || '???'}`, 120, y, 18, '#e9dec7', 700);
-          fillText(`${payout.amount} 分`, 770, y, 18, '#f7ead0', 800, 'right');
+          fillText(`${payout.amount} 分`, width - 160, y, 18, '#f7ead0', 800, 'right');
           y += 38;
         });
       }

@@ -125,6 +125,19 @@ function computeTenpaiHints(player?: { hand?: TileType[]; melds?: { tiles: TileT
   return hints;
 }
 
+
+function claimTypeLabel(type: ClaimType): string {
+  switch (type) {
+    case 'pong': return '碰';
+    case 'chi': return '吃';
+    case 'ming-gang': return '明杠';
+    case 'an-gang': return '暗杠';
+    case 'jia-gang': return '加杠';
+    case 'hu': return '胡';
+    default: return type;
+  }
+}
+
 const GameBoard: React.FC<GameBoardProps> = ({
   gameState,
   playerId,
@@ -267,52 +280,60 @@ const GameBoard: React.FC<GameBoardProps> = ({
 
           {/* Center Area */}
           <div className="table-center">
-            <div className="center-status-row">
-              <div className="wall-indicator compact">
-                <div className="wall-icon">🀄</div>
-                <div className="wall-count">{gameState.wallCount}</div>
-                <div className="wall-label">剩余</div>
+            <div className="table-dashboard">
+              <div className="dashboard-main-row">
+                <div className="wall-indicator compact">
+                  <div className="wall-icon">🀄</div>
+                  <div className="wall-count">{gameState.wallCount}</div>
+                  <div className="wall-label">剩余</div>
+                </div>
+
+                <div className="turn-indicator">
+                  <div className="turn-dot" />
+                  {(() => {
+                    const turnPlayer = gameState.players[gameState.currentPlayerIndex];
+                    return turnPlayer ? (
+                      <span className="turn-name">轮到 {turnPlayer.name}</span>
+                    ) : null;
+                  })()}
+                </div>
+
+                {gameState.lastDiscard && (
+                  <div className="last-discard-callout">
+                    <span className="last-discard-label">刚出</span>
+                    <strong>{lastDiscardPlayerName}</strong>
+                    <Tile tile={gameState.lastDiscard} small highlighted />
+                    <span>{formatTile(gameState.lastDiscard)}</span>
+                  </div>
+                )}
               </div>
 
-              <div className="turn-indicator">
-                <div className="turn-dot" />
-                {(() => {
-                  const turnPlayer = gameState.players[gameState.currentPlayerIndex];
-                  return turnPlayer ? (
-                    <span className="turn-name">{turnPlayer.name} 的回合</span>
-                  ) : null;
-                })()}
-              </div>
+              {(respondingTile || tenpaiHints.length > 0) && (
+                <div className="dashboard-sub-row">
+                  {respondingTile && (
+                    <div className="claim-target-hint">
+                      <span>响应</span>
+                      <Tile tile={respondingTile} small highlighted />
+                      <strong>{formatTile(respondingTile)}</strong>
+                      <span>{pendingActionTypes.map(claimTypeLabel).join(' / ')}</span>
+                    </div>
+                  )}
 
-              {gameState.lastDiscard && (
-                <div className="last-discard-callout">
-                  <span className="last-discard-label">刚出</span>
-                  <strong>{lastDiscardPlayerName}</strong>
-                  <Tile tile={gameState.lastDiscard} small highlighted />
-                  <span>{formatTile(gameState.lastDiscard)}</span>
+                  {tenpaiHints.length > 0 && (
+                    <div className="tenpai-hint" title="当前手牌已听牌">
+                      <span className="tenpai-title">听牌</span>
+                      <div className="tenpai-list">
+                        {tenpaiHints.map(hint => (
+                          <span className="tenpai-item" key={tileKey(hint.tile)}>
+                            {formatTile(hint.tile)} · {hint.label}{hint.fan}番
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
-
-            {respondingTile && (
-              <div className="claim-target-hint">
-                <span>响应牌：</span>
-                <Tile tile={respondingTile} small highlighted />
-                <strong>{formatTile(respondingTile)}</strong>
-                <span>可操作：{pendingActionTypes.join(' / ')}</span>
-              </div>
-            )}
-
-            {tenpaiHints.length > 0 && (
-              <div className="tenpai-hint" title="当前手牌已听牌">
-                <span className="tenpai-title">听牌</span>
-                {tenpaiHints.map(hint => (
-                  <span className="tenpai-item" key={tileKey(hint.tile)}>
-                    {formatTile(hint.tile)} · {hint.label}{hint.fan}番
-                  </span>
-                ))}
-              </div>
-            )}
 
             <div className="central-discards" aria-label="中央弃牌区">
               {orderedPlayers.map((player, idx) => (
