@@ -48,6 +48,7 @@ export class RoomManager {
       discards: [],
       isDealer: true,
       windPosition: 'east',
+      score: 0,
     };
 
     const settings: GameSettings = {
@@ -100,6 +101,7 @@ export class RoomManager {
       discards: [],
       isDealer: seatIndex === 0,
       windPosition: WIND_POSITIONS[seatIndex],
+      score: 0,
     };
 
     room.players.push(player);
@@ -170,6 +172,7 @@ export class RoomManager {
         discards: [],
         isDealer: seatIndex === 0,
         windPosition: WIND_POSITIONS[seatIndex],
+        score: 0,
       });
     }
 

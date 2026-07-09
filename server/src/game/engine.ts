@@ -37,6 +37,7 @@ export interface Player {
   discards: Tile[];
   isDealer: boolean;
   windPosition: WindPosition;
+  score: number;
 }
 
 export type GamePhase = 'waiting' | 'playing' | 'finished';
@@ -734,7 +735,7 @@ export function serializePlayer(player: Player): any {
     discards: player.discards.map(serializeTile),
     isDealer: player.isDealer,
     isCurrentTurn: false,
-    score: 0,
+    score: player.score ?? 0,
   };
 }
 

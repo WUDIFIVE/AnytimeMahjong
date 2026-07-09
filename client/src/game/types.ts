@@ -94,16 +94,28 @@ export interface WinResult {
   winnerId: string;
   loserId?: string;          // dianpao player, if applicable
   winType: 'zimo' | 'dianpao';
+  concealedHand?: Tile[];
+  winningTile?: Tile | null;
   winningHand: Tile[];
+  melds?: Meld[];
   fans: FanInfo[];
   totalFan: number;
   payouts: PayoutInfo[];
+  ranking?: RankingInfo[];
 }
 
 export interface PayoutInfo {
   fromId: string;
   toId: string;
   amount: number;
+}
+
+export interface RankingInfo {
+  rank: number;
+  playerId: string;
+  playerName: string;
+  score: number;
+  isWinner?: boolean;
 }
 
 // === WS Message Types ===

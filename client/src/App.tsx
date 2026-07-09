@@ -137,7 +137,7 @@ function App() {
 
   const handleNewGame = useCallback(() => {
     handleSend('start_game', {});
-    setView('lobby');
+    setView('game');
   }, [handleSend]);
 
   const handleBackToLobby = useCallback(() => {
@@ -204,7 +204,6 @@ function App() {
           players={gameState.players}
           playerId={playerId}
           onNewGame={handleNewGame}
-          onBackToLobby={handleBackToLobby}
         />
       )}
 

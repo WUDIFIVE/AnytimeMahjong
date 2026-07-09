@@ -105,8 +105,10 @@ export function setupWebSocketHandler(
     isZimo: boolean,
     winningTile: Tile | null
   ): any {
-    const winningHand = [...winner.hand.map(serializeTile)];
-    if (winningTile) winningHand.push(serializeTile(winningTile));
+    const concealedHand = winner.hand.map(serializeTile);
+    const serializedWinningTile = winningTile ? serializeTile(winningTile) : null;
+    const winningHand = [...concealedHand];
+    if (serializedWinningTile) winningHand.push(serializedWinningTile);
 
     const loser = !isZimo ? gameState.players[gameState.currentPlayerIndex] : undefined;
     const payers = isZimo
@@ -114,12 +116,34 @@ export function setupWebSocketHandler(
       : loser && loser.id !== winner.id
         ? [loser]
         : [];
+    const amount = Math.max(1, result.totalValue) * 100;
+    const payouts = payers.map(p => ({ fromId: p.id, toId: winner.id, amount }));
+
+    for (const payout of payouts) {
+      const from = gameState.players.find(p => p.id === payout.fromId);
+      const to = gameState.players.find(p => p.id === payout.toId);
+      if (from) from.score = (from.score ?? 0) - payout.amount;
+      if (to) to.score = (to.score ?? 0) + payout.amount;
+    }
+
+    const ranking = [...gameState.players]
+      .sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
+      .map((player, index) => ({
+        rank: index + 1,
+        playerId: player.id,
+        playerName: player.name,
+        score: player.score ?? 0,
+        isWinner: player.id === winner.id,
+      }));
 
     return {
       winnerId: winner.id,
       loserId: loser?.id,
       winType: isZimo ? 'zimo' : 'dianpao',
+      concealedHand,
+      winningTile: serializedWinningTile,
       winningHand,
+      melds: winner.melds.map(serializeMeld),
       fans: result.fans.map(fan => ({
         type: String(fan.type),
         name: String(fan.type),
@@ -128,11 +152,8 @@ export function setupWebSocketHandler(
         icon: fan.type === '自摸' ? '🀄' : fan.type === '清一色' ? '🎨' : fan.type === '碰碰胡' ? '💥' : '✨',
       })),
       totalFan: result.totalValue,
-      payouts: payers.map(p => ({
-        fromId: p.id,
-        toId: winner.id,
-        amount: Math.max(1, result.totalValue) * 100,
-      })),
+      payouts,
+      ranking,
     };
   }
 
