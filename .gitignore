@@ -1,3 +1,28 @@
 node_modules/
 dist/
 .DS_Store
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+*.cert
+id_rsa*
+id_ed25519*
+
+# Logs / runtime
+logs/
+*.log
+pm2*.log
+
+# Build outputs / caches
+.cache/
+.vite/
+coverage/
+
+# OS / editor
+.vscode/
+.idea/
