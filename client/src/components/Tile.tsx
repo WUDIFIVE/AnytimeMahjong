@@ -13,6 +13,14 @@ interface TileProps {
 
 const NUMBER_CHARS = ['', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
 
+function formatClassicCorner(tile: TileType): string {
+  if (!tile) return '';
+  if (tile.suit === 'wan') return `${NUMBER_CHARS[tile.value] || tile.value}萬`;
+  if (tile.suit === 'tiao') return `${tile.value}索`;
+  if (tile.suit === 'tong') return `${tile.value}筒`;
+  return tileDisplayChar(tile);
+}
+
 function renderDots(value: number) {
   return (
     <div className={`tile-art dots dots-${value}`}>
@@ -37,9 +45,9 @@ function renderBamboo(value: number) {
 
 function renderWan(value: number) {
   return (
-    <div className="tile-art wan-art">
+    <div className="tile-art wan-art classic-wan">
       <span className="wan-number">{NUMBER_CHARS[value] || value}</span>
-      <span className="wan-cloud">万</span>
+      <span className="wan-cloud">萬</span>
     </div>
   );
 }
@@ -124,10 +132,10 @@ const Tile: React.FC<TileProps> = ({
       style={{ ['--tile-accent' as string]: color }}
       aria-label={tileDisplayChar(tile)}
     >
-      <div className="felt-grain" />
-      <div className="tile-corner corner-top">{tileDisplayChar(tile)}</div>
+      <div className="tile-face-plate" />
+      <div className="tile-corner corner-top">{formatClassicCorner(tile)}</div>
       <div className="tile-content">{art}</div>
-      <div className="tile-corner corner-bottom">{tileDisplayChar(tile)}</div>
+      <div className="tile-corner corner-bottom">{formatClassicCorner(tile)}</div>
       {selected && <div className="tile-selected-indicator" />}
     </div>
   );

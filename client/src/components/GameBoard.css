@@ -490,3 +490,91 @@
     border-radius: 18px;
   }
 }
+
+/* Stable discard pond: no transforms/negative margins, so discards never pile into hand area */
+.central-discards {
+  width: min(760px, 100%);
+  min-height: 300px;
+  max-height: 42vh;
+  overflow: hidden;
+  grid-template-columns: 160px minmax(240px, 1fr) 160px;
+  grid-template-rows: 78px 1fr 78px;
+  align-items: center;
+  justify-items: center;
+}
+
+.central-discard-row {
+  min-height: 64px;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.central-discard-tiles {
+  display: grid;
+  grid-template-columns: repeat(6, 32px);
+  grid-auto-rows: 44px;
+  gap: 3px;
+  max-width: none;
+  max-height: 92px;
+  overflow: hidden;
+  align-items: start;
+  justify-content: center;
+}
+
+.discard-row-top .central-discard-tiles,
+.discard-row-bottom .central-discard-tiles {
+  grid-template-columns: repeat(10, 32px);
+  max-height: 44px;
+}
+
+.discard-row-left .central-discard-tiles,
+.discard-row-right .central-discard-tiles {
+  grid-template-columns: repeat(4, 32px);
+  max-width: 140px;
+  max-height: 140px;
+}
+
+.central-discard-tiles .mahjong-tile.tile-small {
+  width: 30px;
+  height: 40px;
+  border-radius: 7px;
+  transform: none !important;
+  margin: 0 !important;
+  box-shadow:
+    0 3px 0 #b88452,
+    0 4px 6px rgba(38, 20, 8, 0.24),
+    inset 0 1px 1px rgba(255,255,255,0.72),
+    inset 0 -2px 4px rgba(112,68,22,0.14);
+}
+
+.central-discard-tiles .tile-corner {
+  display: none;
+}
+
+.central-discard-tiles .tile-content {
+  transform: scale(0.78);
+}
+
+@media (max-width: 768px) {
+  .central-discards {
+    min-height: 230px;
+    grid-template-columns: 92px minmax(150px, 1fr) 92px;
+    grid-template-rows: 58px 1fr 58px;
+  }
+  .discard-row-top .central-discard-tiles,
+  .discard-row-bottom .central-discard-tiles {
+    grid-template-columns: repeat(7, 27px);
+  }
+  .discard-row-left .central-discard-tiles,
+  .discard-row-right .central-discard-tiles {
+    grid-template-columns: repeat(3, 27px);
+  }
+  .central-discard-tiles {
+    grid-template-columns: repeat(5, 27px);
+    grid-auto-rows: 36px;
+  }
+  .central-discard-tiles .mahjong-tile.tile-small {
+    width: 25px;
+    height: 34px;
+  }
+}

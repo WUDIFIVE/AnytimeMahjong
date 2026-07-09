@@ -183,9 +183,10 @@ export function getTileSuitSymbol(suit: Suit): string {
 }
 
 // Sort tiles by suit then value
-export function sortTiles(tiles: Tile[]): Tile[] {
+export function sortTiles(tiles: Tile[] = []): Tile[] {
+  const safeTiles = Array.isArray(tiles) ? tiles.filter(Boolean) : [];
   const suitOrder: Record<Suit, number> = { wan: 0, tiao: 1, tong: 2, feng: 3, jian: 4 };
-  return [...tiles].sort((a, b) => {
+  return [...safeTiles].sort((a, b) => {
     if (suitOrder[a.suit] !== suitOrder[b.suit]) {
       return suitOrder[a.suit] - suitOrder[b.suit];
     }

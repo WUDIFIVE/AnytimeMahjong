@@ -97,6 +97,45 @@ export function setupWebSocketHandler(
     return room?.gameState ?? null;
   }
 
+
+  function buildClientWinResult(
+    gameState: GameState,
+    winner: Player,
+    result: { fans: { type: string; value: number }[]; totalValue: number },
+    isZimo: boolean,
+    winningTile: Tile | null
+  ): any {
+    const winningHand = [...winner.hand.map(serializeTile)];
+    if (winningTile) winningHand.push(serializeTile(winningTile));
+
+    const loser = !isZimo ? gameState.players[gameState.currentPlayerIndex] : undefined;
+    const payers = isZimo
+      ? gameState.players.filter(p => p.id !== winner.id)
+      : loser && loser.id !== winner.id
+        ? [loser]
+        : [];
+
+    return {
+      winnerId: winner.id,
+      loserId: loser?.id,
+      winType: isZimo ? 'zimo' : 'dianpao',
+      winningHand,
+      fans: result.fans.map(fan => ({
+        type: String(fan.type),
+        name: String(fan.type),
+        fanValue: fan.value,
+        description: `${fan.type} ${fan.value}番`,
+        icon: fan.type === '自摸' ? '🀄' : fan.type === '清一色' ? '🎨' : fan.type === '碰碰胡' ? '💥' : '✨',
+      })),
+      totalFan: result.totalValue,
+      payouts: payers.map(p => ({
+        fromId: p.id,
+        toId: winner.id,
+        amount: Math.max(1, result.totalValue) * 100,
+      })),
+    };
+  }
+
   function clearAIClaimTimeout(roomId: string): void {
     const timeout = aiClaimTimeouts.get(roomId);
     if (!timeout) return;
@@ -303,13 +342,14 @@ export function setupWebSocketHandler(
       gameState.phase = 'finished';
       gameState.pendingClaims = [];
       gameState.pendingDiscard = null;
+      const clientWinResult = buildClientWinResult(gameState, player, result, false, discard);
       broadcast(roomId, {
         type: 'game_over',
         winnerIndex: player.seatIndex,
         winnerName: player.name,
         isZimo: false,
-        winResult: result,
-        gameState: serializeGameState(gameState),
+        winResult: clientWinResult,
+        gameState: { ...serializeGameState(gameState), winResult: clientWinResult },
       });
       return true;
     }
@@ -445,15 +485,17 @@ export function setupWebSocketHandler(
 
       if (aiShouldWin(player.hand, player.melds, null, gameState.settings)) {
         const result = checkWin(player.hand, player.melds, null, true, gameState.settings);
+        if (!result) return;
         gameState.winnerIndex = gameState.currentPlayerIndex;
         gameState.phase = 'finished';
+        const clientWinResult = buildClientWinResult(gameState, player, result, true, null);
         broadcast(roomId, {
           type: 'game_over',
           winnerIndex: gameState.currentPlayerIndex,
           winnerName: player.name,
           isZimo: true,
-          winResult: result,
-          gameState: serializeGameState(gameState),
+          winResult: clientWinResult,
+          gameState: { ...serializeGameState(gameState), winResult: clientWinResult },
         });
         return;
       }
@@ -465,9 +507,10 @@ export function setupWebSocketHandler(
           .map(t => t.id);
         executeAnGang(player, tileIds.map((id: number | string) => Number(id)), gameState);
         broadcast(roomId, {
-          type: 'angang',
+          type: 'angang_executed',
           playerIndex: gameState.currentPlayerIndex,
           playerName: player.name,
+          replacementTile: gameState.lastDraw ? serializeTile(gameState.lastDraw) : null,
           gameState: serializeGameState(gameState),
         });
         handleAITurn(gameState, roomId);
@@ -478,9 +521,10 @@ export function setupWebSocketHandler(
       if (drawnTile && shouldJiaGang(player, drawnTile)) {
         executeJiaGang(player, drawnTile, gameState);
         broadcast(roomId, {
-          type: 'jiagang',
+          type: 'jiagang_executed',
           playerIndex: gameState.currentPlayerIndex,
           playerName: player.name,
+          replacementTile: gameState.lastDraw ? serializeTile(gameState.lastDraw) : null,
           gameState: serializeGameState(gameState),
         });
         handleAITurn(gameState, roomId);
@@ -854,6 +898,7 @@ export function setupWebSocketHandler(
           type: 'minggang_executed',
           playerIndex: claim.playerIndex,
           playerName: player.name,
+          replacementTile: gameState.lastDraw ? serializeTile(gameState.lastDraw) : null,
           gameState: serializeGameState(gameState),
         });
 
@@ -899,6 +944,7 @@ export function setupWebSocketHandler(
           type: 'angang_executed',
           playerIndex: gameState.currentPlayerIndex,
           playerName: player.name,
+          replacementTile: gameState.lastDraw ? serializeTile(gameState.lastDraw) : null,
           gameState: serializeGameState(gameState),
         });
 
@@ -933,6 +979,7 @@ export function setupWebSocketHandler(
           type: 'jiagang_executed',
           playerIndex: gameState.currentPlayerIndex,
           playerName: player.name,
+          replacementTile: gameState.lastDraw ? serializeTile(gameState.lastDraw) : null,
           gameState: serializeGameState(gameState),
         });
 
@@ -1011,13 +1058,14 @@ export function setupWebSocketHandler(
         gameState.phase = 'finished';
         clearAIClaimTimeout(info.roomId);
 
+        const clientWinResult = buildClientWinResult(gameState, player, result, isZimo, newTile);
         broadcast(info.roomId, {
           type: 'game_over',
           winnerIndex: player.seatIndex,
           winnerName: player.name,
           isZimo,
-          winResult: result,
-          gameState: serializeGameState(gameState),
+          winResult: clientWinResult,
+          gameState: { ...serializeGameState(gameState), winResult: clientWinResult },
         });
         return;
       }

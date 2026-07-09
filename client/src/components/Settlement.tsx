@@ -18,11 +18,15 @@ const Settlement: React.FC<SettlementProps> = ({
   onNewGame,
   onBackToLobby,
 }) => {
-  const winner = players.find(p => p.id === winResult.winnerId);
-  const isWinner = winResult.winnerId === playerId;
-  const sortedHand = sortTiles(winResult.winningHand);
+  const safePlayers = players ?? [];
+  const safeFans = winResult?.fans ?? [];
+  const safePayouts = winResult?.payouts ?? [];
+  const winningHand = winResult?.winningHand ?? [];
+  const winner = safePlayers.find(p => p.id === winResult?.winnerId);
+  const isWinner = winResult?.winnerId === playerId;
+  const sortedHand = sortTiles(winningHand);
 
-  const winTypeLabel = winResult.winType === 'zimo' ? '自摸' : '点炮';
+  const winTypeLabel = winResult?.winType === 'zimo' ? '自摸' : '点炮';
 
   return (
     <div className="settlement-overlay">
@@ -36,7 +40,7 @@ const Settlement: React.FC<SettlementProps> = ({
           <div className="winner-detail">
             <span className="winner-name">{winner?.name || '???'}</span>
             <span className="win-type-badge">{winTypeLabel}</span>
-            <span className="total-fan">{winResult.totalFan} 番</span>
+            <span className="total-fan">{winResult?.totalFan ?? 0} 番</span>
           </div>
         </div>
 
@@ -44,9 +48,11 @@ const Settlement: React.FC<SettlementProps> = ({
         <div className="settlement-section">
           <h3>胡牌手牌</h3>
           <div className="winning-hand-display">
-            {sortedHand.map((tile) => (
+            {sortedHand.length > 0 ? sortedHand.map((tile) => (
               <Tile key={tile.id} tile={tile} />
-            ))}
+            )) : (
+              <div className="missing-hand-note">胡牌手牌数据缺失，本局结果仍已记录。</div>
+            )}
           </div>
         </div>
 
@@ -63,7 +69,7 @@ const Settlement: React.FC<SettlementProps> = ({
               </tr>
             </thead>
             <tbody>
-              {winResult.fans.map((fan, i) => (
+              {safeFans.map((fan, i) => (
                 <tr key={i}>
                   <td className="fan-icon-cell">{fan.icon}</td>
                   <td className="fan-name-cell">{fan.name}</td>
@@ -75,7 +81,7 @@ const Settlement: React.FC<SettlementProps> = ({
             <tfoot>
               <tr className="total-row">
                 <td colSpan={2}>合计</td>
-                <td className="fan-value-cell">{winResult.totalFan} 番</td>
+                <td className="fan-value-cell">{winResult?.totalFan ?? 0} 番</td>
                 <td></td>
               </tr>
             </tfoot>
@@ -83,13 +89,13 @@ const Settlement: React.FC<SettlementProps> = ({
         </div>
 
         {/* Payouts */}
-        {winResult.payouts.length > 0 && (
+        {safePayouts.length > 0 && (
           <div className="settlement-section">
             <h3>结算</h3>
             <div className="payouts-list">
-              {winResult.payouts.map((payout, i) => {
-                const fromPlayer = players.find(p => p.id === payout.fromId);
-                const toPlayer = players.find(p => p.id === payout.toId);
+              {safePayouts.map((payout, i) => {
+                const fromPlayer = safePlayers.find(p => p.id === payout.fromId);
+                const toPlayer = safePlayers.find(p => p.id === payout.toId);
                 const isInvolved = payout.fromId === playerId || payout.toId === playerId;
                 return (
                   <div key={i} className={`payout-item ${isInvolved ? 'involved' : ''}`}>
