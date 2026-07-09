@@ -53,6 +53,16 @@ export function setupWebSocketHandler(
   roomManager: RoomManager
 ): void {
   const clients = new Map<WebSocket, ClientInfo>();
+  const aiClaimTimeouts = new Map<string, ReturnType<typeof setTimeout>>();
+
+  const CLAIM_PRIORITY: Record<Claim['type'], number> = {
+    win: 4,
+    minggang: 3,
+    pong: 2,
+    chi: 1,
+    angang: 0,
+    jiagang: 0,
+  };
 
   function broadcast(roomId: string, message: any): void {
     const data = JSON.stringify(message);
@@ -85,6 +95,13 @@ export function setupWebSocketHandler(
   function getGameState(roomId: string): GameState | null {
     const room = roomManager.getRoom(roomId);
     return room?.gameState ?? null;
+  }
+
+  function clearAIClaimTimeout(roomId: string): void {
+    const timeout = aiClaimTimeouts.get(roomId);
+    if (!timeout) return;
+    clearTimeout(timeout);
+    aiClaimTimeouts.delete(roomId);
   }
 
   function computeClaims(gameState: GameState, discardTile: Tile): void {
@@ -130,6 +147,205 @@ export function setupWebSocketHandler(
     gameState.currentPlayerIndex = (gameState.currentPlayerIndex + 1) % gameState.players.length;
     gameState.turnCount++;
     gameState.lastDraw = null;
+  }
+
+  function aiAcceptsClaim(gameState: GameState, claim: Claim): boolean {
+    const player = gameState.players[claim.playerIndex];
+    const discard = gameState.pendingDiscard;
+    if (!player || !player.isAI || !discard) return false;
+
+    if (claim.type === 'win') return true;
+    if (claim.type === 'minggang') return shouldKong(player.hand, discard);
+    if (claim.type === 'pong') return shouldPong(player.hand, discard, gameState);
+    if (claim.type === 'chi') return shouldChi(player.hand, discard);
+    return false;
+  }
+
+  function handleAIDiscard(gameState: GameState, roomId: string, delayMs = 700): void {
+    const player = gameState.players[gameState.currentPlayerIndex];
+    if (!player || !player.isAI || gameState.pendingClaims.length > 0) return;
+
+    setTimeout(() => {
+      if (gameState.phase !== 'playing') return;
+      const currentPlayer = gameState.players[gameState.currentPlayerIndex];
+      if (!currentPlayer || !currentPlayer.isAI || currentPlayer.hand.length === 0 || gameState.pendingClaims.length > 0) return;
+
+      const discardIdx = evaluateDiscard(currentPlayer.hand, currentPlayer.melds, gameState, gameState.currentPlayerIndex);
+      const discardTile = currentPlayer.hand[discardIdx];
+      currentPlayer.hand.splice(discardIdx, 1);
+      currentPlayer.discards.push(discardTile);
+
+      broadcast(roomId, {
+        type: 'discard',
+        playerIndex: gameState.currentPlayerIndex,
+        playerName: currentPlayer.name,
+        tile: serializeTile(discardTile),
+        gameState: serializeGameState(gameState),
+      });
+
+      computeClaims(gameState, discardTile);
+      if (resolveAIClaims(gameState, roomId)) return;
+
+      if (gameState.pendingClaims.length > 0) {
+        broadcast(roomId, {
+          type: 'pending_claims',
+          claims: gameState.pendingClaims,
+          gameState: serializeGameState(gameState),
+        });
+        scheduleAIClaimTimeout(roomId, gameState);
+      } else {
+        advanceTurn(gameState);
+        clearAIClaimTimeout(roomId);
+        broadcast(roomId, {
+          type: 'turn_change',
+          gameState: serializeGameState(gameState),
+        });
+        checkAndHandleAI(gameState, roomId);
+      }
+    }, delayMs);
+  }
+
+  function executeClaim(gameState: GameState, roomId: string, claim: Claim, source: 'ai' | 'human'): boolean {
+    const player = gameState.players[claim.playerIndex];
+    const discard = gameState.pendingDiscard;
+    if (!player || !discard) return false;
+
+    if (claim.type === 'win') {
+      const result = checkWin(player.hand, player.melds, discard, false, gameState.settings);
+      if (!result) return false;
+      clearAIClaimTimeout(roomId);
+      gameState.winnerIndex = player.seatIndex;
+      gameState.phase = 'finished';
+      gameState.pendingClaims = [];
+      gameState.pendingDiscard = null;
+      broadcast(roomId, {
+        type: 'game_over',
+        winnerIndex: player.seatIndex,
+        winnerName: player.name,
+        isZimo: false,
+        winResult: result,
+        gameState: serializeGameState(gameState),
+      });
+      return true;
+    }
+
+    if (claim.type === 'minggang') {
+      executeMingGang(player, discard, gameState);
+      gameState.currentPlayerIndex = claim.playerIndex;
+      gameState.turnCount++;
+      clearAIClaimTimeout(roomId);
+      broadcast(roomId, {
+        type: 'minggang_executed',
+        playerIndex: claim.playerIndex,
+        playerName: player.name,
+        gameState: serializeGameState(gameState),
+      });
+      if (source === 'ai') handleAIDiscard(gameState, roomId);
+      else checkAndHandleAI(gameState, roomId);
+      return true;
+    }
+
+    if (claim.type === 'pong') {
+      executePong(player, discard, gameState);
+      gameState.currentPlayerIndex = claim.playerIndex;
+      gameState.turnCount++;
+      clearAIClaimTimeout(roomId);
+      broadcast(roomId, {
+        type: 'pong_executed',
+        playerIndex: claim.playerIndex,
+        playerName: player.name,
+        gameState: serializeGameState(gameState),
+      });
+      if (source === 'ai') handleAIDiscard(gameState, roomId);
+      else checkAndHandleAI(gameState, roomId);
+      return true;
+    }
+
+    if (claim.type === 'chi' && claim.chiOptions && claim.chiOptions.length > 0) {
+      const tiles = claim.chiOptions[0];
+      executeChi(player, discard, [tiles[0], tiles[1]], gameState);
+      gameState.currentPlayerIndex = claim.playerIndex;
+      gameState.turnCount++;
+      clearAIClaimTimeout(roomId);
+      broadcast(roomId, {
+        type: 'chi_executed',
+        playerIndex: claim.playerIndex,
+        playerName: player.name,
+        gameState: serializeGameState(gameState),
+      });
+      if (source === 'ai') handleAIDiscard(gameState, roomId);
+      else checkAndHandleAI(gameState, roomId);
+      return true;
+    }
+
+    return false;
+  }
+
+  function resolveAIClaims(gameState: GameState, roomId: string): boolean {
+    if (gameState.phase !== 'playing' || gameState.pendingClaims.length === 0 || !gameState.pendingDiscard) return false;
+
+    while (gameState.pendingClaims.length > 0) {
+      const humanClaims = gameState.pendingClaims.filter(c => !gameState.players[c.playerIndex]?.isAI);
+      const maxHumanPriority = humanClaims.reduce((max, c) => Math.max(max, CLAIM_PRIORITY[c.type] ?? 0), 0);
+      const executableAIClaims = gameState.pendingClaims
+        .filter(c => gameState.players[c.playerIndex]?.isAI)
+        .filter(c => humanClaims.length === 0 || (CLAIM_PRIORITY[c.type] ?? 0) > maxHumanPriority)
+        .sort((a, b) => (CLAIM_PRIORITY[b.type] ?? 0) - (CLAIM_PRIORITY[a.type] ?? 0));
+
+      if (executableAIClaims.length === 0) break;
+
+      const accepted = executableAIClaims.find(c => aiAcceptsClaim(gameState, c));
+      if (accepted) {
+        executeClaim(gameState, roomId, accepted, 'ai');
+        return true;
+      }
+
+      const executableSet = new Set(executableAIClaims);
+      gameState.pendingClaims = gameState.pendingClaims.filter(c => !executableSet.has(c));
+    }
+
+    if (gameState.pendingClaims.length === 0) {
+      advanceTurn(gameState);
+      clearAIClaimTimeout(roomId);
+      broadcast(roomId, {
+        type: 'turn_change',
+        gameState: serializeGameState(gameState),
+      });
+      checkAndHandleAI(gameState, roomId);
+      return true;
+    }
+
+    return false;
+  }
+
+  function scheduleAIClaimTimeout(roomId: string, gameState: GameState): void {
+    clearAIClaimTimeout(roomId);
+    const hasAIClaim = gameState.pendingClaims.some(c => gameState.players[c.playerIndex]?.isAI);
+    if (!hasAIClaim) return;
+
+    aiClaimTimeouts.set(roomId, setTimeout(() => {
+      const current = getGameState(roomId);
+      if (!current || current !== gameState || current.pendingClaims.length === 0) return;
+
+      const before = current.pendingClaims.length;
+      current.pendingClaims = current.pendingClaims.filter(c => !current.players[c.playerIndex]?.isAI);
+      if (current.pendingClaims.length !== before) {
+        broadcast(roomId, {
+          type: 'pending_claims',
+          claims: current.pendingClaims,
+          gameState: serializeGameState(current),
+        });
+      }
+
+      if (current.pendingClaims.length === 0) {
+        advanceTurn(current);
+        broadcast(roomId, {
+          type: 'turn_change',
+          gameState: serializeGameState(current),
+        });
+        checkAndHandleAI(current, roomId);
+      }
+    }, 20_000));
   }
 
   function handleAITurn(gameState: GameState, roomId: string): void {
@@ -211,6 +427,7 @@ export function setupWebSocketHandler(
       });
 
       computeClaims(gameState, discardTile);
+      if (resolveAIClaims(gameState, roomId)) return;
 
       if (gameState.pendingClaims.length > 0) {
         broadcast(roomId, {
@@ -218,8 +435,10 @@ export function setupWebSocketHandler(
           claims: gameState.pendingClaims,
           gameState: serializeGameState(gameState),
         });
+        scheduleAIClaimTimeout(roomId, gameState);
       } else {
         advanceTurn(gameState);
+        clearAIClaimTimeout(roomId);
         broadcast(roomId, {
           type: 'turn_change',
           gameState: serializeGameState(gameState),
@@ -407,6 +626,7 @@ export function setupWebSocketHandler(
         });
 
         computeClaims(gameState, discardTile);
+        if (resolveAIClaims(gameState, info.roomId)) return;
 
         if (gameState.pendingClaims.length > 0) {
           broadcast(info.roomId, {
@@ -414,8 +634,10 @@ export function setupWebSocketHandler(
             claims: gameState.pendingClaims,
             gameState: serializeGameState(gameState),
           });
+          scheduleAIClaimTimeout(info.roomId, gameState);
         } else {
           advanceTurn(gameState);
+          clearAIClaimTimeout(info.roomId);
           broadcast(info.roomId, {
             type: 'turn_change',
             gameState: serializeGameState(gameState),
@@ -448,6 +670,7 @@ export function setupWebSocketHandler(
         gameState.turnCount++;
         gameState.pendingClaims = [];
         gameState.pendingDiscard = null;
+        clearAIClaimTimeout(info.roomId);
 
         broadcast(info.roomId, {
           type: 'pong_executed',
@@ -490,6 +713,7 @@ export function setupWebSocketHandler(
         gameState.turnCount++;
         gameState.pendingClaims = [];
         gameState.pendingDiscard = null;
+        clearAIClaimTimeout(info.roomId);
 
         broadcast(info.roomId, {
           type: 'chi_executed',
@@ -525,6 +749,7 @@ export function setupWebSocketHandler(
         gameState.turnCount++;
         gameState.pendingClaims = [];
         gameState.pendingDiscard = null;
+        clearAIClaimTimeout(info.roomId);
 
         broadcast(info.roomId, {
           type: 'minggang_executed',
@@ -631,17 +856,20 @@ export function setupWebSocketHandler(
 
         if (gameState.pendingClaims.length === 0) {
           advanceTurn(gameState);
+          clearAIClaimTimeout(info.roomId);
           broadcast(info.roomId, {
             type: 'turn_change',
             gameState: serializeGameState(gameState),
           });
           checkAndHandleAI(gameState, info.roomId);
         } else {
+          if (resolveAIClaims(gameState, info.roomId)) return;
           broadcast(info.roomId, {
             type: 'pending_claims',
             claims: gameState.pendingClaims,
             gameState: serializeGameState(gameState),
           });
+          scheduleAIClaimTimeout(info.roomId, gameState);
         }
         return;
       }
@@ -682,6 +910,7 @@ export function setupWebSocketHandler(
 
         gameState.winnerIndex = player.seatIndex;
         gameState.phase = 'finished';
+        clearAIClaimTimeout(info.roomId);
 
         broadcast(info.roomId, {
           type: 'game_over',
