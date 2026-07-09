@@ -19,6 +19,14 @@ const WIND_NAMES: Record<string, string> = {
   north: '北',
 };
 
+function getMeldLabel(type: string): string {
+  return type === 'chi' ? '吃' :
+    type === 'peng' ? '碰' :
+    type === 'ming-gang' ? '明杠' :
+    type === 'an-gang' ? '暗杠' :
+    type === 'jia-gang' ? '加杠' : '';
+}
+
 const PlayerArea: React.FC<PlayerAreaProps> = ({
   player,
   isCurrentUser,
@@ -64,6 +72,18 @@ const PlayerArea: React.FC<PlayerAreaProps> = ({
       </div>
 
       <div className="player-cards">
+        {!isCurrentUser && (
+          <div className="opponent-hand-summary" title={`${player.name} 剩余 ${hand.length} 张手牌`}>
+            <span className="hand-count-number">{hand.length}</span>
+            <span className="hand-count-label">张手牌</span>
+            <span className="mini-tile-stack" aria-hidden="true">
+              {Array.from({ length: Math.min(6, Math.max(1, hand.length)) }).map((_, i) => (
+                <i key={i} />
+              ))}
+            </span>
+          </div>
+        )}
+
         {/* Melds Row */}
         {player.melds.length > 0 && (
           <div className="melds-row">
@@ -77,13 +97,7 @@ const PlayerArea: React.FC<PlayerAreaProps> = ({
                     highlighted={meld.type.includes('gang')}
                   />
                 ))}
-                <span className="meld-type-label">
-                  {meld.type === 'chi' ? '吃' :
-                   meld.type === 'peng' ? '碰' :
-                   meld.type === 'ming-gang' ? '明杠' :
-                   meld.type === 'an-gang' ? '暗杠' :
-                   meld.type === 'jia-gang' ? '加杠' : ''}
-                </span>
+                <span className="meld-type-label">{getMeldLabel(meld.type)}</span>
               </div>
             ))}
           </div>
@@ -101,17 +115,7 @@ const PlayerArea: React.FC<PlayerAreaProps> = ({
               />
             ))}
           </div>
-        ) : (
-          <div className="hand-row face-down-row">
-            {hand.map((_, i) => (
-              <Tile
-                key={`fd-${i}`}
-                tile={{ suit: 'wan', value: 1, id: `fd-${i}` }}
-                faceDown
-              />
-            ))}
-          </div>
-        )}
+        ) : null}
       </div>
     </div>
   );

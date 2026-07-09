@@ -25,13 +25,27 @@ function renderDots(value: number) {
   return (
     <div className={`tile-art dots dots-${value}`}>
       {Array.from({ length: Math.max(1, Math.min(9, value)) }).map((_, i) => (
-        <span key={i} className={`dot dot-${i}`} />
+        <span key={i} className={`dot dot-${i} ${i % 3 === 0 ? 'dot-red' : i % 3 === 1 ? 'dot-blue' : 'dot-green'}`}>
+          <i />
+        </span>
       ))}
     </div>
   );
 }
 
 function renderBamboo(value: number) {
+  if (value === 1) {
+    return (
+      <div className="tile-art bamboo bamboo-1">
+        <span className="bird-body" />
+        <span className="bird-wing wing-left" />
+        <span className="bird-wing wing-right" />
+        <span className="bird-head" />
+        <span className="bird-tail" />
+      </div>
+    );
+  }
+
   return (
     <div className={`tile-art bamboo bamboo-${value}`}>
       {Array.from({ length: Math.max(1, Math.min(9, value)) }).map((_, i) => (

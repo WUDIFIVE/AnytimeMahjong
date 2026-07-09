@@ -26,7 +26,7 @@ const Lobby: React.FC<LobbyProps> = ({ onSend, roomState, playerId }) => {
     password: '',
     maxPlayers: 4,
   });
-  const [copied, setCopied] = useState(false);
+  const [copyStatus, setCopyStatus] = useState<'idle' | 'success' | 'failed'>('idle');
 
   const isHost = roomState?.hostId === playerId;
 
@@ -56,17 +56,41 @@ const Lobby: React.FC<LobbyProps> = ({ onSend, roomState, playerId }) => {
   }, [onSend]);
 
   const handleCopyRoomId = useCallback(async () => {
-    if (roomState?.roomId) {
+    const text = roomState?.roomId?.trim();
+    if (!text) return;
+
+    const fallbackCopy = () => {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.setAttribute('readonly', '');
+      textarea.style.position = 'fixed';
+      textarea.style.left = '-9999px';
+      textarea.style.top = '0';
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+      textarea.setSelectionRange(0, textarea.value.length);
+      let ok = false;
       try {
-        await navigator.clipboard.writeText(roomState.roomId);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-      } catch {
-        // Fallback: show it's copied
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
+        ok = document.execCommand('copy');
+      } finally {
+        document.body.removeChild(textarea);
       }
+      return ok;
+    };
+
+    try {
+      if (navigator.clipboard?.writeText && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+      } else if (!fallbackCopy()) {
+        throw new Error('fallback copy failed');
+      }
+      setCopyStatus('success');
+    } catch {
+      setCopyStatus(fallbackCopy() ? 'success' : 'failed');
     }
+
+    window.setTimeout(() => setCopyStatus('idle'), 2000);
   }, [roomState?.roomId]);
 
   // Room view (after joining/creating)
@@ -81,7 +105,9 @@ const Lobby: React.FC<LobbyProps> = ({ onSend, roomState, playerId }) => {
             <span className="room-id-label">房间号</span>
             <div className="room-id-display" onClick={handleCopyRoomId}>
               <span className="room-id-text">{roomState.roomId}</span>
-              <span className="copy-hint">{copied ? '已复制 ✓' : '点击复制'}</span>
+              <span className={`copy-hint copy-${copyStatus}`}>
+                {copyStatus === 'success' ? '已复制 ✓' : copyStatus === 'failed' ? '复制失败，长按手动复制' : '点击复制'}
+              </span>
             </div>
           </div>
 
