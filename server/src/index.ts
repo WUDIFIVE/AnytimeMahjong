@@ -7,7 +7,7 @@ import { RoomManager } from './room/manager';
 import { setupWebSocketHandler } from './ws/handler';
 
 const app = express();
-const port = 3001;
+const port = Number(process.env.PORT || 3001);
 
 app.use(cors());
 app.use(express.json());
@@ -18,7 +18,7 @@ app.get('/health', (_req, res) => {
 
 const server = http.createServer(app);
 
-const wss = new WebSocket.Server({ server });
+const wss = new WebSocket.Server({ server, path: '/ws' });
 
 const roomManager = new RoomManager();
 setupWebSocketHandler(wss, roomManager);

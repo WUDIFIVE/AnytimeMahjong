@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { WinResult, PlayerState, sortTiles, formatTile } from '../game/types';
 import Tile from './Tile';
 import './Settlement.css';
@@ -17,6 +17,7 @@ const Settlement: React.FC<SettlementProps> = ({
   onNewGame,
 }) => {
   const [shareStatus, setShareStatus] = useState('');
+  const cardRef = useRef<HTMLDivElement | null>(null);
   const safePlayers = players ?? [];
   const safeFans = winResult?.fans ?? [];
   const safePayouts = winResult?.payouts ?? [];
@@ -36,43 +37,91 @@ const Settlement: React.FC<SettlementProps> = ({
   const winTypeLabel = winResult?.winType === 'zimo' ? '自摸' : '点炮';
 
   async function handleScreenshot() {
-    const text = `${winner?.name || '玩家'} ${winTypeLabel}胡牌，${winResult?.totalFan ?? 0}番！`;
-    try {
-      const mediaDevices = navigator.mediaDevices as MediaDevices | undefined;
-      if (mediaDevices?.getDisplayMedia) {
-        const stream = await mediaDevices.getDisplayMedia({ video: true });
-        const video = document.createElement('video');
-        video.srcObject = stream;
-        await video.play();
-        const canvas = document.createElement('canvas');
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        canvas.getContext('2d')?.drawImage(video, 0, 0);
-        stream.getTracks().forEach(track => track.stop());
-        const link = document.createElement('a');
-        link.download = `mahjong-win-${Date.now()}.png`;
-        link.href = canvas.toDataURL('image/png');
-        link.click();
-        setShareStatus('截图已保存，可以分享喜悦啦');
-        setTimeout(() => setShareStatus(''), 2500);
-        return;
-      }
-      await navigator.clipboard?.writeText(text);
-      setShareStatus('战绩文案已复制，可以截图分享啦');
-    } catch {
+    const node = cardRef.current;
+    if (!node) return;
+
+    const width = Math.ceil(node.getBoundingClientRect().width);
+    const height = Math.ceil(node.scrollHeight);
+    const clone = node.cloneNode(true) as HTMLElement;
+    clone.style.width = `${width}px`;
+    clone.style.maxHeight = 'none';
+    clone.style.overflow = 'visible';
+    clone.querySelectorAll('.settlement-actions, .share-status').forEach(el => el.remove());
+
+    const cssText = Array.from(document.styleSheets).map(sheet => {
       try {
-        await navigator.clipboard?.writeText(text);
-        setShareStatus('截图取消，已复制战绩文案');
+        return Array.from(sheet.cssRules).map(rule => rule.cssText).join('\n');
       } catch {
-        setShareStatus('可以使用系统截图快捷键分享这一页');
+        return '';
       }
+    }).join('\n');
+
+    const svg = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
+        <foreignObject width="100%" height="100%">
+          <div xmlns="http://www.w3.org/1999/xhtml">
+            <style>${cssText}</style>
+            ${new XMLSerializer().serializeToString(clone)}
+          </div>
+        </foreignObject>
+      </svg>`;
+
+    try {
+      setShareStatus('正在生成结算长图...');
+      const svgUrl = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml;charset=utf-8' }));
+      const image = new Image();
+      image.onload = () => {
+        const scale = Math.min(3, Math.max(2, window.devicePixelRatio || 2));
+        const canvas = document.createElement('canvas');
+        canvas.width = width * scale;
+        canvas.height = height * scale;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          URL.revokeObjectURL(svgUrl);
+          setShareStatus('生成失败，可以使用系统截图');
+          return;
+        }
+        ctx.scale(scale, scale);
+        ctx.drawImage(image, 0, 0);
+        URL.revokeObjectURL(svgUrl);
+        canvas.toBlob(async blob => {
+          if (!blob) {
+            setShareStatus('生成失败，可以使用系统截图');
+            return;
+          }
+          const pngUrl = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.download = `mahjong-settlement-${Date.now()}.png`;
+          link.href = pngUrl;
+          link.click();
+          setTimeout(() => URL.revokeObjectURL(pngUrl), 1000);
+          try {
+            const ClipboardItemCtor = (window as any).ClipboardItem;
+            if (navigator.clipboard && ClipboardItemCtor) {
+              await navigator.clipboard.write([new ClipboardItemCtor({ 'image/png': blob })]);
+              setShareStatus('结算长图已下载并复制到剪贴板');
+            } else {
+              setShareStatus('结算长图已下载');
+            }
+          } catch {
+            setShareStatus('结算长图已下载');
+          }
+          setTimeout(() => setShareStatus(''), 3000);
+        }, 'image/png');
+      };
+      image.onerror = () => {
+        URL.revokeObjectURL(svgUrl);
+        setShareStatus('生成失败，可以使用系统截图');
+      };
+      image.src = svgUrl;
+    } catch {
+      setShareStatus('生成失败，可以使用系统截图');
     }
-    setTimeout(() => setShareStatus(''), 2500);
   }
 
   return (
     <div className="settlement-overlay">
-      <div className="settlement-container">
+      <div className="settlement-container" ref={cardRef}>
         <div className="winner-banner">
           <div className="winner-stars">✨✨✨</div>
           <h1 className="winner-announcement">
@@ -187,7 +236,7 @@ const Settlement: React.FC<SettlementProps> = ({
             继续下一局
           </button>
           <button className="settlement-btn btn-share" onClick={handleScreenshot}>
-            一键截图分享
+            保存结算长图
           </button>
         </div>
         {shareStatus && <div className="share-status">{shareStatus}</div>}
