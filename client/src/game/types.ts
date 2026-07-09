@@ -130,8 +130,18 @@ export type WSMessageType =
   | 'error'
   | 'chat'
   | 'player_join'
+  | 'player_left'
   | 'player_leave'
+  | 'settings_updated'
   | 'game_start'
+  | 'turn_change'
+  | 'pending_claims'
+  | 'pong_executed'
+  | 'chi_executed'
+  | 'minggang_executed'
+  | 'angang_executed'
+  | 'jiagang_executed'
+  | 'game_over'
   | 'game_end'
   | 'settlement';
 
