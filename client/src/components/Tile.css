@@ -422,3 +422,54 @@
 .tile-small .bird-head { width: 8px; height: 8px; left: 14px; top: 9px; }
 .tile-small .bird-wing { width: 8px; height: 13px; top: 21px; }
 .tile-small .bird-tail { left: 13px; width: 9px; height: 8px; }
+
+/* Mobile tile scale: keep the hand readable but avoid horizontal crowding */
+@media (max-width: 768px) {
+  .position-bottom .hand-row .mahjong-tile {
+    width: 44px;
+    height: 61px;
+    border-radius: 8px;
+    box-shadow:
+      0 5px 0 #c2ad83,
+      0 7px 9px rgba(29, 17, 7, 0.24),
+      inset 0 2px 3px rgba(255,255,255,0.92),
+      inset 0 -4px 8px rgba(124,103,64,0.14);
+  }
+  .position-bottom .hand-row .tile-content {
+    transform: scale(0.86);
+  }
+  .central-discards .mahjong-tile.tile-small,
+  .melds-row .mahjong-tile.tile-small {
+    width: 31px;
+    height: 42px;
+    border-radius: 7px;
+  }
+  .central-discards .tile-small .tile-content,
+  .melds-row .tile-small .tile-content {
+    transform: scale(0.72);
+  }
+}
+
+@media (max-width: 480px) {
+  .position-bottom .hand-row .mahjong-tile {
+    width: 39px;
+    height: 55px;
+    border-radius: 7px;
+  }
+  .position-bottom .hand-row .tile-content {
+    transform: scale(0.76);
+  }
+  .position-bottom .hand-row .tile-corner {
+    font-size: 6px;
+  }
+  .central-discards .mahjong-tile.tile-small,
+  .melds-row .mahjong-tile.tile-small {
+    width: 27px;
+    height: 37px;
+    border-radius: 6px;
+  }
+  .central-discards .tile-small .tile-content,
+  .melds-row .tile-small .tile-content {
+    transform: scale(0.62);
+  }
+}

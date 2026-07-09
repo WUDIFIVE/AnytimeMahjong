@@ -359,3 +359,243 @@
   .central-discards::before { font-size: 20px; }
   .action-btn { padding: 7px 10px; font-size: 11px; }
 }
+
+/* Extra mobile table compression */
+@media (max-width: 768px) {
+  .game-info-bar {
+    justify-content: space-around;
+    gap: 6px;
+    padding: 5px 6px;
+    min-height: 30px;
+  }
+
+  .info-room,
+  .info-wind,
+  .info-wall {
+    font-size: 11px;
+    max-width: 32vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .game-table {
+    gap: 5px;
+    padding: 6px 6px calc(72px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .table-center {
+    gap: 6px;
+  }
+
+  .table-dashboard {
+    gap: 5px;
+    padding: 6px;
+    border-radius: 16px;
+  }
+
+  .dashboard-main-row {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 5px;
+  }
+
+  .dashboard-sub-row {
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+    overflow-x: auto;
+    padding-bottom: 1px;
+    scrollbar-width: none;
+  }
+  .dashboard-sub-row::-webkit-scrollbar { display: none; }
+
+  .wall-indicator.compact {
+    padding: 4px 8px;
+    gap: 4px;
+  }
+  .wall-icon { display: none; }
+  .wall-count { font-size: 14px; }
+  .wall-label { font-size: 10px; }
+
+  .turn-indicator {
+    justify-content: center;
+    min-width: 0;
+    padding: 5px 8px;
+    gap: 5px;
+    font-size: 12px;
+  }
+  .turn-name {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .turn-dot {
+    width: 7px;
+    height: 7px;
+    flex: 0 0 auto;
+  }
+
+  .last-discard-callout,
+  .claim-target-hint,
+  .tenpai-hint {
+    padding: 5px 8px;
+    gap: 5px;
+    font-size: 11px;
+    flex: 0 0 auto;
+    max-width: 100%;
+  }
+
+  .last-discard-callout strong,
+  .claim-target-hint strong {
+    white-space: nowrap;
+  }
+
+  .tenpai-hint {
+    width: auto;
+    max-width: 100%;
+  }
+  .tenpai-list {
+    max-width: 68vw;
+    gap: 4px;
+    scrollbar-width: none;
+  }
+  .tenpai-list::-webkit-scrollbar { display: none; }
+  .tenpai-item {
+    padding: 2px 6px;
+    font-size: 10px;
+  }
+
+  .central-discards {
+    min-height: 0;
+    height: clamp(220px, 37vh, 310px);
+    padding: 8px;
+    gap: 5px;
+    border-radius: 18px;
+    grid-template-columns: minmax(72px, 0.8fr) minmax(82px, 1fr) minmax(72px, 0.8fr);
+  }
+  .central-discards::before {
+    font-size: 17px;
+    letter-spacing: 0.22em;
+  }
+  .central-discard-row {
+    gap: 3px;
+    padding: 3px;
+    border-radius: 10px;
+  }
+  .central-discard-name {
+    font-size: 9px;
+    padding: 1px 5px;
+    max-width: 54px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .central-discard-tiles {
+    gap: 2px;
+    max-height: 88px;
+  }
+  .discard-row-left .central-discard-tiles,
+  .discard-row-right .central-discard-tiles {
+    max-width: 88px;
+  }
+  .discard-order-dot {
+    width: 6px;
+    height: 6px;
+  }
+
+  .action-bar {
+    left: 6px;
+    right: 6px;
+    bottom: calc(6px + env(safe-area-inset-bottom, 0px));
+    transform: none;
+    max-width: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(58px, 1fr));
+    gap: 6px;
+    padding: 7px;
+    border-radius: 18px;
+  }
+  .action-btn {
+    width: 100%;
+    min-height: 36px;
+    padding: 8px 9px;
+    font-size: 12px;
+    letter-spacing: 0.02em;
+  }
+  .btn-win {
+    font-size: 14px;
+    padding: 8px 10px;
+  }
+
+  .settings-hint {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .game-info-bar {
+    padding: 4px;
+  }
+  .info-room,
+  .info-wind,
+  .info-wall {
+    font-size: 10px;
+  }
+
+  .game-table {
+    grid-template-rows: auto auto minmax(0, 1fr) auto;
+    gap: 4px;
+    padding: 4px 4px calc(66px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .dashboard-main-row {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+  .dashboard-main-row .last-discard-callout {
+    grid-column: 1 / -1;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .table-dashboard {
+    padding: 5px;
+    border-radius: 14px;
+  }
+
+  .central-discards {
+    height: clamp(188px, 34vh, 260px);
+    padding: 6px;
+    gap: 4px;
+    border-radius: 15px;
+    grid-template-columns: minmax(58px, .72fr) minmax(70px, 1fr) minmax(58px, .72fr);
+  }
+  .central-discards::before {
+    font-size: 14px;
+  }
+  .central-discard-name {
+    max-width: 44px;
+    font-size: 8px;
+    padding-inline: 4px;
+  }
+  .central-discard-tiles {
+    max-height: 70px;
+  }
+  .discard-row-left .central-discard-tiles,
+  .discard-row-right .central-discard-tiles {
+    max-width: 70px;
+  }
+
+  .action-bar {
+    grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
+    gap: 5px;
+    padding: 6px;
+    border-radius: 16px;
+  }
+  .action-btn {
+    min-height: 32px;
+    padding: 6px 7px;
+    font-size: 11px;
+  }
+}
