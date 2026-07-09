@@ -26,6 +26,105 @@ const WIND_NAMES: Record<string, string> = {
   north: '北',
 };
 
+
+const TILE_TYPES: TileType[] = [
+  ...(['wan', 'tiao', 'tong'] as const).flatMap(suit => Array.from({ length: 9 }, (_, i) => ({ suit, value: i + 1, id: `hint-${suit}-${i + 1}` }))),
+  ...Array.from({ length: 4 }, (_, i) => ({ suit: 'feng' as const, value: i + 1, id: `hint-feng-${i + 1}` })),
+  ...Array.from({ length: 3 }, (_, i) => ({ suit: 'jian' as const, value: i + 1, id: `hint-jian-${i + 1}` })),
+];
+
+function tileKey(tile: TileType): string {
+  return `${tile.suit}-${tile.value}`;
+}
+
+function canDecomposeBasic(tiles: TileType[], meldCount: number): boolean {
+  const counts = new Map<string, number>();
+  for (const tile of tiles) counts.set(tileKey(tile), (counts.get(tileKey(tile)) || 0) + 1);
+  const keys = [...counts.keys()].sort();
+  const needSets = 4 - meldCount;
+
+  function removeSet(map: Map<string, number>, key: string, n: number): boolean {
+    const current = map.get(key) || 0;
+    if (current < n) return false;
+    current === n ? map.delete(key) : map.set(key, current - n);
+    return true;
+  }
+
+  function search(map: Map<string, number>, setsLeft: number, pairUsed: boolean): boolean {
+    if (setsLeft === 0) {
+      if (pairUsed) return [...map.values()].every(v => v === 0);
+      return [...map.values()].filter(v => v > 0).length === 1 && [...map.values()][0] === 2;
+    }
+    const first = [...map.entries()].find(([, v]) => v > 0)?.[0];
+    if (!first) return false;
+    const [suit, rawValue] = first.split('-');
+    const value = Number(rawValue);
+
+    if (!pairUsed && (map.get(first) || 0) >= 2) {
+      const next = new Map(map);
+      removeSet(next, first, 2);
+      if (search(next, setsLeft, true)) return true;
+    }
+
+    if ((map.get(first) || 0) >= 3) {
+      const next = new Map(map);
+      removeSet(next, first, 3);
+      if (search(next, setsLeft - 1, pairUsed)) return true;
+    }
+
+    if ((suit === 'wan' || suit === 'tiao' || suit === 'tong') && value <= 7) {
+      const k2 = `${suit}-${value + 1}`;
+      const k3 = `${suit}-${value + 2}`;
+      if ((map.get(k2) || 0) > 0 && (map.get(k3) || 0) > 0) {
+        const next = new Map(map);
+        removeSet(next, first, 1);
+        removeSet(next, k2, 1);
+        removeSet(next, k3, 1);
+        if (search(next, setsLeft - 1, pairUsed)) return true;
+      }
+    }
+
+    return false;
+  }
+
+  return search(counts, needSets, false);
+}
+
+function isSevenPairs(tiles: TileType[]): boolean {
+  if (tiles.length !== 14) return false;
+  const counts = new Map<string, number>();
+  for (const tile of tiles) counts.set(tileKey(tile), (counts.get(tileKey(tile)) || 0) + 1);
+  return counts.size === 7 && [...counts.values()].every(v => v === 2);
+}
+
+function estimateFan(tiles: TileType[], meldCount: number): { fan: number; label: string } {
+  const suits = new Set(tiles.map(t => t.suit));
+  const numberSuits = ['wan', 'tiao', 'tong'].filter(s => suits.has(s as any));
+  const hasHonor = suits.has('feng') || suits.has('jian');
+  if (numberSuits.length === 1 && !hasHonor) return { fan: 6, label: '清一色' };
+  if (numberSuits.length === 1 && hasHonor) return { fan: 3, label: '混一色' };
+  if (meldCount === 0 && isSevenPairs(tiles)) return { fan: 4, label: '七小对' };
+  return { fan: 1, label: '基本胡' };
+}
+
+function computeTenpaiHints(player?: { hand?: TileType[]; melds?: { tiles: TileType[] }[] }): { tile: TileType; fan: number; label: string }[] {
+  if (!player?.hand) return [];
+  const hand = player.hand;
+  const meldCount = player.melds?.length ?? 0;
+  const concealedNeedBeforeWin = 13 - meldCount * 3;
+  if (hand.length !== concealedNeedBeforeWin) return [];
+
+  const hints: { tile: TileType; fan: number; label: string }[] = [];
+  for (const candidate of TILE_TYPES) {
+    const trial = [...hand, candidate];
+    if (canDecomposeBasic(trial, meldCount) || (meldCount === 0 && isSevenPairs(trial))) {
+      const fan = estimateFan(trial, meldCount);
+      hints.push({ tile: candidate, ...fan });
+    }
+  }
+  return hints;
+}
+
 const GameBoard: React.FC<GameBoardProps> = ({
   gameState,
   playerId,
@@ -122,6 +221,14 @@ const GameBoard: React.FC<GameBoardProps> = ({
     return currentPlayer.melds.some(m => m.type === 'peng');
   })();
 
+
+  const myPendingClaim = gameState.pendingClaims.find(c => c.playerId === playerId);
+  const respondingTile = anyPending ? gameState.lastDiscard : null;
+  const lastDiscardPlayerName = gameState.lastDiscardPlayerName
+    || gameState.players.find(p => p.id === gameState.lastDiscardBy)?.name
+    || '上一家';
+  const tenpaiHints = computeTenpaiHints(currentPlayer).slice(0, 8);
+
   return (
     <div className="game-board">
       {/* Info Bar */}
@@ -176,15 +283,51 @@ const GameBoard: React.FC<GameBoardProps> = ({
                   ) : null;
                 })()}
               </div>
+
+              {gameState.lastDiscard && (
+                <div className="last-discard-callout">
+                  <span className="last-discard-label">刚出</span>
+                  <strong>{lastDiscardPlayerName}</strong>
+                  <Tile tile={gameState.lastDiscard} small highlighted />
+                  <span>{formatTile(gameState.lastDiscard)}</span>
+                </div>
+              )}
             </div>
+
+            {respondingTile && (
+              <div className="claim-target-hint">
+                <span>响应牌：</span>
+                <Tile tile={respondingTile} small highlighted />
+                <strong>{formatTile(respondingTile)}</strong>
+                <span>可操作：{pendingActionTypes.join(' / ')}</span>
+              </div>
+            )}
+
+            {tenpaiHints.length > 0 && (
+              <div className="tenpai-hint" title="当前手牌已听牌">
+                <span className="tenpai-title">听牌</span>
+                {tenpaiHints.map(hint => (
+                  <span className="tenpai-item" key={tileKey(hint.tile)}>
+                    {formatTile(hint.tile)} · {hint.label}{hint.fan}番
+                  </span>
+                ))}
+              </div>
+            )}
 
             <div className="central-discards" aria-label="中央弃牌区">
               {orderedPlayers.map((player, idx) => (
                 <div key={player.id} className={`central-discard-row discard-row-${POSITIONS[idx]}`}>
                   <div className="central-discard-name">{player.name}</div>
                   <div className="central-discard-tiles">
-                    {(player.discards ?? []).slice(-18).map(tile => (
-                      <Tile key={tile.id} tile={tile} small highlighted={gameState.lastDiscard?.id === tile.id} />
+                    {(player.discards ?? []).slice(-18).map((tile, tileIdx, shown) => (
+                      <span className="discard-tile-wrap" key={tile.id} title={`${player.name} 打出 ${formatTile(tile)}`}>
+                        <Tile
+                          tile={tile}
+                          small
+                          highlighted={gameState.lastDiscard?.id === tile.id && gameState.lastDiscardBy === player.id}
+                        />
+                        {tileIdx === shown.length - 1 && <em className="discard-order-dot" />}
+                      </span>
                     ))}
                   </div>
                 </div>

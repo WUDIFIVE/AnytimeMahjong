@@ -206,6 +206,8 @@ export class RoomManager {
       pendingDiscard: null,
       pendingClaims: [],
       lastDraw: null,
+      lastDiscardBy: undefined,
+      lastDiscardPlayerName: undefined,
       winnerIndex: null,
     };
 

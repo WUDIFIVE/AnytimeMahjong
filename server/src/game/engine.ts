@@ -89,6 +89,8 @@ export interface GameState {
   pendingDiscard: Tile | null;
   pendingClaims: Claim[];
   lastDraw: Tile | null;
+  lastDiscardBy?: string;
+  lastDiscardPlayerName?: string;
   winnerIndex: number | null;
 }
 
@@ -756,6 +758,8 @@ export function serializeGameState(state: GameState): any {
     settings: state.settings,
     pendingDiscard: state.pendingDiscard ? serializeTile(state.pendingDiscard) : null,
     lastDiscard: state.pendingDiscard ? serializeTile(state.pendingDiscard) : null,
+    lastDiscardBy: state.lastDiscardBy,
+    lastDiscardPlayerName: state.lastDiscardPlayerName,
     pendingClaims: state.pendingClaims.map(c => ({
       ...c,
       type: serializeClaimType(c.type),

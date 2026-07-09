@@ -98,6 +98,30 @@ export function setupWebSocketHandler(
   }
 
 
+  function buildDrawResult(gameState: GameState): any {
+    const ranking = [...gameState.players]
+      .sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
+      .map((player, index) => ({
+        rank: index + 1,
+        playerId: player.id,
+        playerName: player.name,
+        score: player.score ?? 0,
+        isWinner: false,
+      }));
+
+    return {
+      winType: 'draw',
+      winningHand: [],
+      concealedHand: [],
+      winningTile: null,
+      melds: [],
+      fans: [],
+      totalFan: 0,
+      payouts: [],
+      ranking,
+    };
+  }
+
   function buildClientWinResult(
     gameState: GameState,
     winner: Player,
@@ -232,10 +256,12 @@ export function setupWebSocketHandler(
     const tile = drawTile(gameState.wall);
     if (!tile) {
       gameState.phase = 'finished';
+      const drawResult = buildDrawResult(gameState);
       broadcast(roomId, {
         type: 'game_over',
         reason: 'draw',
-        gameState: serializeGameState(gameState),
+        winResult: drawResult,
+        gameState: { ...serializeGameState(gameState), winResult: drawResult },
       });
       return false;
     }
@@ -300,6 +326,8 @@ export function setupWebSocketHandler(
       const discardTile = currentPlayer.hand[discardIdx];
       currentPlayer.hand.splice(discardIdx, 1);
       currentPlayer.discards.push(discardTile);
+      gameState.lastDiscardBy = currentPlayer.id;
+      gameState.lastDiscardPlayerName = currentPlayer.name;
 
       const discardPlayerIndex = gameState.currentPlayerIndex;
       computeClaims(gameState, discardTile);
@@ -761,6 +789,8 @@ export function setupWebSocketHandler(
 
         const discardTile = player.hand.splice(idx, 1)[0];
         player.discards.push(discardTile);
+        gameState.lastDiscardBy = player.id;
+        gameState.lastDiscardPlayerName = player.name;
 
         const discardPlayerIndex = gameState.currentPlayerIndex;
         computeClaims(gameState, discardTile);

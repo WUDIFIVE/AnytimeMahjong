@@ -68,6 +68,8 @@ export interface GameState {
   currentPlayerIndex: number;
   currentWind: string;       // prevailing wind
   lastDiscard: Tile | null;
+  lastDiscardBy?: string;
+  lastDiscardPlayerName?: string;
   pendingClaims: Claim[];
   settings: GameSettings;
   winResult: WinResult | null;
@@ -91,9 +93,9 @@ export interface Claim {
 
 // === Win Result ===
 export interface WinResult {
-  winnerId: string;
+  winnerId?: string;
   loserId?: string;          // dianpao player, if applicable
-  winType: 'zimo' | 'dianpao';
+  winType: 'zimo' | 'dianpao' | 'draw';
   concealedHand?: Tile[];
   winningTile?: Tile | null;
   winningHand: Tile[];

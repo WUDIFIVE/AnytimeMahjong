@@ -30,11 +30,12 @@ const Settlement: React.FC<SettlementProps> = ({
     .map((p) => ({ rank: 0, playerId: p.id, playerName: p.name, score: p.score ?? 0, isWinner: p.id === winResult?.winnerId }))
     .sort((a, b) => b.score - a.score)
     .map((p, index) => ({ ...p, rank: index + 1 }));
-  const isWinner = winResult?.winnerId === playerId;
+  const isDraw = winResult?.winType === 'draw';
+  const isWinner = !isDraw && winResult?.winnerId === playerId;
   const sortedHand = sortTiles(winningHand);
   const sortedConcealed = sortTiles(concealedHand);
 
-  const winTypeLabel = winResult?.winType === 'zimo' ? '自摸' : '点炮';
+  const winTypeLabel = winResult?.winType === 'draw' ? '流局' : winResult?.winType === 'zimo' ? '自摸' : '点炮';
 
   async function handleScreenshot() {
     const node = cardRef.current;
@@ -125,15 +126,16 @@ const Settlement: React.FC<SettlementProps> = ({
         <div className="winner-banner">
           <div className="winner-stars">✨✨✨</div>
           <h1 className="winner-announcement">
-            {isWinner ? '🎉 恭喜胡牌！' : `${winner?.name || '某玩家'} 胡牌！`}
+            {isDraw ? '荒牌流局，下一把继续！' : isWinner ? '🎉 恭喜胡牌！' : `${winner?.name || '某玩家'} 胡牌！`}
           </h1>
           <div className="winner-detail">
-            <span className="winner-name">{winner?.name || '???'}</span>
+            <span className="winner-name">{isDraw ? '无人胡牌' : winner?.name || '???'}</span>
             <span className="win-type-badge">{winTypeLabel}</span>
             <span className="total-fan">{winResult?.totalFan ?? 0} 番</span>
           </div>
         </div>
 
+        {!isDraw && (
         <div className="settlement-section">
           <h3>完整胡牌</h3>
           <div className="winning-hand-display">
@@ -164,6 +166,14 @@ const Settlement: React.FC<SettlementProps> = ({
             完整牌型：{sortedHand.map(formatTile).join('、') || '暂无'}
           </div>
         </div>
+        )}
+
+        {isDraw && (
+          <div className="settlement-section draw-summary">
+            <h3>本局流局</h3>
+            <p>牌墙已摸完，无人胡牌。本局不产生输赢积分，点击继续下一局即可。</p>
+          </div>
+        )}
 
         <div className="settlement-section">
           <h3>房间累计积分排名</h3>
@@ -186,6 +196,7 @@ const Settlement: React.FC<SettlementProps> = ({
           </div>
         </div>
 
+        {!isDraw && (
         <div className="settlement-section">
           <h3>番型明细</h3>
           <table className="fan-breakdown-table">
@@ -209,6 +220,7 @@ const Settlement: React.FC<SettlementProps> = ({
             </tbody>
           </table>
         </div>
+        )}
 
         {safePayouts.length > 0 && (
           <div className="settlement-section">

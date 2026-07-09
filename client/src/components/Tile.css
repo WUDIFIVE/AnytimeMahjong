@@ -377,3 +377,62 @@
 .tile-small .dots-1 .dot { width: 12px; height: 12px; }
 .tile-small .bamboo-stick { width: 4px; height: 10px; }
 .tile-small .tile-content { transform: scale(0.86); }
+
+/* White jade / ivory Mahjong tile visual pass */
+.mahjong-tile:not(.tile-face-down) {
+  background:
+    radial-gradient(circle at 24% 18%, rgba(255,255,255,0.95), transparent 28%),
+    radial-gradient(circle at 78% 82%, rgba(190, 225, 208, 0.18), transparent 36%),
+    linear-gradient(145deg, #fffdf4 0%, #f6f1df 42%, #e2d5b8 100%);
+  border: 1px solid rgba(190, 174, 138, 0.62);
+  box-shadow:
+    0 8px 0 #c7b68e,
+    0 12px 16px rgba(35, 22, 8, 0.32),
+    inset 0 2px 4px rgba(255,255,255,0.92),
+    inset 0 -6px 12px rgba(124,103,64,0.18);
+}
+.mahjong-tile:not(.tile-face-down)::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(115deg, transparent 0 18px, rgba(126, 170, 148, 0.055) 18px 20px),
+    radial-gradient(circle at 60% 40%, rgba(255,255,255,0.28), transparent 30%);
+  opacity: 0.85;
+  pointer-events: none;
+}
+.tile-face-plate {
+  position: absolute;
+  inset: 5px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.16);
+  box-shadow: inset 0 0 0 1px rgba(145,120,82,0.16);
+}
+.tile-content {
+  position: relative;
+  z-index: 2;
+  filter: drop-shadow(0 1px 0 rgba(255,255,255,0.8));
+}
+.tile-corner {
+  color: rgba(76, 58, 34, 0.64);
+  font-weight: 900;
+}
+.dot {
+  box-shadow: inset 0 1px 2px rgba(255,255,255,0.55), inset 0 -2px 3px rgba(0,0,0,0.18), 0 1px 1px rgba(0,0,0,0.16);
+}
+.bamboo-stick {
+  background: linear-gradient(90deg, #187a45, #3fc073, #187a45);
+}
+.wan-number,
+.wan-cloud,
+.honor-char {
+  text-shadow: 0 1px 0 rgba(255,255,255,0.9), 0 2px 3px rgba(0,0,0,0.18);
+}
+.mahjong-tile.tile-highlighted {
+  outline: 2px solid #ffd45a;
+  box-shadow:
+    0 8px 0 #c7b68e,
+    0 12px 16px rgba(35, 22, 8, 0.32),
+    0 0 18px rgba(255,212,90,0.85),
+    inset 0 2px 4px rgba(255,255,255,0.92);
+}
