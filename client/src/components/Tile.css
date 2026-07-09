@@ -2,16 +2,17 @@
   --tile-accent: #c0392b;
   width: 52px;
   height: 72px;
-  border-radius: 14px;
+  border-radius: 10px;
   background:
-    radial-gradient(circle at 30% 20%, rgba(255,255,255,0.9), transparent 32%),
-    linear-gradient(145deg, #fff8e9 0%, #f2dfbd 54%, #d8b984 100%);
-  border: 2px solid rgba(112, 82, 48, 0.28);
+    radial-gradient(circle at 24% 18%, rgba(255,255,255,0.96), transparent 28%),
+    radial-gradient(circle at 78% 82%, rgba(190, 225, 208, 0.16), transparent 36%),
+    linear-gradient(145deg, #fffdf4 0%, #f7f0dc 48%, #dfd0ad 100%);
+  border: 1px solid rgba(169, 144, 103, 0.72);
   box-shadow:
-    0 8px 0 #b88452,
-    0 10px 14px rgba(38, 20, 8, 0.34),
-    inset 0 2px 2px rgba(255,255,255,0.86),
-    inset 0 -5px 10px rgba(112,68,22,0.18);
+    0 7px 0 #c2ad83,
+    0 10px 13px rgba(29, 17, 7, 0.30),
+    inset 0 2px 3px rgba(255,255,255,0.94),
+    inset 0 -5px 10px rgba(124,103,64,0.16);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -20,15 +21,24 @@
   user-select: none;
   transition: transform 0.14s ease, box-shadow 0.14s ease, filter 0.14s ease;
   overflow: hidden;
-  transform-style: preserve-3d;
+}
+
+.mahjong-tile::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(115deg, transparent 0 18px, rgba(126, 170, 148, 0.045) 18px 20px),
+    radial-gradient(circle at 60% 40%, rgba(255,255,255,0.22), transparent 30%);
+  pointer-events: none;
 }
 
 .mahjong-tile::after {
   content: '';
   position: absolute;
-  inset: 5px;
-  border-radius: 10px;
-  border: 1px dashed rgba(120, 90, 52, 0.22);
+  inset: 4px;
+  border-radius: 7px;
+  border: 1px solid rgba(149, 121, 78, 0.22);
   pointer-events: none;
 }
 
@@ -45,31 +55,24 @@
 .mahjong-tile.tile-small {
   width: 38px;
   height: 52px;
-  border-radius: 11px;
+  border-radius: 8px;
   box-shadow:
-    0 5px 0 #b88452,
-    0 6px 9px rgba(38, 20, 8, 0.28),
-    inset 0 2px 2px rgba(255,255,255,0.8),
-    inset 0 -4px 7px rgba(112,68,22,0.16);
+    0 5px 0 #c2ad83,
+    0 7px 9px rgba(29, 17, 7, 0.26),
+    inset 0 2px 2px rgba(255,255,255,0.9),
+    inset 0 -4px 7px rgba(124,103,64,0.14);
 }
 
 .mahjong-tile.tile-clickable { cursor: pointer; }
 .mahjong-tile.tile-clickable:hover {
-  transform: translateY(-5px) rotate(-1deg);
+  transform: translateY(-5px);
   filter: saturate(1.08);
-  box-shadow:
-    0 11px 0 #b88452,
-    0 16px 18px rgba(38, 20, 8, 0.36),
-    inset 0 2px 2px rgba(255,255,255,0.88),
-    inset 0 -5px 10px rgba(112,68,22,0.18);
 }
-
 .mahjong-tile.tile-selected {
-  transform: translateY(-10px) rotate(-2deg);
+  transform: translateY(-10px);
   outline: 3px solid #ffd45a;
   filter: saturate(1.15) brightness(1.03);
 }
-
 .tile-selected-indicator {
   position: absolute;
   bottom: 5px;
@@ -81,16 +84,23 @@
   border-radius: 50%;
   box-shadow: 0 0 8px #ffd45a;
 }
-
 .mahjong-tile.tile-highlighted {
-  animation: tile-pulse 0.9s ease-in-out infinite;
+  outline: 2px solid #ffd45a;
+  box-shadow:
+    0 7px 0 #c2ad83,
+    0 10px 13px rgba(29, 17, 7, 0.30),
+    0 0 18px rgba(255,212,90,0.82),
+    inset 0 2px 3px rgba(255,255,255,0.94);
 }
 
-@keyframes tile-pulse {
-  0%, 100% { box-shadow: 0 8px 0 #b88452, 0 10px 14px rgba(38,20,8,0.34), 0 0 0 rgba(255,212,90,0); }
-  50% { box-shadow: 0 8px 0 #b88452, 0 10px 14px rgba(38,20,8,0.34), 0 0 18px rgba(255,212,90,0.8); }
+.tile-face-plate {
+  position: absolute;
+  inset: 5px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.16);
+  box-shadow: inset 0 0 0 1px rgba(145,120,82,0.14);
+  pointer-events: none;
 }
-
 .tile-content {
   position: relative;
   z-index: 2;
@@ -99,45 +109,58 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  filter: drop-shadow(0 1px 0 rgba(255,255,255,0.8));
 }
-
 .tile-corner {
   position: absolute;
   z-index: 3;
-  font-size: 10px;
+  font-size: 8px;
   font-weight: 900;
-  color: var(--tile-accent);
-  opacity: 0.82;
+  color: rgba(76, 58, 34, 0.62);
   line-height: 1;
 }
 .corner-top { top: 6px; left: 7px; }
 .corner-bottom { right: 7px; bottom: 6px; transform: rotate(180deg); }
-.tile-small .tile-corner { font-size: 8px; }
+.tile-small .tile-corner { font-size: 7px; }
+.tile-art { width: 100%; height: 100%; position: relative; display: grid; place-items: center; }
 
-.tile-art {
-  width: 100%;
-  height: 100%;
-  position: relative;
-  display: grid;
-  place-items: center;
-}
-
-/* 筒：软糖圆点 */
+/* 筒：传统麻将同心圆，红/蓝/绿混色 */
 .dots {
+  width: 38px;
+  height: 48px;
+  display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(3, 1fr);
-  gap: 3px;
-  padding: 5px;
+  gap: 4px;
+  padding: 4px;
 }
 .dot {
   width: 11px;
   height: 11px;
   border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, #fff, var(--tile-accent) 42%, #5f2218 100%);
-  box-shadow: inset 0 -1px 2px rgba(0,0,0,0.25), 0 1px 1px rgba(0,0,0,0.18);
+  position: relative;
+  align-self: center;
+  justify-self: center;
+  background: #1468b3;
+  border: 1px solid currentColor;
+  box-shadow:
+    inset 0 0 0 2px #fff6df,
+    inset 0 0 0 4px currentColor,
+    0 1px 1px rgba(0,0,0,0.2);
+  color: #1468b3;
 }
-.tile-small .dot { width: 8px; height: 8px; }
-.dots-1 .dot { grid-column: 2; grid-row: 2; }
+.dot i {
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.55);
+}
+.dot-red { color: #d92323; background: #d92323; }
+.dot-blue { color: #1468b3; background: #1468b3; }
+.dot-green { color: #118348; background: #118348; }
+.dots-1 .dot { grid-column: 2; grid-row: 2; width: 20px; height: 20px; }
+.dots-1 .dot i { inset: 7px; }
 .dots-2 .dot-0 { grid-column: 1; grid-row: 1; } .dots-2 .dot-1 { grid-column: 3; grid-row: 3; }
 .dots-3 .dot-0 { grid-column: 1; grid-row: 1; } .dots-3 .dot-1 { grid-column: 2; grid-row: 2; } .dots-3 .dot-2 { grid-column: 3; grid-row: 3; }
 .dots-4 .dot-0 { grid-column: 1; grid-row: 1; } .dots-4 .dot-1 { grid-column: 3; grid-row: 1; } .dots-4 .dot-2 { grid-column: 1; grid-row: 3; } .dots-4 .dot-3 { grid-column: 3; grid-row: 3; }
@@ -146,19 +169,23 @@
 .dots-7 .dot-6 { grid-column: 2; grid-row: 2; }
 .dots-8 .dot:nth-child(7) { grid-column: 1; grid-row: 2; } .dots-8 .dot:nth-child(8) { grid-column: 3; grid-row: 2; }
 
-/* 条：毛毡竹节 */
+/* 条：竹节排列；一条做传统幺鸡简化图案 */
 .bamboo {
+  width: 38px;
+  height: 50px;
+  display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(3, 1fr);
   gap: 3px;
   padding: 4px;
 }
 .bamboo-stick {
-  width: 8px;
-  height: 18px;
-  border-radius: 99px;
-  background: linear-gradient(90deg, #0d7f55, #68d391 45%, #0b6a45);
-  box-shadow: inset 0 -2px 2px rgba(0,0,0,0.18), 0 1px 1px rgba(0,0,0,0.16);
+  width: 7px;
+  height: 17px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #0b6d3b 0%, #39bd6e 45%, #0b6d3b 100%);
+  border: 1px solid rgba(0,75,38,0.35);
+  box-shadow: inset 0 2px 0 rgba(255,255,255,0.38), 0 1px 1px rgba(0,0,0,0.18);
   position: relative;
 }
 .bamboo-stick i,
@@ -168,83 +195,106 @@
   position: absolute;
   left: 1px;
   right: 1px;
-  height: 1px;
-  background: rgba(255,255,255,0.75);
+  height: 2px;
+  border-radius: 2px;
+  background: #d92323;
+  opacity: 0.92;
 }
-.bamboo-stick::before { top: 5px; }
-.bamboo-stick i { top: 9px; }
-.bamboo-stick::after { top: 13px; }
-.tile-small .bamboo-stick { width: 6px; height: 13px; }
+.bamboo-stick::before { top: 4px; }
+.bamboo-stick i { top: 8px; }
+.bamboo-stick::after { top: 12px; }
+.bird-body {
+  position: absolute;
+  width: 19px;
+  height: 26px;
+  left: 11px;
+  top: 16px;
+  border-radius: 55% 55% 45% 45%;
+  background: linear-gradient(180deg, #1f9f59, #0b633a);
+  box-shadow: inset 0 3px 0 rgba(255,255,255,0.25);
+}
+.bird-head {
+  position: absolute;
+  width: 13px;
+  height: 13px;
+  left: 14px;
+  top: 6px;
+  border-radius: 50%;
+  background: #d92323;
+  box-shadow: 8px 4px 0 -5px #111;
+}
+.bird-wing {
+  position: absolute;
+  width: 14px;
+  height: 22px;
+  top: 22px;
+  border-radius: 60% 20% 70% 30%;
+  background: #1468b3;
+  opacity: 0.92;
+}
+.wing-left { left: 4px; transform: rotate(-24deg); }
+.wing-right { right: 4px; transform: scaleX(-1) rotate(-24deg); }
+.bird-tail {
+  position: absolute;
+  left: 15px;
+  bottom: 3px;
+  width: 11px;
+  height: 13px;
+  background: #d92323;
+  clip-path: polygon(50% 100%, 0 0, 50% 28%, 100% 0);
+}
 
-/* 万：软陶印章 */
+/* 万：传统上数字下“萬”，红黑分明 */
+.wan-art.classic-wan,
 .wan-art {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 0;
+  line-height: 0.9;
+  align-items: center;
+  justify-content: center;
 }
-.wan-number {
-  font-size: 23px;
-  font-weight: 950;
-  color: #b9302a;
-  text-shadow: 0 2px 0 rgba(255,255,255,0.75), 0 3px 2px rgba(0,0,0,0.15);
-}
+.wan-number,
 .wan-cloud {
-  display: inline-grid;
-  place-items: center;
-  min-width: 27px;
-  min-height: 20px;
-  border-radius: 12px 12px 10px 10px;
-  background: #b9302a;
-  color: #fff8e9;
-  font-size: 15px;
+  font-family: 'STKaiti', 'Kaiti SC', 'Songti SC', 'Noto Serif CJK SC', serif;
   font-weight: 900;
-  box-shadow: inset 0 -2px 0 rgba(0,0,0,0.18);
+  text-shadow: 0 1px 0 rgba(255,255,255,0.9), 0 2px 2px rgba(0,0,0,0.16);
 }
-.tile-small .wan-number { font-size: 17px; }
-.tile-small .wan-cloud { min-width: 20px; min-height: 15px; font-size: 11px; }
-
-/* 风 / 箭：绣章 */
-.honor-art { color: var(--tile-accent); }
-.honor-halo {
-  width: 35px;
-  height: 35px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(255,255,255,0.9), rgba(255,255,255,0.1)), var(--tile-accent);
-  opacity: 0.18;
-  position: absolute;
+.wan-number { font-size: 27px; color: #d61f1f; }
+.wan-cloud {
+  min-width: auto;
+  min-height: auto;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  font-size: 25px;
+  color: #111;
 }
 .honor-char {
-  position: relative;
-  font-size: 28px;
-  font-weight: 950;
-  text-shadow: 0 2px 0 rgba(255,255,255,0.7), 0 3px 3px rgba(0,0,0,0.18);
+  font-size: 34px;
+  font-family: 'STKaiti', 'Kaiti SC', 'Songti SC', 'Noto Serif CJK SC', serif;
+  font-weight: 900;
+  text-shadow: 0 1px 0 rgba(255,255,255,0.9), 0 2px 3px rgba(0,0,0,0.18);
 }
-.honor-label {
-  position: absolute;
-  bottom: 2px;
-  font-size: 10px;
-  font-weight: 800;
-  opacity: 0.72;
-}
-.tile-small .honor-char { font-size: 20px; }
-.tile-small .honor-label { font-size: 8px; }
+.dragon-art .honor-char { color: #d61f1f; }
+.wind-art .honor-char { color: #111; }
+.honor-label, .honor-halo { display: none; }
 
-/* Face-down felt */
 .mahjong-tile.tile-face-down {
   background:
     radial-gradient(circle at 30% 22%, rgba(255,255,255,0.18), transparent 28%),
     linear-gradient(145deg, #7fc9a0 0%, #3d9b73 45%, #1f6f55 100%);
   border-color: rgba(24, 87, 65, 0.45);
   box-shadow:
-    0 8px 0 #15533f,
-    0 10px 14px rgba(8, 38, 27, 0.35),
+    0 7px 0 #15533f,
+    0 10px 13px rgba(8, 38, 27, 0.32),
     inset 0 2px 2px rgba(255,255,255,0.32),
     inset 0 -5px 10px rgba(5,45,34,0.24);
 }
 .tile-face-down .tile-back-pattern {
   position: absolute;
   inset: 8px;
-  border-radius: 10px;
+  border-radius: 8px;
   background:
     radial-gradient(circle at 50% 50%, rgba(255,255,255,0.18) 0 3px, transparent 4px),
     repeating-linear-gradient(45deg, transparent 0 5px, rgba(255,255,255,0.08) 5px 7px),
@@ -259,180 +309,20 @@
   color: rgba(255,255,255,0.42);
   font-size: 22px;
 }
-.tile-small.tile-face-down { box-shadow: 0 5px 0 #15533f, 0 6px 9px rgba(8,38,27,0.28); }
-.tile-small .back-flower { font-size: 16px; }
 
-/* Classic high-contrast mahjong face overrides */
-.mahjong-tile {
-  background:
-    linear-gradient(180deg, #fffdf4 0%, #fff7e4 58%, #ead7ad 100%);
-  border: 2px solid rgba(90, 62, 32, 0.38);
-  border-radius: 10px;
-  box-shadow:
-    0 7px 0 #b88956,
-    0 10px 12px rgba(29, 17, 7, 0.32),
-    inset 0 2px 1px rgba(255,255,255,0.92),
-    inset 0 -4px 8px rgba(128,86,35,0.16);
-}
-
-.mahjong-tile::after {
-  inset: 4px;
-  border-radius: 7px;
-  border: 1px solid rgba(170, 130, 75, 0.28);
-}
-
-.tile-face-plate {
-  position: absolute;
-  inset: 7px 6px 8px;
-  border-radius: 7px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.45), rgba(255,247,227,0.08));
-  pointer-events: none;
-}
-
-.tile-content {
-  position: relative;
-  z-index: 2;
-}
-
-.tile-corner {
-  z-index: 3;
-  font-size: 8px;
-  font-weight: 900;
-  color: rgba(75, 50, 26, 0.72);
-}
-
-.wan-art.classic-wan {
-  gap: 0;
-  line-height: 0.92;
-}
-
-.wan-number {
-  font-size: 27px;
-  color: #d61f1f;
-  font-family: 'STKaiti', 'Kaiti SC', 'Songti SC', serif;
-  font-weight: 900;
-  text-shadow: 0 1px 0 rgba(255,255,255,0.7);
-}
-
-.wan-cloud {
-  font-size: 25px;
-  color: #111;
-  font-family: 'STKaiti', 'Kaiti SC', 'Songti SC', serif;
-  font-weight: 900;
-}
-
-.dots {
-  width: 38px;
-  height: 48px;
-  display: grid;
-  place-items: center;
-}
-
-.dot {
-  width: 11px;
-  height: 11px;
-  border-width: 2px;
-  box-shadow: inset 0 0 0 2px rgba(255,255,255,0.5), 0 1px 1px rgba(0,0,0,0.18);
-}
-
-.dots-1 .dot { width: 20px; height: 20px; }
-.dots-2, .dots-3, .dots-4 { gap: 5px; }
-.dots-5, .dots-6, .dots-7, .dots-8, .dots-9 { gap: 3px; }
-
-.bamboo {
-  width: 38px;
-  height: 50px;
-}
-
-.bamboo-stick {
-  width: 7px;
-  height: 17px;
-  border-radius: 5px;
-  background: linear-gradient(180deg, #15a65f, #08723f);
-  border: 1px solid rgba(0, 75, 38, 0.35);
-  box-shadow: inset 0 2px 0 rgba(255,255,255,0.38), 0 1px 1px rgba(0,0,0,0.18);
-}
-
-.bamboo-stick i {
-  width: 3px;
-  height: 3px;
-  background: #d61f1f;
-  box-shadow: 0 6px 0 rgba(214,31,31,0.86);
-}
-
-.honor-char {
-  font-size: 34px;
-  font-family: 'STKaiti', 'Kaiti SC', 'Songti SC', serif;
-  font-weight: 900;
-}
-
-.dragon-art .honor-char { color: #d61f1f; }
-.wind-art .honor-char { color: #111; }
-.honor-label, .honor-halo { display: none; }
-
+.tile-small .tile-content { transform: scale(0.86); }
+.tile-small .dot { width: 7px; height: 7px; border-width: 1px; box-shadow: inset 0 0 0 1px #fff6df, inset 0 0 0 3px currentColor, 0 1px 1px rgba(0,0,0,0.16); }
+.tile-small .dot i { inset: 3px; }
+.tile-small .dots-1 .dot { width: 12px; height: 12px; }
+.tile-small .dots-1 .dot i { inset: 4px; }
+.tile-small .bamboo-stick { width: 4px; height: 10px; }
+.tile-small .bamboo-stick::before { top: 2px; }
+.tile-small .bamboo-stick i { top: 5px; }
+.tile-small .bamboo-stick::after { top: 8px; }
+.tile-small .bird-body { width: 13px; height: 17px; left: 11px; top: 16px; }
+.tile-small .bird-head { width: 9px; height: 9px; left: 13px; top: 8px; }
+.tile-small .bird-wing { width: 9px; height: 14px; top: 20px; }
+.tile-small .bird-tail { left: 14px; width: 8px; height: 9px; }
 .tile-small .wan-number { font-size: 17px; }
 .tile-small .wan-cloud { font-size: 16px; }
 .tile-small .honor-char { font-size: 20px; }
-.tile-small .dot { width: 7px; height: 7px; border-width: 1px; }
-.tile-small .dots-1 .dot { width: 12px; height: 12px; }
-.tile-small .bamboo-stick { width: 4px; height: 10px; }
-.tile-small .tile-content { transform: scale(0.86); }
-
-/* White jade / ivory Mahjong tile visual pass */
-.mahjong-tile:not(.tile-face-down) {
-  background:
-    radial-gradient(circle at 24% 18%, rgba(255,255,255,0.95), transparent 28%),
-    radial-gradient(circle at 78% 82%, rgba(190, 225, 208, 0.18), transparent 36%),
-    linear-gradient(145deg, #fffdf4 0%, #f6f1df 42%, #e2d5b8 100%);
-  border: 1px solid rgba(190, 174, 138, 0.62);
-  box-shadow:
-    0 8px 0 #c7b68e,
-    0 12px 16px rgba(35, 22, 8, 0.32),
-    inset 0 2px 4px rgba(255,255,255,0.92),
-    inset 0 -6px 12px rgba(124,103,64,0.18);
-}
-.mahjong-tile:not(.tile-face-down)::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background:
-    repeating-linear-gradient(115deg, transparent 0 18px, rgba(126, 170, 148, 0.055) 18px 20px),
-    radial-gradient(circle at 60% 40%, rgba(255,255,255,0.28), transparent 30%);
-  opacity: 0.85;
-  pointer-events: none;
-}
-.tile-face-plate {
-  position: absolute;
-  inset: 5px;
-  border-radius: 10px;
-  background: rgba(255,255,255,0.16);
-  box-shadow: inset 0 0 0 1px rgba(145,120,82,0.16);
-}
-.tile-content {
-  position: relative;
-  z-index: 2;
-  filter: drop-shadow(0 1px 0 rgba(255,255,255,0.8));
-}
-.tile-corner {
-  color: rgba(76, 58, 34, 0.64);
-  font-weight: 900;
-}
-.dot {
-  box-shadow: inset 0 1px 2px rgba(255,255,255,0.55), inset 0 -2px 3px rgba(0,0,0,0.18), 0 1px 1px rgba(0,0,0,0.16);
-}
-.bamboo-stick {
-  background: linear-gradient(90deg, #187a45, #3fc073, #187a45);
-}
-.wan-number,
-.wan-cloud,
-.honor-char {
-  text-shadow: 0 1px 0 rgba(255,255,255,0.9), 0 2px 3px rgba(0,0,0,0.18);
-}
-.mahjong-tile.tile-highlighted {
-  outline: 2px solid #ffd45a;
-  box-shadow:
-    0 8px 0 #c7b68e,
-    0 12px 16px rgba(35, 22, 8, 0.32),
-    0 0 18px rgba(255,212,90,0.85),
-    inset 0 2px 4px rgba(255,255,255,0.92);
-}
