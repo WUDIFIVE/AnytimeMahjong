@@ -36,6 +36,13 @@ const Settlement: React.FC<SettlementProps> = ({
   const sortedConcealed = sortTiles(concealedHand);
 
   const winTypeLabel = winResult?.winType === 'draw' ? '流局' : winResult?.winType === 'zimo' ? '自摸' : '点炮';
+  const meldText = melds.length > 0
+    ? melds.map((meld) => meld.tiles.map(formatTile).join('、')).join(' / ')
+    : '';
+  const completeHandText = [
+    sortedHand.length > 0 ? `手牌：${sortedHand.map(formatTile).join('、')}` : '手牌：暂无',
+    meldText ? `副露：${meldText}` : '',
+  ].filter(Boolean).join('　');
 
   async function handleScreenshot() {
     try {
@@ -124,11 +131,11 @@ const Settlement: React.FC<SettlementProps> = ({
         ctx.fillStyle = 'rgba(255,255,255,0.06)';
         ctx.fill();
         fillText('胡牌牌型', 110, y + 36, 22, '#f0c040', 900);
-        fillText(`完整手牌：${sortedHand.map(formatTile).join('、') || '暂无'}`, 110, y + 74, 18, '#f7ead0', 700);
+        fillText(`完整牌型：${completeHandText}`, 110, y + 74, 18, '#f7ead0', 700);
         fillText(`暗手：${sortedConcealed.map(formatTile).join('、') || '暂无'}${winningTile ? `　胡牌张：${formatTile(winningTile)}` : ''}`, 110, y + 108, 17, '#d9ccb0', 650);
         y += 134;
         if (melds.length > 0) {
-          fillText(`副露：${melds.map(m => m.tiles.map(formatTile).join('')).join('　/　')}`, 110, y, 17, '#d9ccb0', 650);
+          fillText(`副露牌面：${meldText}`, 110, y, 17, '#d9ccb0', 650);
           y += 42 * meldRows;
         }
         y += 24;
@@ -215,7 +222,7 @@ const Settlement: React.FC<SettlementProps> = ({
             </div>
           )}
           <div className="winning-hand-summary">
-            完整牌型：{sortedHand.map(formatTile).join('、') || '暂无'}
+            完整牌型：{completeHandText}
           </div>
         </div>
         )}
