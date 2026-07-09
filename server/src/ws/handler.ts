@@ -141,12 +141,78 @@ export function setupWebSocketHandler(
     }
   }
 
-  function advanceTurn(gameState: GameState): void {
+  function expectedHandSize(player: Player, gameState: GameState): number {
+    // In 13-tile mahjong, concealed hand size after discarding is:
+    // 13 - 3 * meldCount. The player whose turn it is, with no pending
+    // claims, must have one extra tile before discarding. A kong is still
+    // one meld because it is compensated by a replacement draw.
+    const base = 13 - player.melds.length * 3;
+    const shouldDiscard =
+      gameState.phase === 'playing' &&
+      gameState.pendingClaims.length === 0 &&
+      gameState.players[gameState.currentPlayerIndex]?.id === player.id;
+    return base + (shouldDiscard ? 1 : 0);
+  }
+
+  function logHandSizeAnomalies(gameState: GameState, context: string): void {
+    for (const player of gameState.players) {
+      const expected = expectedHandSize(player, gameState);
+      if (player.hand.length !== expected) {
+        console.warn(
+          `[mahjong-state] ${context}: ${player.name} hand=${player.hand.length}, expected=${expected}, melds=${player.melds.length}, current=${gameState.currentPlayerIndex}, pending=${gameState.pendingClaims.length}`
+        );
+      }
+    }
+  }
+
+  function drawForCurrentPlayer(gameState: GameState, roomId: string): boolean {
+    const player = gameState.players[gameState.currentPlayerIndex];
+    if (!player) return false;
+
+    const tile = drawTile(gameState.wall);
+    if (!tile) {
+      gameState.phase = 'finished';
+      broadcast(roomId, {
+        type: 'game_over',
+        reason: 'draw',
+        gameState: serializeGameState(gameState),
+      });
+      return false;
+    }
+
+    player.hand.push(tile);
+    player.hand.sort(tileSort);
+    gameState.lastDraw = tile;
+    logHandSizeAnomalies(gameState, `draw:${player.name}`);
+    return true;
+  }
+
+  function advanceTurnAndDraw(gameState: GameState, roomId: string): boolean {
     gameState.pendingDiscard = null;
     gameState.pendingClaims = [];
     gameState.currentPlayerIndex = (gameState.currentPlayerIndex + 1) % gameState.players.length;
     gameState.turnCount++;
     gameState.lastDraw = null;
+    return drawForCurrentPlayer(gameState, roomId);
+  }
+
+  function enterDiscardTurnAfterClaim(gameState: GameState, roomId: string, playerIndex: number): void {
+    gameState.currentPlayerIndex = playerIndex;
+    gameState.turnCount++;
+    gameState.lastDraw = null;
+    clearAIClaimTimeout(roomId);
+    logHandSizeAnomalies(gameState, `claim:${gameState.players[playerIndex]?.name ?? playerIndex}`);
+  }
+
+  function enterDiscardTurnAfterKong(gameState: GameState, roomId: string, playerIndex: number): void {
+    gameState.currentPlayerIndex = playerIndex;
+    gameState.turnCount++;
+    clearAIClaimTimeout(roomId);
+    logHandSizeAnomalies(gameState, `kong:${gameState.players[playerIndex]?.name ?? playerIndex}`);
+  }
+
+  function aiDiscardWithoutDrawing(gameState: GameState, roomId: string, delayMs = 700): void {
+    handleAIDiscard(gameState, roomId, delayMs);
   }
 
   function aiAcceptsClaim(gameState: GameState, claim: Claim): boolean {
@@ -175,15 +241,34 @@ export function setupWebSocketHandler(
       currentPlayer.hand.splice(discardIdx, 1);
       currentPlayer.discards.push(discardTile);
 
+      const discardPlayerIndex = gameState.currentPlayerIndex;
+      computeClaims(gameState, discardTile);
+      if (gameState.pendingClaims.length === 0) {
+        if (!advanceTurnAndDraw(gameState, roomId)) return;
+        clearAIClaimTimeout(roomId);
+        broadcast(roomId, {
+          type: 'discard',
+          playerIndex: discardPlayerIndex,
+          playerName: currentPlayer.name,
+          tile: serializeTile(discardTile),
+          gameState: serializeGameState(gameState),
+        });
+        broadcast(roomId, {
+          type: 'turn_change',
+          gameState: serializeGameState(gameState),
+        });
+        checkAndHandleAI(gameState, roomId);
+        return;
+      }
+
+      logHandSizeAnomalies(gameState, `discard:${currentPlayer.name}`);
       broadcast(roomId, {
         type: 'discard',
-        playerIndex: gameState.currentPlayerIndex,
+        playerIndex: discardPlayerIndex,
         playerName: currentPlayer.name,
         tile: serializeTile(discardTile),
         gameState: serializeGameState(gameState),
       });
-
-      computeClaims(gameState, discardTile);
       if (resolveAIClaims(gameState, roomId)) return;
 
       if (gameState.pendingClaims.length > 0) {
@@ -194,7 +279,7 @@ export function setupWebSocketHandler(
         });
         scheduleAIClaimTimeout(roomId, gameState);
       } else {
-        advanceTurn(gameState);
+        if (!advanceTurnAndDraw(gameState, roomId)) return;
         clearAIClaimTimeout(roomId);
         broadcast(roomId, {
           type: 'turn_change',
@@ -231,32 +316,28 @@ export function setupWebSocketHandler(
 
     if (claim.type === 'minggang') {
       executeMingGang(player, discard, gameState);
-      gameState.currentPlayerIndex = claim.playerIndex;
-      gameState.turnCount++;
-      clearAIClaimTimeout(roomId);
+      enterDiscardTurnAfterKong(gameState, roomId, claim.playerIndex);
       broadcast(roomId, {
         type: 'minggang_executed',
         playerIndex: claim.playerIndex,
         playerName: player.name,
         gameState: serializeGameState(gameState),
       });
-      if (source === 'ai') handleAIDiscard(gameState, roomId);
+      if (source === 'ai') aiDiscardWithoutDrawing(gameState, roomId);
       else checkAndHandleAI(gameState, roomId);
       return true;
     }
 
     if (claim.type === 'pong') {
       executePong(player, discard, gameState);
-      gameState.currentPlayerIndex = claim.playerIndex;
-      gameState.turnCount++;
-      clearAIClaimTimeout(roomId);
+      enterDiscardTurnAfterClaim(gameState, roomId, claim.playerIndex);
       broadcast(roomId, {
         type: 'pong_executed',
         playerIndex: claim.playerIndex,
         playerName: player.name,
         gameState: serializeGameState(gameState),
       });
-      if (source === 'ai') handleAIDiscard(gameState, roomId);
+      if (source === 'ai') aiDiscardWithoutDrawing(gameState, roomId);
       else checkAndHandleAI(gameState, roomId);
       return true;
     }
@@ -264,16 +345,14 @@ export function setupWebSocketHandler(
     if (claim.type === 'chi' && claim.chiOptions && claim.chiOptions.length > 0) {
       const tiles = claim.chiOptions[0];
       executeChi(player, discard, [tiles[0], tiles[1]], gameState);
-      gameState.currentPlayerIndex = claim.playerIndex;
-      gameState.turnCount++;
-      clearAIClaimTimeout(roomId);
+      enterDiscardTurnAfterClaim(gameState, roomId, claim.playerIndex);
       broadcast(roomId, {
         type: 'chi_executed',
         playerIndex: claim.playerIndex,
         playerName: player.name,
         gameState: serializeGameState(gameState),
       });
-      if (source === 'ai') handleAIDiscard(gameState, roomId);
+      if (source === 'ai') aiDiscardWithoutDrawing(gameState, roomId);
       else checkAndHandleAI(gameState, roomId);
       return true;
     }
@@ -305,7 +384,7 @@ export function setupWebSocketHandler(
     }
 
     if (gameState.pendingClaims.length === 0) {
-      advanceTurn(gameState);
+      if (!advanceTurnAndDraw(gameState, roomId)) return true;
       clearAIClaimTimeout(roomId);
       broadcast(roomId, {
         type: 'turn_change',
@@ -338,7 +417,7 @@ export function setupWebSocketHandler(
       }
 
       if (current.pendingClaims.length === 0) {
-        advanceTurn(current);
+        if (!advanceTurnAndDraw(current, roomId)) return;
         broadcast(roomId, {
           type: 'turn_change',
           gameState: serializeGameState(current),
@@ -353,21 +432,16 @@ export function setupWebSocketHandler(
     if (!player || !player.isAI) return;
 
     setTimeout(() => {
-      const tile = drawTile(gameState.wall);
-      if (!tile) {
-        broadcast(roomId, {
-          type: 'game_over',
-          reason: 'draw',
-          gameState: serializeGameState(gameState),
-        });
-        gameState.phase = 'finished';
-        return;
+      if (gameState.phase !== 'playing' || gameState.pendingClaims.length > 0) return;
+      const player = gameState.players[gameState.currentPlayerIndex];
+      if (!player || !player.isAI) return;
+
+      const discardHandSize = 14 - player.melds.length * 3;
+      if (player.hand.length < discardHandSize) {
+        if (!drawForCurrentPlayer(gameState, roomId)) return;
       }
 
-      player.hand.push(tile);
-      player.hand.sort(tileSort);
-      gameState.lastDraw = tile;
-      gameState.turnCount++;
+      logHandSizeAnomalies(gameState, `ai-turn:${player.name}`);
 
       if (aiShouldWin(player.hand, player.melds, null, gameState.settings)) {
         const result = checkWin(player.hand, player.melds, null, true, gameState.settings);
@@ -437,13 +511,13 @@ export function setupWebSocketHandler(
         });
         scheduleAIClaimTimeout(roomId, gameState);
       } else {
-        advanceTurn(gameState);
+        if (!advanceTurnAndDraw(gameState, roomId)) return;
         clearAIClaimTimeout(roomId);
         broadcast(roomId, {
           type: 'turn_change',
           gameState: serializeGameState(gameState),
         });
-        handleAITurn(gameState, roomId);
+        checkAndHandleAI(gameState, roomId);
       }
     }, 1000);
   }
@@ -608,6 +682,12 @@ export function setupWebSocketHandler(
 
         const { tileId } = payload;
         const player = gameState.players[gameState.currentPlayerIndex];
+        const requiredDiscardHandSize = 14 - player.melds.length * 3;
+        if (player.hand.length !== requiredDiscardHandSize) {
+          console.warn(`[mahjong-state] reject discard: ${player.name} hand=${player.hand.length}, expected=${requiredDiscardHandSize}`);
+          ws.send(JSON.stringify({ type: 'error', message: `Invalid hand size for discard: ${player.hand.length}/${requiredDiscardHandSize}` }));
+          return;
+        }
         const idx = player.hand.findIndex(t => String(t.id) === String(tileId));
         if (idx < 0) {
           ws.send(JSON.stringify({ type: 'error', message: 'Tile not in hand' }));
@@ -617,15 +697,34 @@ export function setupWebSocketHandler(
         const discardTile = player.hand.splice(idx, 1)[0];
         player.discards.push(discardTile);
 
+        const discardPlayerIndex = gameState.currentPlayerIndex;
+        computeClaims(gameState, discardTile);
+        if (gameState.pendingClaims.length === 0) {
+          if (!advanceTurnAndDraw(gameState, info.roomId)) return;
+          clearAIClaimTimeout(info.roomId);
+          broadcast(info.roomId, {
+            type: 'discard',
+            playerIndex: discardPlayerIndex,
+            playerName: player.name,
+            tile: serializeTile(discardTile),
+            gameState: serializeGameState(gameState),
+          });
+          broadcast(info.roomId, {
+            type: 'turn_change',
+            gameState: serializeGameState(gameState),
+          });
+          checkAndHandleAI(gameState, info.roomId);
+          return;
+        }
+
+        logHandSizeAnomalies(gameState, `discard:${player.name}`);
         broadcast(info.roomId, {
           type: 'discard',
-          playerIndex: gameState.currentPlayerIndex,
+          playerIndex: discardPlayerIndex,
           playerName: player.name,
           tile: serializeTile(discardTile),
           gameState: serializeGameState(gameState),
         });
-
-        computeClaims(gameState, discardTile);
         if (resolveAIClaims(gameState, info.roomId)) return;
 
         if (gameState.pendingClaims.length > 0) {
@@ -636,7 +735,7 @@ export function setupWebSocketHandler(
           });
           scheduleAIClaimTimeout(info.roomId, gameState);
         } else {
-          advanceTurn(gameState);
+          if (!advanceTurnAndDraw(gameState, info.roomId)) return;
           clearAIClaimTimeout(info.roomId);
           broadcast(info.roomId, {
             type: 'turn_change',
@@ -855,7 +954,7 @@ export function setupWebSocketHandler(
         );
 
         if (gameState.pendingClaims.length === 0) {
-          advanceTurn(gameState);
+          if (!advanceTurnAndDraw(gameState, info.roomId)) return;
           clearAIClaimTimeout(info.roomId);
           broadcast(info.roomId, {
             type: 'turn_change',
