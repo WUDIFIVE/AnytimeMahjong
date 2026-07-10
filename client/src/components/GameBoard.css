@@ -1852,3 +1852,58 @@
     font-size: 13px !important;
   }
 }
+
+
+/* === Compact current-turn label: avoid long “轮到 AI-xxx” crowding the table HUD === */
+.turn-indicator {
+  min-width: 0 !important;
+  max-width: min(190px, 30vw) !important;
+  padding-inline: 10px !important;
+}
+.turn-name {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  line-height: 1.05 !important;
+}
+.turn-label {
+  flex: 0 0 auto !important;
+  font-size: .72em !important;
+  font-weight: 760 !important;
+  opacity: .62 !important;
+}
+.turn-player-name {
+  min-width: 0 !important;
+  max-width: 9.5em !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  font-size: clamp(12px, 1.15vw, 15px) !important;
+  font-weight: 860 !important;
+}
+
+@media (max-width: 768px) {
+  .turn-indicator {
+    max-width: 132px !important;
+    padding-inline: 7px !important;
+  }
+  .turn-label {
+    font-size: 9px !important;
+  }
+  .turn-player-name {
+    max-width: 74px !important;
+    font-size: 11px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .turn-indicator {
+    max-width: 112px !important;
+  }
+  .turn-player-name {
+    max-width: 58px !important;
+    font-size: 10px !important;
+  }
+}

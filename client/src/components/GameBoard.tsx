@@ -301,7 +301,10 @@ const GameBoard: React.FC<GameBoardProps> = ({
                   {(() => {
                     const turnPlayer = gameState.players[gameState.currentPlayerIndex];
                     return turnPlayer ? (
-                      <span className="turn-name">轮到 {turnPlayer.name}</span>
+                      <span className="turn-name" title={`轮到 ${turnPlayer.name}`}>
+                        <span className="turn-label">轮到</span>
+                        <span className="turn-player-name">{turnPlayer.name}</span>
+                      </span>
                     ) : null;
                   })()}
                 </div>
