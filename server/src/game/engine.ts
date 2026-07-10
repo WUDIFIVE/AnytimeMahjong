@@ -89,6 +89,7 @@ export interface GameState {
   pendingDiscard: Tile | null;
   pendingClaims: Claim[];
   lastDraw: Tile | null;
+  lastDiscard: Tile | null;
   lastDiscardBy?: string;
   lastDiscardPlayerName?: string;
   winnerIndex: number | null;
@@ -328,6 +329,7 @@ export function executePong(player: Player, tile: Tile, gameState: GameState): v
       .findIndex(d => tileEquals(d, gameState.pendingDiscard!));
     if (discIdx >= 0) gameState.players[gameState.currentPlayerIndex].discards.splice(discIdx, 1);
   }
+  gameState.lastDiscard = null;
   gameState.lastDiscardBy = undefined;
   gameState.lastDiscardPlayerName = undefined;
   gameState.pendingDiscard = null;
@@ -354,6 +356,7 @@ export function executeChi(player: Player, tile: Tile, tiles: [Tile, Tile], game
       .findIndex(d => tileEquals(d, gameState.pendingDiscard!));
     if (discIdx >= 0) gameState.players[gameState.currentPlayerIndex].discards.splice(discIdx, 1);
   }
+  gameState.lastDiscard = null;
   gameState.lastDiscardBy = undefined;
   gameState.lastDiscardPlayerName = undefined;
   gameState.pendingDiscard = null;
@@ -380,6 +383,7 @@ export function executeMingGang(player: Player, tile: Tile, gameState: GameState
       .findIndex(d => tileEquals(d, gameState.pendingDiscard!));
     if (discIdx >= 0) gameState.players[gameState.currentPlayerIndex].discards.splice(discIdx, 1);
   }
+  gameState.lastDiscard = null;
   gameState.lastDiscardBy = undefined;
   gameState.lastDiscardPlayerName = undefined;
   gameState.pendingDiscard = null;
@@ -763,7 +767,7 @@ export function serializeGameState(state: GameState): any {
     turnCount: state.turnCount,
     settings: state.settings,
     pendingDiscard: state.pendingDiscard ? serializeTile(state.pendingDiscard) : null,
-    lastDiscard: state.pendingDiscard ? serializeTile(state.pendingDiscard) : null,
+    lastDiscard: state.lastDiscard ? serializeTile(state.lastDiscard) : null,
     lastDiscardBy: state.lastDiscardBy,
     lastDiscardPlayerName: state.lastDiscardPlayerName,
     pendingClaims: state.pendingClaims.map(c => ({

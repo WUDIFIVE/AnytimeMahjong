@@ -326,6 +326,7 @@ export function setupWebSocketHandler(
       const discardTile = currentPlayer.hand[discardIdx];
       currentPlayer.hand.splice(discardIdx, 1);
       currentPlayer.discards.push(discardTile);
+      gameState.lastDiscard = discardTile;
       gameState.lastDiscardBy = currentPlayer.id;
       gameState.lastDiscardPlayerName = currentPlayer.name;
 
@@ -584,6 +585,9 @@ export function setupWebSocketHandler(
       const discardTile = player.hand[discardIdx];
       player.hand.splice(discardIdx, 1);
       player.discards.push(discardTile);
+      gameState.lastDiscard = discardTile;
+      gameState.lastDiscardBy = player.id;
+      gameState.lastDiscardPlayerName = player.name;
 
       broadcast(roomId, {
         type: 'discard',
@@ -789,6 +793,7 @@ export function setupWebSocketHandler(
 
         const discardTile = player.hand.splice(idx, 1)[0];
         player.discards.push(discardTile);
+        gameState.lastDiscard = discardTile;
         gameState.lastDiscardBy = player.id;
         gameState.lastDiscardPlayerName = player.name;
 

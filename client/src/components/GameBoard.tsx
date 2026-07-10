@@ -155,13 +155,12 @@ const GameBoard: React.FC<GameBoardProps> = ({
   const currentPlayer = gameState.players.find(p => p.id === playerId);
   const playerIndex = currentPlayer?.seatIndex ?? 0;
 
-  // Reorder players so current user is at bottom
-  const orderedPlayers = [...gameState.players];
+  // Reorder players by seat, then rotate so current user is always at bottom.
+  // The visual order is fixed: bottom(self) -> right(next) -> top(opposite) -> left(previous).
+  const orderedPlayers = [...gameState.players].sort((a, b) => a.seatIndex - b.seatIndex);
   const selfIndexInList = orderedPlayers.findIndex(p => p.id === playerId);
   if (selfIndexInList > 0) {
-    for (let i = 0; i < selfIndexInList; i++) {
-      orderedPlayers.push(orderedPlayers.shift()!);
-    }
+    orderedPlayers.push(...orderedPlayers.splice(0, selfIndexInList));
   }
 
   const handleTileClick = useCallback((tile: TileType) => {
@@ -236,17 +235,13 @@ const GameBoard: React.FC<GameBoardProps> = ({
 
 
   const myPendingClaim = gameState.pendingClaims.find(c => c.playerId === playerId);
-  const latestDiscardCandidates = orderedPlayers
-    .map(player => ({ player, tile: (player.discards ?? [])[Math.max(0, (player.discards ?? []).length - 1)] }))
-    .filter((entry): entry is { player: typeof orderedPlayers[number]; tile: TileType } => Boolean(entry.tile));
-  const latestDiscardEntry = latestDiscardCandidates
-    .find(entry => gameState.lastDiscardBy ? entry.player.id === gameState.lastDiscardBy : gameState.lastDiscard?.id === entry.tile.id)
-    || latestDiscardCandidates[latestDiscardCandidates.length - 1]
-    || null;
-  const displayLastDiscard = latestDiscardEntry?.tile ?? gameState.lastDiscard;
-  const displayLastDiscardBy = latestDiscardEntry?.player.id ?? gameState.lastDiscardBy;
+  const displayLastDiscard = gameState.lastDiscard;
+  const displayLastDiscardBy = gameState.lastDiscardBy;
+  const latestDiscardPlayer = displayLastDiscardBy
+    ? orderedPlayers.find(player => player.id === displayLastDiscardBy)
+    : null;
   const respondingTile = anyPending ? gameState.lastDiscard : null;
-  const lastDiscardPlayerName = latestDiscardEntry?.player.name
+  const lastDiscardPlayerName = latestDiscardPlayer?.name
     || gameState.lastDiscardPlayerName
     || gameState.players.find(p => p.id === gameState.lastDiscardBy)?.name
     || '上一家';
@@ -352,7 +347,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
                   <div className="central-discard-tiles">
                     {(player.discards ?? []).map((tile, tileIdx, shown) => {
                       const isLatestForPlayer = tileIdx === shown.length - 1;
-                      const isTableLatest = isLatestForPlayer && displayLastDiscard?.id === tile.id && displayLastDiscardBy === player.id;
+                      const isTableLatest = displayLastDiscard?.id === tile.id && displayLastDiscardBy === player.id;
                       return (
                         <span className={`discard-tile-wrap ${isTableLatest ? 'discard-latest' : ''}`} key={tile.id} title={`${player.name} 打出 ${formatTile(tile)}`}>
                           {isTableLatest && <em className="discard-arrow">↑</em>}
