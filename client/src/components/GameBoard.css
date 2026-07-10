@@ -1907,3 +1907,175 @@
     font-size: 10px !important;
   }
 }
+
+/* === Table space rebalance: bigger center table, less wasted opponent top space === */
+.game-table {
+  grid-template-columns: minmax(136px, 176px) minmax(620px, 1fr) minmax(136px, 176px) !important;
+  grid-template-rows: minmax(44px, auto) minmax(470px, 1fr) minmax(108px, auto) !important;
+  gap: 6px !important;
+  padding: 6px 10px 8px !important;
+}
+.slot-top {
+  align-items: flex-start !important;
+  min-height: 0 !important;
+}
+.slot-top .player-area {
+  padding: 4px 8px !important;
+  border-radius: 16px !important;
+  max-width: min(520px, 100%) !important;
+}
+.slot-top .player-info {
+  margin-bottom: 2px !important;
+  padding: 2px 8px !important;
+}
+.slot-top .opponent-hand-summary {
+  padding: 3px 8px !important;
+  min-height: 0 !important;
+}
+.slot-left .player-area,
+.slot-right .player-area {
+  width: 100% !important;
+  padding: 7px !important;
+}
+.slot-left .player-info,
+.slot-right .player-info {
+  max-width: 100% !important;
+  padding-inline: 7px !important;
+}
+.slot-left .player-name,
+.slot-right .player-name {
+  max-width: 92px !important;
+}
+.table-center {
+  gap: 6px !important;
+}
+.table-dashboard {
+  width: min(900px, 100%) !important;
+  padding: 5px 8px !important;
+  gap: 4px !important;
+}
+.central-discards {
+  width: min(1040px, 100%) !important;
+  grid-template-columns: minmax(150px, .88fr) minmax(270px, 1.5fr) minmax(150px, .88fr) !important;
+  grid-template-rows: minmax(60px, auto) minmax(190px, 1fr) minmax(86px, auto) !important;
+  gap: 7px !important;
+  padding: 9px !important;
+}
+.discard-row-top {
+  min-height: 56px !important;
+}
+.discard-row-top .central-discard-tiles {
+  min-height: 0 !important;
+}
+.discard-row-left .central-discard-tiles,
+.discard-row-right .central-discard-tiles {
+  max-width: 150px !important;
+}
+.central-discard-tiles .mahjong-tile.tile-small {
+  width: 31px !important;
+  min-width: 31px !important;
+  height: 42px !important;
+}
+.central-discard-tiles .mahjong-tile.tile-small .tile-content {
+  transform: scale(.7) !important;
+}
+
+@media (min-width: 1200px) {
+  .game-table {
+    grid-template-columns: 176px minmax(760px, 1fr) 176px !important;
+    grid-template-rows: minmax(46px, auto) minmax(520px, 1fr) minmax(108px, auto) !important;
+    padding-inline: 14px !important;
+  }
+  .central-discards {
+    width: min(1120px, 100%) !important;
+    grid-template-columns: minmax(170px, .9fr) minmax(320px, 1.55fr) minmax(170px, .9fr) !important;
+    grid-template-rows: minmax(64px, auto) minmax(220px, 1fr) minmax(92px, auto) !important;
+  }
+  .discard-row-left .central-discard-tiles,
+  .discard-row-right .central-discard-tiles {
+    max-width: 172px !important;
+  }
+}
+
+@media (max-height: 760px) and (min-width: 769px) {
+  .game-table {
+    grid-template-rows: minmax(38px, auto) minmax(390px, 1fr) minmax(92px, auto) !important;
+    padding-block: 4px 6px !important;
+  }
+  .slot-top .player-area {
+    padding-block: 3px !important;
+  }
+  .central-discards {
+    grid-template-rows: minmax(52px, auto) minmax(165px, 1fr) minmax(76px, auto) !important;
+    padding: 7px !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .game-table {
+    grid-template-columns: minmax(86px, 108px) minmax(0, 1fr) minmax(86px, 108px) !important;
+    grid-template-rows: minmax(46px, auto) minmax(430px, auto) minmax(138px, auto) !important;
+    gap: 5px !important;
+    padding: 5px 6px calc(62px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+  .slot-left .player-area,
+  .slot-right .player-area {
+    padding: 5px !important;
+  }
+  .slot-left .player-name,
+  .slot-right .player-name {
+    max-width: 68px !important;
+    font-size: 10px !important;
+  }
+  .slot-top .player-area {
+    padding: 3px 7px !important;
+  }
+  .table-center {
+    min-height: 430px !important;
+  }
+  .central-discards {
+    min-height: 360px !important;
+    grid-template-columns: minmax(62px, .72fr) minmax(150px, 1.65fr) minmax(62px, .72fr) !important;
+    grid-template-rows: minmax(58px, auto) minmax(150px, auto) minmax(70px, auto) !important;
+    padding: 5px !important;
+  }
+  .discard-row-left .central-discard-tiles,
+  .discard-row-right .central-discard-tiles {
+    max-width: 62px !important;
+  }
+  .central-discard-tiles .mahjong-tile.tile-small {
+    width: 21px !important;
+    min-width: 21px !important;
+    height: 29px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .game-table {
+    grid-template-columns: 52px minmax(0, 1fr) 52px !important;
+    grid-template-rows: minmax(42px, auto) minmax(408px, auto) minmax(144px, auto) !important;
+    padding-inline: 3px !important;
+  }
+  .slot-left .player-name,
+  .slot-right .player-name {
+    max-width: 48px !important;
+    font-size: 9px !important;
+  }
+  .table-center {
+    min-height: 408px !important;
+  }
+  .central-discards {
+    min-height: 342px !important;
+    grid-template-columns: 48px minmax(136px, 1fr) 48px !important;
+    grid-template-rows: minmax(56px, auto) minmax(138px, auto) minmax(70px, auto) !important;
+  }
+  .discard-row-left .central-discard-tiles,
+  .discard-row-right .central-discard-tiles {
+    max-width: 46px !important;
+  }
+  .central-discard-tiles .mahjong-tile.tile-small {
+    width: 19px !important;
+    min-width: 19px !important;
+    height: 26px !important;
+  }
+}
