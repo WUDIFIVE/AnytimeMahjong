@@ -15,8 +15,8 @@ const NUMBER_CHARS = ['', '一', '二', '三', '四', '五', '六', '七', '八'
 
 function formatClassicCorner(tile: TileType): string {
   if (!tile) return '';
-  if (tile.suit === 'wan') return `${NUMBER_CHARS[tile.value] || tile.value}萬`;
-  if (tile.suit === 'tiao') return `${tile.value}索`;
+  if (tile.suit === 'wan') return `${NUMBER_CHARS[tile.value] || tile.value}万`;
+  if (tile.suit === 'tiao') return `${tile.value}条`;
   if (tile.suit === 'tong') return `${tile.value}筒`;
   return tileDisplayChar(tile);
 }

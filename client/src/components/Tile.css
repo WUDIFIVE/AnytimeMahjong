@@ -484,3 +484,286 @@
 .mahjong-tile.tile-face-down { background:linear-gradient(145deg,#d9f5e5 0%,#77c99a 50%,#23865b 100%); border-color:rgba(31,143,98,.28); box-shadow:0 5px 0 #1b6f4b, 0 8px 14px rgba(24,50,34,.18), inset 0 2px 2px rgba(255,255,255,.38); }
 .tile-face-down .tile-back-pattern { border-radius:10px; }
 @media (max-width:768px){ .mahjong-tile:not(.tile-small){ width:clamp(31px,8.6vw,43px); height:clamp(43px,12vw,60px); border-radius:10px; box-shadow:0 4px 0 #c9b994, 0 6px 10px rgba(31,44,35,.16), inset 0 2px 2px rgba(255,255,255,.9); } .tile-content{transform:scale(.84)} }
+
+/* === Final tile face redesign: clean Chinese Mahjong patterns === */
+.mahjong-tile {
+  width: 50px;
+  height: 70px;
+  border-radius: 13px;
+  background:
+    radial-gradient(circle at 28% 14%, rgba(255,255,255,0.98), transparent 24%),
+    linear-gradient(145deg, #fffdf5 0%, #f6efe0 52%, #e1d2b4 100%);
+  border: 1px solid rgba(154, 134, 99, 0.48);
+  box-shadow:
+    0 5px 0 #c8b58d,
+    0 9px 16px rgba(30, 36, 28, 0.18),
+    inset 0 2px 3px rgba(255,255,255,0.96),
+    inset 0 -5px 10px rgba(116, 92, 56, 0.12);
+}
+.mahjong-tile::before {
+  background:
+    linear-gradient(145deg, rgba(255,255,255,0.22), transparent 38%),
+    radial-gradient(circle at 68% 74%, rgba(116, 167, 141, 0.07), transparent 32%);
+}
+.mahjong-tile::after {
+  inset: 4px;
+  border-radius: 10px;
+  border: 1px solid rgba(132, 111, 75, 0.15);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.26);
+}
+.tile-face-plate {
+  inset: 6px;
+  border-radius: 9px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.20), rgba(255,255,255,0.04));
+  box-shadow: inset 0 0 0 1px rgba(130, 108, 72, 0.08);
+}
+.tile-content {
+  width: 76%;
+  height: 70%;
+  filter: drop-shadow(0 1px 0 rgba(255,255,255,0.76)) drop-shadow(0 1px 1px rgba(60,40,20,0.14));
+}
+.tile-corner {
+  font-size: 7px;
+  letter-spacing: -0.5px;
+  color: rgba(71, 54, 35, 0.44);
+  font-family: ui-serif, 'Songti SC', 'STSong', 'Noto Serif CJK SC', serif;
+}
+.corner-top { top: 6px; left: 7px; }
+.corner-bottom { right: 7px; bottom: 6px; }
+
+/* 筒子：真实麻将风格的彩色同心筒，减少廉价圆点感 */
+.dots {
+  width: 36px;
+  height: 46px;
+  gap: 3px;
+  padding: 4px;
+}
+.dot {
+  width: 10px;
+  height: 10px;
+  background:
+    radial-gradient(circle at 50% 50%, #fffdf2 0 18%, currentColor 19% 32%, #fffdf2 33% 47%, currentColor 48% 67%, transparent 68%);
+  border: 1px solid currentColor;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.65),
+    0 1px 1px rgba(52, 37, 19, 0.18);
+}
+.dot i {
+  inset: 50%;
+  width: 2px;
+  height: 2px;
+  transform: translate(-50%, -50%);
+  background: currentColor;
+  box-shadow: none;
+}
+.dot-red { color: #cf2626; background-color: transparent; }
+.dot-blue { color: #1767ad; background-color: transparent; }
+.dot-green { color: #16864d; background-color: transparent; }
+.dots-1 .dot {
+  width: 21px;
+  height: 21px;
+  background:
+    radial-gradient(circle at 50% 50%, #fffdf2 0 16%, #cf2626 17% 30%, #fffdf2 31% 43%, #1767ad 44% 59%, #fffdf2 60% 70%, #16864d 71% 100%);
+  color: #1767ad;
+}
+.dots-1 .dot i { width: 4px; height: 4px; background: #cf2626; }
+.dots-5 .dot-4,
+.dots-7 .dot-6 { color: #cf2626; }
+.dots-8 .dot:nth-child(7),
+.dots-8 .dot:nth-child(8),
+.dots-9 .dot:nth-child(5) { color: #cf2626; }
+
+/* 条子：更像竹节牌，修正原先过于像绿色小棍的问题 */
+.bamboo:not(.bamboo-1) {
+  width: 36px;
+  height: 47px;
+  gap: 2px 4px;
+  padding: 4px 5px;
+}
+.bamboo-stick {
+  width: 7px;
+  height: 17px;
+  border-radius: 9px;
+  background:
+    radial-gradient(ellipse at 46% 16%, rgba(255,255,255,0.60), transparent 30%),
+    linear-gradient(90deg, #064b2a 0%, #159152 28%, #5ed789 50%, #16864d 72%, #043f24 100%);
+  border: 1px solid rgba(2, 73, 38, 0.46);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.44),
+    inset 0 -1px 0 rgba(0,0,0,0.18),
+    0 1px 1px rgba(30, 36, 28, 0.14);
+}
+.bamboo-stick::before,
+.bamboo-stick i,
+.bamboo-stick::after {
+  height: 2px;
+  left: -1px;
+  right: -1px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #7c1616, #d82b2b 48%, #7c1616);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.24);
+}
+.bamboo-stick::before { top: 3px; }
+.bamboo-stick i { top: 8px; }
+.bamboo-stick::after { top: 13px; }
+.bamboo-2 .stick-0 { grid-column: 1; grid-row: 1 / span 2; transform: translate(7px, 4px) rotate(-2deg); }
+.bamboo-2 .stick-1 { grid-column: 3; grid-row: 2 / span 2; transform: translate(-7px, -4px) rotate(2deg); }
+.bamboo-3 .stick-0 { transform: rotate(-8deg); }
+.bamboo-3 .stick-1 { transform: rotate(0deg); }
+.bamboo-3 .stick-2 { transform: rotate(8deg); }
+.bamboo-5 .stick-4,
+.bamboo-7 .stick-6 { background: radial-gradient(ellipse at 46% 16%, rgba(255,255,255,0.60), transparent 30%), linear-gradient(90deg, #7c1616, #d82b2b 48%, #7c1616); border-color: rgba(124,22,22,0.42); }
+
+/* 一条：简化幺鸡，保留传统识别度但更干净 */
+.bamboo-1 {
+  width: 38px;
+  height: 48px;
+}
+.bird-body,
+.bird-head,
+.bird-wing,
+.bird-tail { position: absolute; display: block; }
+.bird-body {
+  width: 17px;
+  height: 24px;
+  left: 10px;
+  top: 17px;
+  border-radius: 58% 58% 44% 44%;
+  background:
+    radial-gradient(circle at 50% 20%, rgba(255,255,255,0.38), transparent 24%),
+    linear-gradient(180deg, #2bbb6b 0%, #0d7544 100%);
+  border: 1px solid rgba(5, 98, 54, 0.38);
+  box-shadow: inset 0 2px 1px rgba(255,255,255,0.22), 0 1px 1px rgba(30,36,28,0.14);
+}
+.bird-head {
+  width: 12px;
+  height: 12px;
+  left: 13px;
+  top: 7px;
+  border-radius: 60% 60% 52% 52%;
+  background:
+    radial-gradient(circle at 68% 38%, #101010 0 1.6px, transparent 2px),
+    linear-gradient(180deg, #ee3a32, #b91c1c);
+}
+.bird-head::before {
+  content: '';
+  position: absolute;
+  right: -5px;
+  top: 4px;
+  width: 7px;
+  height: 4px;
+  background: #d89a1d;
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
+}
+.bird-wing {
+  width: 13px;
+  height: 20px;
+  top: 22px;
+  border-radius: 70% 40% 70% 36%;
+  background:
+    repeating-linear-gradient(115deg, rgba(255,255,255,0.18) 0 2px, transparent 2px 5px),
+    linear-gradient(180deg, #2d7fc5, #125a9a);
+  border: 1px solid rgba(18, 90, 154, 0.32);
+}
+.wing-left { left: 3px; transform: rotate(-28deg); }
+.wing-right { right: 3px; transform: scaleX(-1) rotate(-28deg); }
+.bird-tail {
+  left: 12px;
+  bottom: 2px;
+  width: 14px;
+  height: 13px;
+  border-radius: 0 0 70% 70%;
+  background: conic-gradient(from 215deg, #cf2626, #f4bf3b, #16864d, #1767ad, #cf2626);
+  clip-path: polygon(50% 100%, 4% 0, 34% 14%, 50% 0, 66% 14%, 96% 0);
+}
+
+/* 万子：传统上下汉字，红数字黑万，字重更像麻将刻印 */
+.classic-wan {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Kaiti SC', 'STKaiti', 'Songti SC', 'Noto Serif CJK SC', serif;
+}
+.wan-number,
+.wan-cloud {
+  line-height: 0.96;
+  font-weight: 900;
+  text-shadow: 0 1px 0 rgba(255,255,255,0.86), 0 1px 1px rgba(0,0,0,0.16);
+}
+.wan-number { font-size: 27px; color: #cf2626; }
+.wan-cloud { font-size: 27px; color: #151515; }
+
+/* 风箭牌：留白更足，像真实白牌上刻字 */
+.honor-art {
+  font-family: 'Kaiti SC', 'STKaiti', 'Songti SC', 'Noto Serif CJK SC', serif;
+}
+.honor-char {
+  font-size: 35px;
+  line-height: 1;
+  font-weight: 900;
+  letter-spacing: -2px;
+}
+.dragon-art .honor-char { color: #cf2626; }
+.wind-art .honor-char { color: #141414; }
+.tile-jian .honor-char { text-shadow: 0 1px 0 rgba(255,255,255,0.85), 0 2px 2px rgba(207,38,38,0.12); }
+.tile-feng .honor-char { text-shadow: 0 1px 0 rgba(255,255,255,0.85), 0 2px 2px rgba(0,0,0,0.12); }
+
+/* 背牌：更高级的玉绿色压纹 */
+.mahjong-tile.tile-face-down {
+  background:
+    radial-gradient(circle at 28% 18%, rgba(255,255,255,0.38), transparent 24%),
+    linear-gradient(145deg, #d7f2e3 0%, #81cda0 46%, #2b8e63 100%);
+  border-color: rgba(31, 143, 98, 0.34);
+  box-shadow:
+    0 5px 0 #1c704d,
+    0 9px 16px rgba(23, 66, 45, 0.20),
+    inset 0 2px 2px rgba(255,255,255,0.38),
+    inset 0 -5px 10px rgba(9,70,45,0.18);
+}
+.tile-face-down .tile-back-pattern {
+  inset: 7px;
+  border-radius: 10px;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(255,255,255,0.28) 0 3px, transparent 4px),
+    radial-gradient(circle at 50% 50%, transparent 0 10px, rgba(255,255,255,0.14) 11px 12px, transparent 13px),
+    repeating-linear-gradient(45deg, transparent 0 6px, rgba(255,255,255,0.08) 6px 8px);
+  border: 1px solid rgba(255,255,255,0.28);
+  box-shadow: inset 0 0 0 1px rgba(18,93,61,0.12);
+}
+.back-flower {
+  color: rgba(255,255,255,0.48);
+  font-size: 20px;
+}
+
+.tile-small .tile-content { transform: scale(0.80); }
+.tile-small .tile-corner { display: none; }
+.tile-small .dot { width: 8px; height: 8px; }
+.tile-small .dots-1 .dot { width: 14px; height: 14px; }
+.tile-small .bamboo-stick { width: 5px; height: 12px; }
+.tile-small .bamboo-stick::before { top: 2px; }
+.tile-small .bamboo-stick i { top: 5px; }
+.tile-small .bamboo-stick::after { top: 9px; }
+.tile-small .wan-number,
+.tile-small .wan-cloud { font-size: 18px; }
+.tile-small .honor-char { font-size: 22px; letter-spacing: -1px; }
+.tile-small .bird-body { width: 12px; height: 16px; left: 11px; top: 17px; }
+.tile-small .bird-head { width: 8px; height: 8px; left: 14px; top: 9px; }
+.tile-small .bird-head::before { right: -4px; top: 3px; width: 5px; height: 3px; }
+.tile-small .bird-wing { width: 8px; height: 13px; top: 21px; }
+.tile-small .bird-tail { left: 13px; width: 9px; height: 8px; }
+
+@media (max-width: 768px) {
+  .position-bottom .hand-row .mahjong-tile {
+    width: clamp(34px, 8.8vw, 44px);
+    height: clamp(48px, 12.3vw, 61px);
+  }
+  .position-bottom .hand-row .tile-content { transform: scale(0.80); }
+}
+@media (max-width: 480px) {
+  .position-bottom .hand-row .tile-content { transform: scale(0.72); }
+  .central-discards .tile-small .tile-content,
+  .melds-row .tile-small .tile-content { transform: scale(0.58); }
+}
