@@ -1405,3 +1405,89 @@
     max-width: 36px !important;
   }
 }
+
+/* === Final functional safety layout: discards visible, no internal discard scrolling === */
+.table-center {
+  min-height: 0 !important;
+}
+.central-discards,
+.central-discard-row,
+.central-discard-tiles {
+  overflow: visible !important;
+}
+.central-discard-tiles {
+  flex-wrap: wrap !important;
+  align-content: flex-start !important;
+}
+
+@media (max-width: 768px) {
+  .game-board {
+    height: 100dvh !important;
+    overflow: hidden !important;
+  }
+  .game-table {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    grid-template-columns: minmax(42px, 60px) minmax(0, 1fr) minmax(42px, 60px) !important;
+    grid-template-rows: auto minmax(390px, auto) minmax(152px, auto) !important;
+    padding-bottom: calc(74px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+  .table-center {
+    overflow: visible !important;
+    justify-content: flex-start !important;
+  }
+  .central-discards {
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    min-height: 360px !important;
+    height: auto !important;
+    grid-template-columns: minmax(54px, .7fr) minmax(138px, 1.55fr) minmax(54px, .7fr) !important;
+    grid-template-rows: minmax(78px, auto) minmax(138px, auto) minmax(82px, auto) !important;
+    overflow: visible !important;
+  }
+  .central-discard-row {
+    min-height: 52px !important;
+  }
+  .discard-row-left,
+  .discard-row-right {
+    min-height: 138px !important;
+  }
+  .discard-row-left .central-discard-tiles,
+  .discard-row-right .central-discard-tiles {
+    max-width: 56px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .game-table {
+    grid-template-columns: 38px minmax(0, 1fr) 38px !important;
+    grid-template-rows: auto minmax(370px, auto) minmax(150px, auto) !important;
+    padding-left: 3px !important;
+    padding-right: 3px !important;
+  }
+  .central-discards {
+    min-height: 340px !important;
+    padding: 4px !important;
+    gap: 3px !important;
+    grid-template-columns: 38px minmax(128px, 1fr) 38px !important;
+    grid-template-rows: minmax(76px, auto) minmax(130px, auto) minmax(80px, auto) !important;
+  }
+  .central-discard-row {
+    padding: 2px !important;
+    min-height: 50px !important;
+  }
+  .discard-row-left,
+  .discard-row-right {
+    min-height: 130px !important;
+  }
+  .discard-row-left .central-discard-tiles,
+  .discard-row-right .central-discard-tiles {
+    max-width: 36px !important;
+  }
+  .central-discard-tiles .mahjong-tile.tile-small {
+    width: 19px !important;
+    min-width: 19px !important;
+    height: 27px !important;
+  }
+}

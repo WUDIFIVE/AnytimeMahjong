@@ -54,6 +54,7 @@ export function setupWebSocketHandler(
 ): void {
   const clients = new Map<WebSocket, ClientInfo>();
   const aiClaimTimeouts = new Map<string, ReturnType<typeof setTimeout>>();
+  const aiTurnTimeouts = new Map<string, ReturnType<typeof setTimeout>>();
 
   const CLAIM_PRIORITY: Record<Claim['type'], number> = {
     win: 4,
@@ -95,6 +96,26 @@ export function setupWebSocketHandler(
   function getGameState(roomId: string): GameState | null {
     const room = roomManager.getRoom(roomId);
     return room?.gameState ?? null;
+  }
+
+
+  function getPlayerIndexById(gameState: GameState, playerId: string): number {
+    return gameState.players.findIndex(p => p.id === playerId);
+  }
+
+  function getNextTurnIndex(gameState: GameState, currentIndex = gameState.currentPlayerIndex): number {
+    const players = gameState.players;
+    if (players.length === 0) return 0;
+    const current = players[currentIndex] ?? players[0];
+    const seatOrder = [...players].sort((a, b) => a.seatIndex - b.seatIndex);
+    const currentSeatPos = seatOrder.findIndex(p => p.id === current.id);
+    const nextPlayer = seatOrder[(currentSeatPos + 1 + seatOrder.length) % seatOrder.length];
+    const nextIndex = getPlayerIndexById(gameState, nextPlayer.id);
+    return nextIndex >= 0 ? nextIndex : 0;
+  }
+
+  function isCurrentPlayer(gameState: GameState, playerId: string): boolean {
+    return gameState.players[gameState.currentPlayerIndex]?.id === playerId;
   }
 
 
@@ -188,6 +209,13 @@ export function setupWebSocketHandler(
     aiClaimTimeouts.delete(roomId);
   }
 
+  function clearAITurnTimeout(roomId: string): void {
+    const timeout = aiTurnTimeouts.get(roomId);
+    if (!timeout) return;
+    clearTimeout(timeout);
+    aiTurnTimeouts.delete(roomId);
+  }
+
   function computeClaims(gameState: GameState, discardTile: Tile): void {
     gameState.pendingDiscard = discardTile;
     gameState.pendingClaims = [];
@@ -276,7 +304,7 @@ export function setupWebSocketHandler(
   function advanceTurnAndDraw(gameState: GameState, roomId: string): boolean {
     gameState.pendingDiscard = null;
     gameState.pendingClaims = [];
-    gameState.currentPlayerIndex = (gameState.currentPlayerIndex + 1) % gameState.players.length;
+    gameState.currentPlayerIndex = getNextTurnIndex(gameState);
     gameState.turnCount++;
     gameState.lastDraw = null;
     return drawForCurrentPlayer(gameState, roomId);
@@ -287,6 +315,7 @@ export function setupWebSocketHandler(
     gameState.turnCount++;
     gameState.lastDraw = null;
     clearAIClaimTimeout(roomId);
+    clearAITurnTimeout(roomId);
     logHandSizeAnomalies(gameState, `claim:${gameState.players[playerIndex]?.name ?? playerIndex}`);
   }
 
@@ -294,6 +323,7 @@ export function setupWebSocketHandler(
     gameState.currentPlayerIndex = playerIndex;
     gameState.turnCount++;
     clearAIClaimTimeout(roomId);
+    clearAITurnTimeout(roomId);
     logHandSizeAnomalies(gameState, `kong:${gameState.players[playerIndex]?.name ?? playerIndex}`);
   }
 
@@ -317,9 +347,14 @@ export function setupWebSocketHandler(
     const player = gameState.players[gameState.currentPlayerIndex];
     if (!player || !player.isAI || gameState.pendingClaims.length > 0) return;
 
-    setTimeout(() => {
+    clearAITurnTimeout(roomId);
+    const scheduledPlayerId = player.id;
+    const scheduledTurnCount = gameState.turnCount;
+    aiTurnTimeouts.set(roomId, setTimeout(() => {
+      aiTurnTimeouts.delete(roomId);
       if (gameState.phase !== 'playing') return;
       const currentPlayer = gameState.players[gameState.currentPlayerIndex];
+      if (gameState.turnCount !== scheduledTurnCount || currentPlayer?.id !== scheduledPlayerId) return;
       if (!currentPlayer || !currentPlayer.isAI || currentPlayer.hand.length === 0 || gameState.pendingClaims.length > 0) return;
 
       const discardIdx = evaluateDiscard(currentPlayer.hand, currentPlayer.melds, gameState, gameState.currentPlayerIndex);
@@ -376,7 +411,7 @@ export function setupWebSocketHandler(
         });
         checkAndHandleAI(gameState, roomId);
       }
-    }, delayMs);
+    }, delayMs));
   }
 
   function executeClaim(gameState: GameState, roomId: string, claim: Claim, source: 'ai' | 'human'): boolean {
@@ -388,6 +423,7 @@ export function setupWebSocketHandler(
       const result = checkWin(player.hand, player.melds, discard, false, gameState.settings);
       if (!result) return false;
       clearAIClaimTimeout(roomId);
+      clearAITurnTimeout(roomId);
       gameState.winnerIndex = player.seatIndex;
       gameState.phase = 'finished';
       gameState.pendingClaims = [];
@@ -521,9 +557,14 @@ export function setupWebSocketHandler(
     const player = gameState.players[gameState.currentPlayerIndex];
     if (!player || !player.isAI) return;
 
-    setTimeout(() => {
+    clearAITurnTimeout(roomId);
+    const scheduledPlayerId = player.id;
+    const scheduledTurnCount = gameState.turnCount;
+    aiTurnTimeouts.set(roomId, setTimeout(() => {
+      aiTurnTimeouts.delete(roomId);
       if (gameState.phase !== 'playing' || gameState.pendingClaims.length > 0) return;
       const player = gameState.players[gameState.currentPlayerIndex];
+      if (gameState.turnCount !== scheduledTurnCount || player?.id !== scheduledPlayerId) return;
       if (!player || !player.isAI) return;
 
       const discardHandSize = 14 - player.melds.length * 3;
@@ -536,6 +577,7 @@ export function setupWebSocketHandler(
       if (aiShouldWin(player.hand, player.melds, null, gameState.settings)) {
         const result = checkWin(player.hand, player.melds, null, true, gameState.settings);
         if (!result) return;
+        clearAITurnTimeout(roomId);
         gameState.winnerIndex = gameState.currentPlayerIndex;
         gameState.phase = 'finished';
         const clientWinResult = buildClientWinResult(gameState, player, result, true, null);
@@ -616,7 +658,7 @@ export function setupWebSocketHandler(
         });
         checkAndHandleAI(gameState, roomId);
       }
-    }, 1000);
+    }, 1000));
   }
 
   function checkAndHandleAI(gameState: GameState, roomId: string): void {
@@ -744,7 +786,7 @@ export function setupWebSocketHandler(
           const playerView = serializeGameState(gameState);
           playerView.players = gameState.players.map((p) => {
             const sp = serializePlayer(p);
-            sp.isCurrentTurn = p.seatIndex === gameState.currentPlayerIndex;
+            sp.isCurrentTurn = gameState.players[gameState.currentPlayerIndex]?.id === p.id;
             if (p.id !== player.id) {
               sp.hand = Array.from({ length: p.hand.length }, (_unused, idx) => ({ id: `hidden-${p.id}-${idx}`, suit: 'wan', value: 1 }));
               sp.handSize = p.hand.length;
@@ -865,11 +907,7 @@ export function setupWebSocketHandler(
 
         const player = gameState.players[claim.playerIndex];
         executePong(player, gameState.pendingDiscard!, gameState);
-        gameState.currentPlayerIndex = claim.playerIndex;
-        gameState.turnCount++;
-        gameState.pendingClaims = [];
-        gameState.pendingDiscard = null;
-        clearAIClaimTimeout(info.roomId);
+        enterDiscardTurnAfterClaim(gameState, info.roomId, claim.playerIndex);
 
         broadcast(info.roomId, {
           type: 'pong_executed',
@@ -908,11 +946,7 @@ export function setupWebSocketHandler(
         const tiles = claim.chiOptions[optionIndex];
         const player = gameState.players[claim.playerIndex];
         executeChi(player, gameState.pendingDiscard!, [tiles[0], tiles[1]], gameState);
-        gameState.currentPlayerIndex = claim.playerIndex;
-        gameState.turnCount++;
-        gameState.pendingClaims = [];
-        gameState.pendingDiscard = null;
-        clearAIClaimTimeout(info.roomId);
+        enterDiscardTurnAfterClaim(gameState, info.roomId, claim.playerIndex);
 
         broadcast(info.roomId, {
           type: 'chi_executed',
@@ -944,11 +978,7 @@ export function setupWebSocketHandler(
 
         const player = gameState.players[claim.playerIndex];
         executeMingGang(player, gameState.pendingDiscard!, gameState);
-        gameState.currentPlayerIndex = claim.playerIndex;
-        gameState.turnCount++;
-        gameState.pendingClaims = [];
-        gameState.pendingDiscard = null;
-        clearAIClaimTimeout(info.roomId);
+        enterDiscardTurnAfterKong(gameState, info.roomId, claim.playerIndex);
 
         broadcast(info.roomId, {
           type: 'minggang_executed',
@@ -1086,7 +1116,7 @@ export function setupWebSocketHandler(
         if (!player) return;
 
         const isZimo =
-          gameState.currentPlayerIndex === player.seatIndex &&
+          isCurrentPlayer(gameState, player.id) &&
           gameState.pendingClaims.length === 0 &&
           gameState.lastDraw !== null;
 
@@ -1113,6 +1143,7 @@ export function setupWebSocketHandler(
         gameState.winnerIndex = player.seatIndex;
         gameState.phase = 'finished';
         clearAIClaimTimeout(info.roomId);
+        clearAITurnTimeout(info.roomId);
 
         const clientWinResult = buildClientWinResult(gameState, player, result, isZimo, newTile);
         broadcast(info.roomId, {

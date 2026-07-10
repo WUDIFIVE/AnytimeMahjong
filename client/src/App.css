@@ -205,3 +205,27 @@ select:focus-visible {
 .rule-fab:hover { transform: translateY(-2px) scale(1.04); border-color: rgba(31,143,98,.26); }
 button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid rgba(10,132,255,.28); outline-offset: 3px; }
 @media (max-width: 768px) { .app { min-height: 100dvh; overflow: hidden; } .connection-status { display: none; } .rule-fab { width: 42px; height: 42px; right: 12px; bottom: calc(84px + env(safe-area-inset-bottom)); font-size: 17px; } }
+
+/* === Final mobile rule button placement: never cover the hand === */
+@media (max-width: 768px) {
+  .rule-fab {
+    top: calc(58px + env(safe-area-inset-top, 0px)) !important;
+    left: 10px !important;
+    right: auto !important;
+    bottom: auto !important;
+    width: 38px !important;
+    height: 38px !important;
+    font-size: 15px !important;
+    z-index: 450 !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .rule-fab {
+    top: calc(52px + env(safe-area-inset-top, 0px)) !important;
+    left: 8px !important;
+    width: 34px !important;
+    height: 34px !important;
+    font-size: 14px !important;
+  }
+}
