@@ -110,6 +110,7 @@ export interface Room {
   gameState: GameState | null;
   createdAt: number;
   maxPlayers: number;
+  nextDealerSeatIndex: number;
 }
 
 // --- Tile helpers ---

@@ -98,6 +98,14 @@ export function setupWebSocketHandler(
     return room?.gameState ?? null;
   }
 
+  function setNextDealerToWinner(roomId: string, winner: Player): void {
+    const room = roomManager.getRoom(roomId);
+    if (!room) return;
+    room.nextDealerSeatIndex = winner.seatIndex;
+    room.players.forEach(player => {
+      player.isDealer = player.seatIndex === winner.seatIndex;
+    });
+  }
 
   function getPlayerIndexById(gameState: GameState, playerId: string): number {
     return gameState.players.findIndex(p => p.id === playerId);
@@ -425,6 +433,7 @@ export function setupWebSocketHandler(
       clearAIClaimTimeout(roomId);
       clearAITurnTimeout(roomId);
       gameState.winnerIndex = player.seatIndex;
+      setNextDealerToWinner(roomId, player);
       gameState.phase = 'finished';
       gameState.pendingClaims = [];
       gameState.pendingDiscard = null;
@@ -578,12 +587,13 @@ export function setupWebSocketHandler(
         const result = checkWin(player.hand, player.melds, null, true, gameState.settings);
         if (!result) return;
         clearAITurnTimeout(roomId);
-        gameState.winnerIndex = gameState.currentPlayerIndex;
+        gameState.winnerIndex = player.seatIndex;
+        setNextDealerToWinner(roomId, player);
         gameState.phase = 'finished';
         const clientWinResult = buildClientWinResult(gameState, player, result, true, null);
         broadcast(roomId, {
           type: 'game_over',
-          winnerIndex: gameState.currentPlayerIndex,
+          winnerIndex: player.seatIndex,
           winnerName: player.name,
           isZimo: true,
           winResult: clientWinResult,
@@ -1141,6 +1151,7 @@ export function setupWebSocketHandler(
         }
 
         gameState.winnerIndex = player.seatIndex;
+        setNextDealerToWinner(info.roomId, player);
         gameState.phase = 'finished';
         clearAIClaimTimeout(info.roomId);
         clearAITurnTimeout(info.roomId);

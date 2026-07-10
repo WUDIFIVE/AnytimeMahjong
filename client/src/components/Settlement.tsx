@@ -53,92 +53,46 @@ const Settlement: React.FC<SettlementProps> = ({
     document.body.removeChild(link);
   }
 
-  function drawFallbackSettlementImage(): string {
-    const width = 900;
-    const padding = 44;
-    const lineHeight = 34;
-    const rows = [
-      '中国大众麻将 · 本局结算',
-      isDraw ? '荒牌流局' : `${winner?.name || '玩家'} ${winTypeLabel}`,
-      `总番：${winResult?.totalFan ?? 0} 番`,
-      '',
-      '排名',
-      ...ranking.map(r => `${r.rank}. ${r.playerName}　${r.score}分${r.isWinner ? '　胡牌' : ''}`),
-      '',
-      !isDraw ? `完整牌型：${completeHandText}` : '牌墙摸完，无人胡牌。',
-      '',
-      ...(!isDraw && safeFans.length > 0 ? ['番型明细', ...safeFans.map(f => `${f.icon || '•'} ${f.name}　${f.fanValue}番　${f.description}`)] : []),
-      '',
-      ...(safePayouts.length > 0 ? ['本局结算', ...safePayouts.map(payout => {
-        const fromPlayer = safePlayers.find(p => p.id === payout.fromId);
-        const toPlayer = safePlayers.find(p => p.id === payout.toId);
-        return `${fromPlayer?.name || '???'} → ${toPlayer?.name || '???'}　${payout.amount}分`;
-      })] : []),
-    ].filter((line, idx, arr) => line !== '' || (arr[idx - 1] !== '' && arr[idx + 1] !== ''));
-
-    const height = Math.max(760, padding * 2 + rows.length * lineHeight + 90);
-    const scale = Math.min(2.5, Math.max(2, window.devicePixelRatio || 2));
-    const canvas = document.createElement('canvas');
-    canvas.width = width * scale;
-    canvas.height = height * scale;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) throw new Error('canvas context unavailable');
-    ctx.scale(scale, scale);
-
-    const roundRect = (x: number, y: number, w: number, h: number, r: number) => {
-      ctx.beginPath();
-      ctx.moveTo(x + r, y);
-      ctx.arcTo(x + w, y, x + w, y + h, r);
-      ctx.arcTo(x + w, y + h, x, y + h, r);
-      ctx.arcTo(x, y + h, x, y, r);
-      ctx.arcTo(x, y, x + w, y, r);
-      ctx.closePath();
+  async function captureVisibleSettlementFromScreen(node: HTMLElement): Promise<string> {
+    const mediaDevices = navigator.mediaDevices as MediaDevices & {
+      getDisplayMedia?: (constraints?: DisplayMediaStreamOptions) => Promise<MediaStream>;
     };
-
-    const bg = ctx.createLinearGradient(0, 0, width, height);
-    bg.addColorStop(0, '#1e321e');
-    bg.addColorStop(1, '#0f2318');
-    ctx.fillStyle = bg;
-    ctx.fillRect(0, 0, width, height);
-    ctx.strokeStyle = 'rgba(240,192,64,.56)';
-    ctx.lineWidth = 3;
-    roundRect(18, 18, width - 36, height - 36, 24);
-    ctx.stroke();
-
-    ctx.fillStyle = '#f0c040';
-    ctx.font = '900 36px -apple-system, BlinkMacSystemFont, PingFang SC, Microsoft YaHei, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('🀄 本局结算', width / 2, 74);
-
-    let y = 126;
-    ctx.textAlign = 'left';
-    for (const raw of rows) {
-      if (raw === '') { y += 12; continue; }
-      const isHeading = ['排名', '番型明细', '本局结算'].includes(raw);
-      const isTitle = raw.includes('中国大众麻将') || raw.includes('荒牌流局') || raw.includes(winTypeLabel);
-      ctx.font = isHeading ? '900 25px -apple-system, BlinkMacSystemFont, PingFang SC, Microsoft YaHei, sans-serif'
-        : isTitle ? '900 28px -apple-system, BlinkMacSystemFont, PingFang SC, Microsoft YaHei, sans-serif'
-        : '600 21px -apple-system, BlinkMacSystemFont, PingFang SC, Microsoft YaHei, sans-serif';
-      ctx.fillStyle = isHeading ? '#f0c040' : isTitle ? '#fff2c6' : '#eadfcb';
-
-      const maxTextWidth = width - padding * 2;
-      let line = raw;
-      while (ctx.measureText(line).width > maxTextWidth && line.length > 18) {
-        let cut = line.length;
-        while (ctx.measureText(line.slice(0, cut) + '…').width > maxTextWidth && cut > 18) cut--;
-        ctx.fillText(line.slice(0, cut) + '…', padding, y);
-        line = line.slice(cut);
-        y += lineHeight;
-      }
-      ctx.fillText(line, padding, y);
-      y += isHeading ? lineHeight + 4 : lineHeight;
+    if (!mediaDevices?.getDisplayMedia) {
+      throw new Error('当前浏览器不支持屏幕捕获');
     }
 
-    ctx.textAlign = 'center';
-    ctx.fillStyle = 'rgba(234,223,203,.62)';
-    ctx.font = '500 16px -apple-system, BlinkMacSystemFont, PingFang SC, Microsoft YaHei, sans-serif';
-    ctx.fillText(`生成时间 ${new Date().toLocaleString()}`, width / 2, height - 34);
-    return canvas.toDataURL('image/png');
+    const stream = await mediaDevices.getDisplayMedia({
+      video: { displaySurface: 'browser' } as MediaTrackConstraints,
+      audio: false,
+    });
+
+    try {
+      const video = document.createElement('video');
+      video.srcObject = stream;
+      video.muted = true;
+      video.playsInline = true;
+      await video.play();
+      await new Promise(resolve => requestAnimationFrame(resolve));
+
+      const rect = node.getBoundingClientRect();
+      const scaleX = video.videoWidth / window.innerWidth;
+      const scaleY = video.videoHeight / window.innerHeight;
+      const cropX = Math.max(0, Math.round(rect.left * scaleX));
+      const cropY = Math.max(0, Math.round(rect.top * scaleY));
+      const cropWidth = Math.min(video.videoWidth - cropX, Math.round(rect.width * scaleX));
+      const cropHeight = Math.min(video.videoHeight - cropY, Math.round(rect.height * scaleY));
+      if (cropWidth <= 0 || cropHeight <= 0) throw new Error('截图裁剪区域无效');
+
+      const canvas = document.createElement('canvas');
+      canvas.width = cropWidth;
+      canvas.height = cropHeight;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) throw new Error('canvas context unavailable');
+      ctx.drawImage(video, cropX, cropY, cropWidth, cropHeight, 0, 0, cropWidth, cropHeight);
+      return canvas.toDataURL('image/png');
+    } finally {
+      stream.getTracks().forEach(track => track.stop());
+    }
   }
 
   async function handleScreenshot() {
@@ -225,14 +179,15 @@ const Settlement: React.FC<SettlementProps> = ({
       setShareStatus('已按当前结算页面保存长图');
       node.scrollTop = previousScrollTop;
     } catch (error) {
-      console.error('Settlement screenshot failed, using canvas fallback', error);
+      console.error('Settlement DOM screenshot failed', error);
       try {
-        setShareStatus('页面截图失败，正在生成兼容版结算长图...');
-        downloadImage(drawFallbackSettlementImage());
-        setShareStatus('已保存兼容版结算长图');
-      } catch (fallbackError) {
-        console.error('Settlement fallback image failed', fallbackError);
-        setShareStatus('结算长图生成失败，请使用系统截图');
+        setShareStatus('页面截图失败，请在弹窗中选择当前标签页以保存真实界面截图...');
+        const dataUrl = await captureVisibleSettlementFromScreen(node);
+        downloadImage(dataUrl);
+        setShareStatus('已保存当前界面截图');
+      } catch (screenError) {
+        console.error('Settlement screen capture failed', screenError);
+        setShareStatus('当前界面截图失败，请使用系统截图；不会再生成兼容版');
       }
     } finally {
       cardRef.current?.classList.remove('exporting-settlement');

@@ -66,6 +66,7 @@ export class RoomManager {
       maxPlayers,
       gameState: null,
       createdAt: Date.now(),
+      nextDealerSeatIndex: 0,
     };
 
     this.rooms.set(id, room);
@@ -132,11 +133,16 @@ export class RoomManager {
       }
     }
 
-    // Reassign seat indices
+    // Reassign seat indices. If the stored next dealer left, fall back to East/seat 0.
     room.players.forEach((p, i) => {
       p.seatIndex = i;
       p.windPosition = WIND_POSITIONS[i];
-      p.isDealer = i === 0;
+    });
+    if (!room.players.some(p => p.seatIndex === room.nextDealerSeatIndex)) {
+      room.nextDealerSeatIndex = 0;
+    }
+    room.players.forEach(p => {
+      p.isDealer = p.seatIndex === room.nextDealerSeatIndex;
     });
 
     // If no human players left, remove room
@@ -176,6 +182,16 @@ export class RoomManager {
       });
     }
 
+    const dealerSeatIndex = room.players.some(p => p.seatIndex === room.nextDealerSeatIndex)
+      ? room.nextDealerSeatIndex
+      : 0;
+    room.nextDealerSeatIndex = dealerSeatIndex;
+    room.players.forEach(player => {
+      player.isDealer = player.seatIndex === dealerSeatIndex;
+      player.windPosition = WIND_POSITIONS[player.seatIndex];
+    });
+    const dealerPlayerIndex = room.players.findIndex(player => player.seatIndex === dealerSeatIndex);
+
     // Create wall and deal
     const { wall, deadWall } = createWall();
     const hands = deal(wall);
@@ -200,7 +216,7 @@ export class RoomManager {
       wall,
       deadWall,
       players: room.players,
-      currentPlayerIndex: 0, // dealer starts
+      currentPlayerIndex: dealerPlayerIndex >= 0 ? dealerPlayerIndex : 0, // dealer starts
       turnCount: 0,
       settings: room.settings,
       pendingDiscard: null,
