@@ -410,3 +410,57 @@
 .opponent-mini-tile { width:10px; height:16px; border-radius:4px; background:linear-gradient(145deg,#d8f3e4,#6ec493 56%,#23865b); box-shadow:0 2px 3px rgba(24,50,34,.14), inset 0 1px 0 rgba(255,255,255,.45); }
 .hand-row:not(.opponent-hand-summary) { padding:6px; border-radius:18px; background:rgba(255,255,255,.38); border:1px solid rgba(255,255,255,.5); }
 @media (max-width:768px){ .player-area{border-radius:16px;padding:5px}.player-info{padding:3px 5px;gap:3px;margin-bottom:4px}.player-name{max-width:54px;overflow:hidden;text-overflow:ellipsis;font-size:10px}.player-wind,.player-score{font-size:9px;padding:1px 4px}.opponent-hand-summary{padding:5px;border-radius:12px}.hand-count{font-size:10px}.opponent-mini-tile{width:7px;height:12px;border-radius:3px}.position-bottom.current-user{width:100%;background:rgba(255,255,255,.5)}.position-bottom .hand-row:not(.opponent-hand-summary){width:100%;overflow-x:auto;justify-content:flex-start;padding:5px;border-radius:16px}.position-top .melds-row,.position-left .melds-row,.position-right .melds-row{max-width:100%;overflow-x:auto;flex-wrap:nowrap} }
+
+/* === Final mobile hand usability: keep tiles above action bar and tappable === */
+.player-area,
+.player-cards,
+.hand-row {
+  min-width: 0;
+}
+.player-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+@media (max-width: 768px) {
+  .position-top,
+  .position-left,
+  .position-right {
+    min-width: 0 !important;
+  }
+  .position-top .player-info,
+  .position-left .player-info,
+  .position-right .player-info {
+    flex-wrap: wrap !important;
+    white-space: normal !important;
+    line-height: 1.1 !important;
+  }
+  .position-bottom {
+    padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px)) !important;
+    z-index: 3 !important;
+  }
+  .position-bottom .player-info {
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    white-space: normal !important;
+  }
+  .position-bottom .hand-row {
+    min-height: 82px !important;
+    padding: 8px 8px 14px !important;
+    margin-bottom: 0 !important;
+    touch-action: pan-x !important;
+    position: relative !important;
+    z-index: 5 !important;
+  }
+  .position-bottom .hand-row .mahjong-tile {
+    pointer-events: auto !important;
+    touch-action: manipulation !important;
+  }
+}
+@media (max-width: 480px) {
+  .position-bottom .hand-row {
+    min-height: 76px !important;
+    padding-bottom: 12px !important;
+  }
+}

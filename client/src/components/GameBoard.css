@@ -1074,3 +1074,334 @@
     white-space: normal !important;
   }
 }
+
+/* === Final table-flow layout: readable status, playable mobile hand, positional discards === */
+.game-board {
+  overflow: hidden !important;
+}
+
+.game-info-bar {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+  align-items: center !important;
+  row-gap: 6px !important;
+  white-space: normal !important;
+}
+.info-room,
+.info-wind,
+.info-wall {
+  max-width: min(42vw, 260px) !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  line-height: 1.2 !important;
+}
+
+.table-dashboard {
+  flex: 0 0 auto !important;
+  width: min(760px, 100%) !important;
+  align-items: stretch !important;
+}
+.dashboard-main-row {
+  display: grid !important;
+  grid-template-columns: auto minmax(160px, 1fr) minmax(210px, auto) !important;
+  align-items: center !important;
+  justify-content: stretch !important;
+  gap: 8px !important;
+  min-width: 0 !important;
+}
+.dashboard-sub-row {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: stretch !important;
+  justify-content: center !important;
+  overflow: visible !important;
+  gap: 8px !important;
+}
+.turn-indicator,
+.last-discard-callout,
+.claim-target-hint,
+.tenpai-hint {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  white-space: normal !important;
+  line-height: 1.18 !important;
+}
+.turn-indicator {
+  justify-content: center !important;
+}
+.turn-name,
+.last-discard-callout strong,
+.last-discard-callout span:last-child,
+.claim-target-hint strong,
+.claim-target-hint span:last-child {
+  min-width: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+.last-discard-callout {
+  display: grid !important;
+  grid-template-columns: auto minmax(0, 1fr) auto auto !important;
+  justify-content: stretch !important;
+}
+.tenpai-hint {
+  flex: 1 1 280px !important;
+}
+.tenpai-list {
+  flex-wrap: wrap !important;
+  overflow: visible !important;
+}
+
+.game-table {
+  grid-template-columns: minmax(112px, 160px) minmax(0, 1fr) minmax(112px, 160px) !important;
+  grid-template-rows: minmax(76px, auto) minmax(0, 1fr) minmax(148px, auto) !important;
+  padding-bottom: calc(82px + env(safe-area-inset-bottom, 0px)) !important;
+}
+.table-center {
+  justify-content: stretch !important;
+  overflow: hidden !important;
+}
+
+.central-discards {
+  flex: 1 1 auto !important;
+  width: min(900px, 100%) !important;
+  height: auto !important;
+  min-height: 300px !important;
+  max-height: none !important;
+  display: grid !important;
+  grid-template-areas:
+    "top top top"
+    "left center right"
+    "bottom bottom bottom" !important;
+  grid-template-columns: minmax(96px, .82fr) minmax(170px, 1.28fr) minmax(96px, .82fr) !important;
+  grid-template-rows: minmax(72px, auto) minmax(128px, 1fr) minmax(84px, auto) !important;
+  gap: 8px !important;
+  overflow: hidden !important;
+}
+.central-discards::before {
+  grid-area: center !important;
+  align-self: center !important;
+  justify-self: center !important;
+  content: '牌桌' !important;
+}
+.central-discard-row {
+  overflow: visible !important;
+  min-height: 0 !important;
+  align-items: center !important;
+  background: rgba(255,255,255,.36) !important;
+}
+.discard-row-top {
+  grid-area: top !important;
+  flex-direction: column !important;
+  justify-content: flex-start !important;
+}
+.discard-row-bottom {
+  grid-area: bottom !important;
+  flex-direction: column-reverse !important;
+  justify-content: flex-end !important;
+}
+.discard-row-left {
+  grid-area: left !important;
+  flex-direction: row !important;
+  justify-content: flex-start !important;
+  align-self: stretch !important;
+}
+.discard-row-right {
+  grid-area: right !important;
+  flex-direction: row-reverse !important;
+  justify-content: flex-start !important;
+  align-self: stretch !important;
+}
+.central-discard-name {
+  max-width: 96px !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+.central-discard-tiles {
+  width: auto !important;
+  max-width: none !important;
+  max-height: none !important;
+  overflow: visible !important;
+  align-content: flex-start !important;
+  justify-content: center !important;
+  gap: 3px !important;
+  padding: 4px !important;
+}
+.discard-row-left .central-discard-tiles,
+.discard-row-right .central-discard-tiles {
+  max-width: 104px !important;
+  justify-content: center !important;
+}
+.discard-row-bottom .central-discard-tiles {
+  justify-content: center !important;
+}
+
+.action-bar:empty {
+  display: none !important;
+}
+
+@media (max-width: 768px) {
+  .game-board {
+    overflow: hidden !important;
+  }
+  .game-info-bar {
+    margin-top: 5px !important;
+    max-width: calc(100% - 10px) !important;
+    justify-content: center !important;
+    overflow: visible !important;
+    border-radius: 18px !important;
+  }
+  .info-room,
+  .info-wind,
+  .info-wall {
+    max-width: 46vw !important;
+    font-size: 10px !important;
+    padding: 3px 7px !important;
+  }
+  .game-table {
+    grid-template-columns: minmax(58px, 74px) minmax(0, 1fr) minmax(58px, 74px) !important;
+    grid-template-rows: minmax(54px, auto) minmax(0, 1fr) minmax(146px, auto) !important;
+    grid-template-areas:
+      ". top ."
+      "left center right"
+      "bottom bottom bottom" !important;
+    gap: 5px !important;
+    padding: 5px 5px calc(58px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+  .slot-left,
+  .slot-right {
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  .table-center {
+    padding: 6px !important;
+    gap: 5px !important;
+    min-width: 0 !important;
+  }
+  .table-dashboard {
+    padding: 5px !important;
+    gap: 5px !important;
+  }
+  .dashboard-main-row {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 5px !important;
+  }
+  .wall-indicator.compact {
+    grid-column: 1 / 2 !important;
+  }
+  .turn-indicator {
+    grid-column: 2 / 3 !important;
+  }
+  .last-discard-callout {
+    grid-column: 1 / -1 !important;
+    grid-template-columns: auto minmax(0, 1fr) auto auto !important;
+    width: 100% !important;
+  }
+  .wall-indicator.compact,
+  .turn-indicator,
+  .last-discard-callout,
+  .claim-target-hint,
+  .tenpai-hint {
+    padding: 4px 6px !important;
+    font-size: 10px !important;
+    gap: 4px !important;
+  }
+  .dashboard-sub-row {
+    flex-direction: column !important;
+    gap: 5px !important;
+  }
+  .tenpai-hint {
+    width: 100% !important;
+    flex-basis: auto !important;
+  }
+  .tenpai-list {
+    max-width: none !important;
+    gap: 3px !important;
+  }
+  .tenpai-item {
+    font-size: 9px !important;
+    padding: 2px 5px !important;
+  }
+  .central-discards {
+    min-height: 250px !important;
+    grid-template-columns: minmax(48px, .62fr) minmax(128px, 1.55fr) minmax(48px, .62fr) !important;
+    grid-template-rows: minmax(52px, auto) minmax(92px, 1fr) minmax(58px, auto) !important;
+    gap: 4px !important;
+    padding: 6px !important;
+  }
+  .central-discards::before {
+    font-size: 13px !important;
+    letter-spacing: .18em !important;
+  }
+  .central-discard-row {
+    padding: 3px !important;
+    gap: 3px !important;
+    border-radius: 11px !important;
+  }
+  .central-discard-name {
+    max-width: 42px !important;
+    font-size: 8px !important;
+    padding: 1px 4px !important;
+  }
+  .central-discard-tiles {
+    gap: 1px !important;
+    padding: 2px !important;
+  }
+  .discard-row-left .central-discard-tiles,
+  .discard-row-right .central-discard-tiles {
+    max-width: 48px !important;
+  }
+  .discard-tile-wrap {
+    margin-top: 8px !important;
+  }
+  .discard-arrow {
+    top: -14px !important;
+    width: 14px !important;
+    height: 14px !important;
+    font-size: 10px !important;
+  }
+  .action-bar {
+    left: 8px !important;
+    right: 8px !important;
+    bottom: calc(6px + env(safe-area-inset-bottom, 0px)) !important;
+    transform: none !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    padding: 6px !important;
+    border-radius: 18px !important;
+    pointer-events: auto !important;
+  }
+  .action-btn {
+    width: auto !important;
+    min-width: 56px !important;
+    min-height: 34px !important;
+    padding: 6px 10px !important;
+    font-size: 12px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .game-table {
+    grid-template-columns: 48px minmax(0, 1fr) 48px !important;
+    grid-template-rows: minmax(48px, auto) minmax(0, 1fr) minmax(138px, auto) !important;
+    padding-bottom: calc(54px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+  .central-discards {
+    min-height: 220px !important;
+    grid-template-columns: 42px minmax(116px, 1fr) 42px !important;
+    grid-template-rows: minmax(46px, auto) minmax(82px, 1fr) minmax(54px, auto) !important;
+    border-radius: 16px !important;
+  }
+  .discard-row-left .central-discard-tiles,
+  .discard-row-right .central-discard-tiles {
+    max-width: 40px !important;
+  }
+  .central-discard-name {
+    max-width: 36px !important;
+  }
+}

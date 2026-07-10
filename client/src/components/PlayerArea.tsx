@@ -111,7 +111,7 @@ const PlayerArea: React.FC<PlayerAreaProps> = ({
                 key={tile.id}
                 tile={tile}
                 selected={tile.id === selectedTileId}
-                onClick={handleDiscard}
+                onClick={handleTileClick}
               />
             ))}
           </div>
