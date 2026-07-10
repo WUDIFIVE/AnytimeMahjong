@@ -1,5 +1,24 @@
 import React from 'react';
 import { Tile as TileType, tileDisplayChar, getTileColor } from '../game/types';
+import tiao1 from '../assets/tiles/tiao-1.svg';
+import tiao2 from '../assets/tiles/tiao-2.svg';
+import tiao3 from '../assets/tiles/tiao-3.svg';
+import tiao4 from '../assets/tiles/tiao-4.svg';
+import tiao5 from '../assets/tiles/tiao-5.svg';
+import tiao6 from '../assets/tiles/tiao-6.svg';
+import tiao7 from '../assets/tiles/tiao-7.svg';
+import tiao8 from '../assets/tiles/tiao-8.svg';
+import tiao9 from '../assets/tiles/tiao-9.svg';
+import tong1 from '../assets/tiles/tong-1.svg';
+import tong2 from '../assets/tiles/tong-2.svg';
+import tong3 from '../assets/tiles/tong-3.svg';
+import tong4 from '../assets/tiles/tong-4.svg';
+import tong5 from '../assets/tiles/tong-5.svg';
+import tong6 from '../assets/tiles/tong-6.svg';
+import tong7 from '../assets/tiles/tong-7.svg';
+import tong8 from '../assets/tiles/tong-8.svg';
+import tong9 from '../assets/tiles/tong-9.svg';
+import whiteDragon from '../assets/tiles/jian-3.svg';
 import './Tile.css';
 
 interface TileProps {
@@ -13,12 +32,32 @@ interface TileProps {
 
 const NUMBER_CHARS = ['', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
 
-function formatClassicCorner(tile: TileType): string {
-  if (!tile) return '';
-  if (tile.suit === 'wan') return `${NUMBER_CHARS[tile.value] || tile.value}万`;
-  if (tile.suit === 'tiao') return `${tile.value}条`;
-  if (tile.suit === 'tong') return `${tile.value}筒`;
-  return tileDisplayChar(tile);
+const TIAO_SVG: Record<number, string> = {
+  1: tiao1,
+  2: tiao2,
+  3: tiao3,
+  4: tiao4,
+  5: tiao5,
+  6: tiao6,
+  7: tiao7,
+  8: tiao8,
+  9: tiao9,
+};
+
+const TONG_SVG: Record<number, string> = {
+  1: tong1,
+  2: tong2,
+  3: tong3,
+  4: tong4,
+  5: tong5,
+  6: tong6,
+  7: tong7,
+  8: tong8,
+  9: tong9,
+};
+
+function renderTileImage(src: string, alt: string) {
+  return <img className="tile-model-image" src={src} alt={alt} draggable={false} />;
 }
 
 function renderDots(value: number) {
@@ -128,13 +167,19 @@ const Tile: React.FC<TileProps> = ({
     );
   }
 
-  const art = safeSuit === 'tong'
-    ? renderDots(tile.value)
-    : safeSuit === 'tiao'
-      ? renderBamboo(tile.value)
-      : safeSuit === 'wan'
-        ? renderWan(tile.value)
-        : renderHonor(tile);
+  const art = safeSuit === 'tong' && TONG_SVG[tile.value]
+    ? renderTileImage(TONG_SVG[tile.value], tileDisplayChar(tile))
+    : safeSuit === 'tiao' && TIAO_SVG[tile.value]
+      ? renderTileImage(TIAO_SVG[tile.value], tileDisplayChar(tile))
+      : safeSuit === 'jian' && tile.value === 3
+        ? renderTileImage(whiteDragon, tileDisplayChar(tile))
+        : safeSuit === 'tong'
+          ? renderDots(tile.value)
+          : safeSuit === 'tiao'
+            ? renderBamboo(tile.value)
+            : safeSuit === 'wan'
+              ? renderWan(tile.value)
+              : renderHonor(tile);
 
   return (
     <div
@@ -147,9 +192,7 @@ const Tile: React.FC<TileProps> = ({
       aria-label={tileDisplayChar(tile)}
     >
       <div className="tile-face-plate" />
-      <div className="tile-corner corner-top">{formatClassicCorner(tile)}</div>
       <div className="tile-content">{art}</div>
-      <div className="tile-corner corner-bottom">{formatClassicCorner(tile)}</div>
       {selected && <div className="tile-selected-indicator" />}
     </div>
   );

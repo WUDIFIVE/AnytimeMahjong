@@ -977,3 +977,37 @@
 .bird-body { background: linear-gradient(180deg, #1faf5f, #087342) !important; }
 .bird-head { background: linear-gradient(180deg, #e33832, #9f1717) !important; }
 .bird-wing { background: linear-gradient(180deg, #1767b7, #0c4a8e) !important; }
+
+
+/* === Final model-based tile faces === */
+.tile-corner {
+  display: none !important;
+}
+.tile-model-image {
+  width: 118%;
+  height: 118%;
+  max-width: none;
+  max-height: none;
+  object-fit: contain;
+  display: block;
+  user-select: none;
+  pointer-events: none;
+  transform: translateY(-1px);
+  filter: saturate(1.06) contrast(1.02);
+}
+.mahjong-tile.tile-tiao .tile-content,
+.mahjong-tile.tile-tong .tile-content,
+.mahjong-tile.tile-jian .tile-content:has(.tile-model-image) {
+  width: 92% !important;
+  height: 92% !important;
+  filter: none !important;
+}
+.mahjong-tile.tile-tiao .tile-face-plate,
+.mahjong-tile.tile-tong .tile-face-plate,
+.mahjong-tile.tile-jian .tile-face-plate {
+  opacity: .22;
+}
+.mahjong-tile.tile-small .tile-model-image {
+  width: 124%;
+  height: 124%;
+}
