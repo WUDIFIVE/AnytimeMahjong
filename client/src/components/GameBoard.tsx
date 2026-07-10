@@ -212,7 +212,8 @@ const GameBoard: React.FC<GameBoardProps> = ({
   const hasHu = pendingActionTypes.includes('hu');
   const anyPending = pendingActionTypes.length > 0;
 
-  const isMyTurn = gameState.currentPlayerIndex === currentPlayer?.seatIndex;
+  const activePlayer = gameState.players[gameState.currentPlayerIndex];
+  const isMyTurn = activePlayer?.id === playerId;
   const canDiscard = isMyTurn && !anyPending;
 
   // Check if can an-gang (4 same tiles in hand)

@@ -1491,3 +1491,299 @@
     height: 27px !important;
   }
 }
+
+/* === Mahjong table final visibility pass: prioritize four discard zones === */
+.game-board {
+  height: 100dvh !important;
+  overflow: hidden !important;
+}
+
+.game-table {
+  height: auto !important;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  display: grid !important;
+  grid-template-columns: minmax(118px, 150px) minmax(520px, 1fr) minmax(118px, 150px) !important;
+  grid-template-rows: minmax(58px, auto) minmax(420px, 1fr) minmax(112px, auto) !important;
+  grid-template-areas:
+    ". top ."
+    "left center right"
+    "bottom bottom bottom" !important;
+  gap: 8px !important;
+  padding: 8px 12px 10px !important;
+  overflow: hidden !important;
+}
+
+.slot-top,
+.slot-left,
+.slot-right,
+.slot-bottom {
+  min-height: 0 !important;
+  overflow: visible !important;
+}
+.slot-top { align-items: flex-start !important; }
+.slot-bottom { align-items: flex-end !important; }
+.slot-left, .slot-right { align-items: center !important; }
+
+.table-center {
+  min-height: 0 !important;
+  height: 100% !important;
+  display: grid !important;
+  grid-template-rows: auto minmax(0, 1fr) !important;
+  align-items: stretch !important;
+  justify-items: center !important;
+  justify-content: stretch !important;
+  gap: 8px !important;
+  overflow: visible !important;
+  padding: 0 !important;
+}
+
+.table-dashboard {
+  width: min(860px, 100%) !important;
+  flex: none !important;
+  padding: 6px 8px !important;
+  gap: 5px !important;
+}
+
+.central-discards {
+  width: min(960px, 100%) !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  align-self: stretch !important;
+  display: grid !important;
+  grid-template-areas:
+    "top top top"
+    "left center right"
+    "bottom bottom bottom" !important;
+  grid-template-columns: minmax(120px, .82fr) minmax(230px, 1.36fr) minmax(120px, .82fr) !important;
+  grid-template-rows: minmax(82px, auto) minmax(150px, 1fr) minmax(98px, auto) !important;
+  gap: 8px !important;
+  padding: 10px !important;
+  overflow: visible !important;
+  box-sizing: border-box !important;
+}
+
+.central-discards::before {
+  content: '牌桌' !important;
+  grid-area: center !important;
+  align-self: center !important;
+  justify-self: center !important;
+  font-size: clamp(18px, 2.2vw, 30px) !important;
+  opacity: .7 !important;
+}
+
+.central-discard-row {
+  box-sizing: border-box !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  overflow: visible !important;
+  background: rgba(255,255,255,.42) !important;
+  border: 1px solid rgba(31,143,98,.12) !important;
+}
+.discard-row-top {
+  grid-area: top !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+}
+.discard-row-bottom {
+  grid-area: bottom !important;
+  flex-direction: column-reverse !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  min-height: 96px !important;
+}
+.discard-row-left {
+  grid-area: left !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  align-self: stretch !important;
+}
+.discard-row-right {
+  grid-area: right !important;
+  flex-direction: row-reverse !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  align-self: stretch !important;
+}
+.central-discard-name {
+  flex: 0 0 auto !important;
+  max-width: 120px !important;
+}
+.central-discard-tiles {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  width: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  overflow: visible !important;
+  align-content: flex-start !important;
+  justify-content: center !important;
+  gap: 3px !important;
+  padding: 3px !important;
+}
+.discard-row-left .central-discard-tiles,
+.discard-row-right .central-discard-tiles {
+  width: auto !important;
+  max-width: 118px !important;
+  justify-content: center !important;
+}
+.discard-row-bottom .central-discard-tiles {
+  min-height: 58px !important;
+}
+
+.slot-bottom .position-bottom {
+  width: min(100%, 1080px) !important;
+  padding: 5px 8px !important;
+}
+.slot-bottom .player-info {
+  margin-bottom: 4px !important;
+  padding: 3px 8px !important;
+}
+.slot-bottom .hand-row:not(.opponent-hand-summary) {
+  padding: 4px 6px !important;
+  min-height: 72px !important;
+  max-height: 86px !important;
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+  flex-wrap: nowrap !important;
+  justify-content: center !important;
+}
+.slot-bottom .hand-row .mahjong-tile {
+  flex: 0 0 auto !important;
+}
+
+@media (min-width: 1200px) {
+  .game-table {
+    grid-template-columns: 158px minmax(680px, 1fr) 158px !important;
+    grid-template-rows: minmax(62px, auto) minmax(470px, 1fr) minmax(116px, auto) !important;
+    padding: 8px 16px 12px !important;
+  }
+  .central-discards {
+    grid-template-rows: minmax(92px, auto) minmax(180px, 1fr) minmax(108px, auto) !important;
+  }
+  .discard-row-left .central-discard-tiles,
+  .discard-row-right .central-discard-tiles {
+    max-width: 132px !important;
+  }
+}
+
+@media (max-height: 760px) and (min-width: 769px) {
+  .game-info-bar { padding-block: 5px !important; }
+  .game-table {
+    grid-template-rows: minmax(46px, auto) minmax(350px, 1fr) minmax(94px, auto) !important;
+    gap: 5px !important;
+    padding: 5px 10px 8px !important;
+  }
+  .table-dashboard { padding: 4px 7px !important; gap: 4px !important; }
+  .central-discards {
+    grid-template-rows: minmax(72px, auto) minmax(125px, 1fr) minmax(84px, auto) !important;
+    gap: 5px !important;
+    padding: 7px !important;
+  }
+  .central-discard-tiles .mahjong-tile.tile-small {
+    width: 30px !important;
+    min-width: 30px !important;
+    height: 42px !important;
+  }
+  .slot-bottom .hand-row:not(.opponent-hand-summary) {
+    min-height: 58px !important;
+    max-height: 72px !important;
+    padding-block: 3px !important;
+  }
+  .slot-bottom .hand-row .mahjong-tile:not(.tile-small) {
+    width: 44px !important;
+    height: 62px !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .game-table {
+    grid-template-columns: minmax(72px, 92px) minmax(0, 1fr) minmax(72px, 92px) !important;
+    grid-template-rows: minmax(56px, auto) minmax(410px, 1fr) minmax(142px, auto) !important;
+    padding: 5px 6px calc(62px + env(safe-area-inset-bottom, 0px)) !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  .slot-top { min-height: 48px !important; }
+  .slot-top .player-area {
+    max-width: 96vw !important;
+  }
+  .table-center {
+    min-height: 410px !important;
+  }
+  .table-dashboard {
+    width: 100% !important;
+    padding: 4px 5px !important;
+    gap: 4px !important;
+  }
+  .central-discards {
+    min-height: 340px !important;
+    grid-template-columns: minmax(42px, .58fr) minmax(132px, 1.7fr) minmax(42px, .58fr) !important;
+    grid-template-rows: minmax(76px, auto) minmax(130px, auto) minmax(78px, auto) !important;
+    gap: 4px !important;
+    padding: 5px !important;
+  }
+  .central-discard-name {
+    max-width: 56px !important;
+    font-size: 9px !important;
+    padding: 1px 4px !important;
+  }
+  .discard-row-left .central-discard-tiles,
+  .discard-row-right .central-discard-tiles {
+    max-width: 44px !important;
+  }
+  .central-discard-tiles .mahjong-tile.tile-small {
+    width: 20px !important;
+    min-width: 20px !important;
+    height: 28px !important;
+    border-radius: 5px !important;
+  }
+  .central-discard-tiles .mahjong-tile.tile-small .tile-content {
+    transform: scale(.48) !important;
+  }
+  .slot-bottom .hand-row:not(.opponent-hand-summary) {
+    justify-content: flex-start !important;
+    min-height: 78px !important;
+    max-height: none !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .game-table {
+    grid-template-columns: 40px minmax(0, 1fr) 40px !important;
+    grid-template-rows: minmax(46px, auto) minmax(390px, auto) minmax(146px, auto) !important;
+    gap: 4px !important;
+    padding: 4px 4px calc(58px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+  .slot-top .player-info {
+    margin-bottom: 1px !important;
+  }
+  .slot-top .opponent-hand-summary {
+    padding-block: 3px !important;
+  }
+  .table-center {
+    min-height: 390px !important;
+  }
+  .central-discards {
+    min-height: 324px !important;
+    grid-template-columns: 36px minmax(126px, 1fr) 36px !important;
+    grid-template-rows: minmax(72px, auto) minmax(124px, auto) minmax(76px, auto) !important;
+    padding: 4px !important;
+    gap: 3px !important;
+  }
+  .discard-row-left .central-discard-tiles,
+  .discard-row-right .central-discard-tiles {
+    max-width: 34px !important;
+  }
+  .central-discard-tiles .mahjong-tile.tile-small {
+    width: 18px !important;
+    min-width: 18px !important;
+    height: 25px !important;
+  }
+}
