@@ -1787,3 +1787,68 @@
     height: 25px !important;
   }
 }
+
+
+/* === Hand-local actions: keep 出牌 / 加杠 above the player's hand === */
+.hand-action-bar {
+  position: fixed !important;
+  left: 50% !important;
+  bottom: calc(116px + env(safe-area-inset-bottom, 0px)) !important;
+  transform: translateX(-50%) !important;
+  z-index: 72 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  padding: 7px 9px !important;
+  border-radius: 999px !important;
+  background: rgba(255, 255, 255, .72) !important;
+  border: 1px solid rgba(255, 255, 255, .7) !important;
+  box-shadow: 0 14px 34px rgba(24,50,34,.18), inset 0 1px 0 rgba(255,255,255,.7) !important;
+  backdrop-filter: blur(18px) saturate(145%) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(145%) !important;
+  pointer-events: auto !important;
+}
+.hand-action-bar:empty {
+  display: none !important;
+}
+.hand-action-bar .action-btn {
+  min-width: 88px !important;
+  min-height: 42px !important;
+  padding: 9px 20px !important;
+  font-size: 15px !important;
+}
+
+@media (max-width: 768px) {
+  .hand-action-bar {
+    left: 50% !important;
+    right: auto !important;
+    bottom: calc(150px + env(safe-area-inset-bottom, 0px)) !important;
+    gap: 8px !important;
+    padding: 6px 8px !important;
+    border-radius: 22px !important;
+  }
+  .hand-action-bar .action-btn {
+    min-width: 78px !important;
+    min-height: 38px !important;
+    padding: 8px 15px !important;
+    font-size: 14px !important;
+  }
+  .action-bar:empty {
+    display: none !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .hand-action-bar {
+    bottom: calc(138px + env(safe-area-inset-bottom, 0px)) !important;
+    gap: 7px !important;
+    padding: 5px 7px !important;
+  }
+  .hand-action-bar .action-btn {
+    min-width: 70px !important;
+    min-height: 35px !important;
+    padding: 7px 12px !important;
+    font-size: 13px !important;
+  }
+}

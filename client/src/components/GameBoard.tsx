@@ -400,13 +400,22 @@ const GameBoard: React.FC<GameBoardProps> = ({
         )}
       </div>
 
-      {/* Action Bar */}
-      <div className="action-bar">
+      {/* Hand Action Bar: actions tied to the selected hand tile */}
+      <div className="hand-action-bar">
         {canDiscard && selectedTileId && (
           <button className="action-btn btn-discard" onClick={() => handleAction('discard')}>
             出牌
           </button>
         )}
+        {canJiaGang && selectedTileId && (
+          <button className="action-btn btn-gang" onClick={() => handleAction('jia-gang')}>
+            加杠
+          </button>
+        )}
+      </div>
+
+      {/* Response Action Bar */}
+      <div className="action-bar">
         {hasPong && (
           <button className="action-btn btn-claim" onClick={() => handleAction('pong')}>
             碰
@@ -425,11 +434,6 @@ const GameBoard: React.FC<GameBoardProps> = ({
         {canAnGang && (
           <button className="action-btn btn-gang" onClick={() => handleAction('an-gang')}>
             暗杠
-          </button>
-        )}
-        {canJiaGang && selectedTileId && (
-          <button className="action-btn btn-gang" onClick={() => handleAction('jia-gang')}>
-            加杠
           </button>
         )}
         {hasHu && (
