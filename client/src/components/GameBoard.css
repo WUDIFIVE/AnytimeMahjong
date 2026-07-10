@@ -926,3 +926,151 @@
     transform: scale(.45) !important;
   }
 }
+
+/* === Clear layered table dashboard: no overlapping top text === */
+.table-dashboard {
+  width: min(860px, 100%);
+  align-items: stretch !important;
+  gap: 10px !important;
+  padding: 12px !important;
+  overflow: visible !important;
+}
+.dashboard-main-row {
+  display: grid !important;
+  grid-template-columns: minmax(96px, .85fr) minmax(180px, 1.25fr) minmax(220px, 1.3fr) !important;
+  align-items: center !important;
+  gap: 10px !important;
+  width: 100% !important;
+  min-width: 0 !important;
+}
+.wall-indicator.compact,
+.turn-indicator,
+.last-discard-callout,
+.claim-target-hint,
+.tenpai-hint {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+.wall-indicator.compact {
+  justify-content: center !important;
+}
+.turn-indicator {
+  justify-content: center !important;
+  padding-inline: 12px !important;
+}
+.turn-name {
+  min-width: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+.last-discard-callout {
+  justify-self: stretch !important;
+  display: grid !important;
+  grid-template-columns: auto minmax(0, 1fr) auto auto !important;
+  align-items: center !important;
+  gap: 7px !important;
+  padding-inline: 10px !important;
+}
+.last-discard-callout strong,
+.last-discard-callout span:last-child {
+  min-width: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+.dashboard-sub-row {
+  display: grid !important;
+  grid-template-columns: minmax(0, auto) minmax(0, 1fr) !important;
+  align-items: center !important;
+  gap: 8px !important;
+  width: 100% !important;
+  overflow: visible !important;
+}
+.dashboard-sub-row:has(.claim-target-hint):not(:has(.tenpai-hint)) {
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+.dashboard-sub-row:has(.tenpai-hint):not(:has(.claim-target-hint)) {
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+.claim-target-hint {
+  justify-content: center !important;
+  white-space: nowrap !important;
+}
+.tenpai-hint {
+  display: grid !important;
+  grid-template-columns: auto minmax(0, 1fr) !important;
+  align-items: center !important;
+}
+.tenpai-list {
+  min-width: 0 !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  scrollbar-width: none !important;
+}
+.tenpai-list::-webkit-scrollbar { display: none; }
+
+@media (max-width: 900px) {
+  .table-dashboard {
+    width: 100% !important;
+    gap: 8px !important;
+    padding: 9px !important;
+  }
+  .dashboard-main-row {
+    grid-template-columns: 1fr 1fr !important;
+    grid-template-areas:
+      "wall turn"
+      "last last" !important;
+  }
+  .wall-indicator.compact { grid-area: wall; }
+  .turn-indicator { grid-area: turn; }
+  .last-discard-callout { grid-area: last; }
+  .dashboard-sub-row {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 560px) {
+  .game-info-bar {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 6px !important;
+    border-radius: 18px !important;
+    width: calc(100% - 20px) !important;
+    max-width: none !important;
+    padding: 7px !important;
+  }
+  .game-info-bar .info-room {
+    grid-column: 1 / -1 !important;
+  }
+  .info-room,
+  .info-wind,
+  .info-wall {
+    max-width: none !important;
+    text-align: center !important;
+    font-size: 11px !important;
+    padding: 5px 8px !important;
+  }
+  .dashboard-main-row {
+    grid-template-columns: 1fr !important;
+    grid-template-areas:
+      "turn"
+      "last"
+      "wall" !important;
+  }
+  .wall-indicator.compact,
+  .turn-indicator,
+  .last-discard-callout {
+    min-height: 34px !important;
+  }
+  .last-discard-callout {
+    grid-template-columns: auto minmax(0, 1fr) auto auto !important;
+  }
+  .claim-target-hint {
+    display: grid !important;
+    grid-template-columns: auto auto minmax(0, 1fr) !important;
+    white-space: normal !important;
+  }
+}

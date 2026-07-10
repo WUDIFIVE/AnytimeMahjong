@@ -45,160 +45,102 @@ const Settlement: React.FC<SettlementProps> = ({
   ].filter(Boolean).join('　');
 
   async function handleScreenshot() {
-    try {
-      setShareStatus('正在生成结算长图...');
+    const node = cardRef.current;
+    if (!node) return;
 
-      const scale = Math.min(3, Math.max(2, window.devicePixelRatio || 2));
-      const width = 960;
-      const rowHeight = 54;
-      const fanRows = isDraw ? 0 : Math.max(1, safeFans.length);
-      const handRows = isDraw ? 0 : 3 + Math.ceil(Math.max(sortedConcealed.length + (winningTile ? 1 : 0), 1) / 10);
-      const meldRows = isDraw || melds.length === 0 ? 0 : Math.ceil(melds.length / 2);
-      const payoutRows = Math.max(0, safePayouts.length);
-      const height = Math.max(
-        980,
-        360 + ranking.length * rowHeight + fanRows * 48 + payoutRows * 42 + handRows * 42 + meldRows * 44
-      );
+    try {
+      setShareStatus('正在按当前结算页面生成长图...');
+
+      const previousScrollTop = node.scrollTop;
+      node.classList.add('exporting-settlement');
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+
+      const rect = node.getBoundingClientRect();
+      const width = Math.ceil(Math.max(rect.width, node.scrollWidth));
+      const height = Math.ceil(Math.max(node.scrollHeight, rect.height));
+      const scale = Math.min(2.5, Math.max(2, window.devicePixelRatio || 2));
+
+      const clone = node.cloneNode(true) as HTMLElement;
+      clone.classList.add('exporting-settlement', 'export-clone');
+      clone.style.width = `${width}px`;
+      clone.style.height = `${height}px`;
+      clone.style.maxHeight = 'none';
+      clone.style.overflow = 'visible';
+      clone.style.transform = 'none';
+      clone.style.margin = '0';
+      clone.style.boxSizing = 'border-box';
+
+      const styleSheets = Array.from(document.styleSheets)
+        .map(sheet => {
+          try {
+            return Array.from(sheet.cssRules).map(rule => rule.cssText).join('\n');
+          } catch {
+            return '';
+          }
+        })
+        .join('\n');
+
+      const serialized = new XMLSerializer().serializeToString(clone);
+      const xhtml = `
+        <div xmlns="http://www.w3.org/1999/xhtml">
+          <style>
+            ${styleSheets}
+            body { margin: 0; }
+            .exporting-settlement { max-height: none !important; overflow: visible !important; }
+            .exporting-settlement .settlement-actions,
+            .exporting-settlement .share-status { display: none !important; }
+            .export-clone { position: static !important; }
+          </style>
+          ${serialized}
+        </div>
+      `;
+
+      const svg = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
+          <foreignObject x="0" y="0" width="100%" height="100%">
+            ${xhtml}
+          </foreignObject>
+        </svg>
+      `;
+
+      const blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const image = new Image();
+      image.decoding = 'async';
+
+      await new Promise<void>((resolve, reject) => {
+        image.onload = () => resolve();
+        image.onerror = () => reject(new Error('页面截图渲染失败'));
+        image.src = url;
+      });
+
       const canvas = document.createElement('canvas');
-      canvas.width = width * scale;
-      canvas.height = height * scale;
+      canvas.width = Math.ceil(width * scale);
+      canvas.height = Math.ceil(height * scale);
       const ctx = canvas.getContext('2d');
       if (!ctx) throw new Error('canvas context unavailable');
       ctx.scale(scale, scale);
+      ctx.drawImage(image, 0, 0, width, height);
+      URL.revokeObjectURL(url);
 
-      const roundedRect = (x: number, y: number, w: number, h: number, r: number) => {
-        ctx.beginPath();
-        ctx.moveTo(x + r, y);
-        ctx.arcTo(x + w, y, x + w, y + h, r);
-        ctx.arcTo(x + w, y + h, x, y + h, r);
-        ctx.arcTo(x, y + h, x, y, r);
-        ctx.arcTo(x, y, x + w, y, r);
-        ctx.closePath();
-      };
-      const fillText = (text: string, x: number, y: number, size = 24, color = '#18231d', weight = 700, align: CanvasTextAlign = 'left') => {
-        ctx.fillStyle = color;
-        ctx.font = `${weight} ${size}px -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif`;
-        ctx.textAlign = align;
-        ctx.fillText(text, x, y);
-      };
-      const wrapText = (text: string, x: number, startY: number, maxWidth: number, lineHeight: number, size = 18, color = '#4c5d53', weight = 650) => {
-        ctx.fillStyle = color;
-        ctx.font = `${weight} ${size}px -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif`;
-        ctx.textAlign = 'left';
-        let yLine = startY;
-        let line = '';
-        for (const char of text) {
-          const test = line + char;
-          if (ctx.measureText(test).width > maxWidth && line) {
-            ctx.fillText(line, x, yLine);
-            yLine += lineHeight;
-            line = char;
-          } else {
-            line = test;
-          }
-        }
-        if (line) ctx.fillText(line, x, yLine);
-        return yLine + lineHeight;
+      const download = (dataUrl: string) => {
+        const link = document.createElement('a');
+        link.href = dataUrl;
+        link.download = `mahjong-settlement-${Date.now()}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
       };
 
-      const bg = ctx.createLinearGradient(0, 0, width, height);
-      bg.addColorStop(0, '#f8fbf8');
-      bg.addColorStop(0.52, '#edf5ef');
-      bg.addColorStop(1, '#dfeee5');
-      ctx.fillStyle = bg;
-      ctx.fillRect(0, 0, width, height);
-      ctx.fillStyle = 'rgba(31,143,98,0.11)';
-      ctx.beginPath();
-      ctx.arc(120, 120, 230, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = 'rgba(10,132,255,0.09)';
-      ctx.beginPath();
-      ctx.arc(width - 80, 70, 260, 0, Math.PI * 2);
-      ctx.fill();
-
-      roundedRect(48, 44, width - 96, height - 88, 34);
-      ctx.fillStyle = 'rgba(255,255,255,0.74)';
-      ctx.fill();
-      ctx.strokeStyle = 'rgba(255,255,255,0.92)';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-
-      fillText('Anytime Mahjong 结算长图', width / 2, 96, 30, '#1f8f62', 900, 'center');
-      fillText(isDraw ? '荒牌流局，下一把继续！' : isWinner ? '恭喜胡牌！' : `${winner?.name || '某玩家'} 胡牌！`, width / 2, 148, 42, '#18231d', 900, 'center');
-      fillText(`${isDraw ? '无人胡牌' : winner?.name || '???'} · ${winTypeLabel} · ${winResult?.totalFan ?? 0} 番`, width / 2, 188, 22, '#5f756a', 800, 'center');
-
-      let y = 238;
-      roundedRect(82, y, width - 164, 54 + ranking.length * rowHeight, 18);
-      ctx.fillStyle = 'rgba(255,255,255,0.78)';
-      ctx.fill();
-      fillText('房间累计积分排名', 110, y + 36, 22, '#1f8f62', 900);
-      y += 60;
-      ranking.forEach(item => {
-        const delta = safePayouts.reduce((sum, payout) => {
-          if (payout.toId === item.playerId) return sum + payout.amount;
-          if (payout.fromId === item.playerId) return sum - payout.amount;
-          return sum;
-        }, 0);
-        fillText(`#${item.rank}`, 112, y + 30, 21, '#18231d', 900);
-        fillText(item.playerName, 180, y + 30, 21, item.playerId === playerId ? '#1f8f62' : '#18231d', 800);
-        fillText(`${delta >= 0 ? '+' : ''}${delta}`, width - 260, y + 30, 21, delta >= 0 ? '#1f8f62' : '#ff453a', 900, 'right');
-        fillText(`${item.score} 分`, width - 128, y + 30, 21, '#4c5d53', 800, 'right');
-        y += rowHeight;
-      });
-
-      if (isDraw) {
-        y += 24;
-        fillText('牌墙已摸完，无人胡牌。本局不产生输赢积分。', width / 2, y + 34, 22, '#5f756a', 700, 'center');
-      } else {
-        y += 28;
-        roundedRect(82, y, width - 164, 132 + meldRows * 42, 18);
-        ctx.fillStyle = 'rgba(255,255,255,0.78)';
-        ctx.fill();
-        fillText('胡牌牌型', 110, y + 36, 22, '#1f8f62', 900);
-        y = wrapText(`完整牌型：${completeHandText}`, 110, y + 74, width - 220, 25, 18, '#18231d', 700) - 8;
-        y = wrapText(`暗手：${sortedConcealed.map(formatTile).join('、') || '暂无'}${winningTile ? `　胡牌张：${formatTile(winningTile)}` : ''}`, 110, y + 28, width - 220, 24, 17, '#5f756a', 650);
-        y += 12;
-        if (melds.length > 0) {
-          y = wrapText(`副露牌面：${meldText}`, 110, y, width - 220, 24, 17, '#5f756a', 650);
-        }
-        y += 24;
-        fillText('番型明细', 110, y, 22, '#1f8f62', 900);
-        y += 34;
-        (safeFans.length ? safeFans : [{ icon: '•', name: '无番型数据', fanValue: 0, description: '' }]).forEach(fan => {
-          fillText(`${fan.icon || '•'} ${fan.name}`, 120, y, 19, '#18231d', 800);
-          fillText(`${fan.fanValue} 番`, width - 160, y, 19, '#1f8f62', 900, 'right');
-          if (fan.description) fillText(fan.description.slice(0, 34), 300, y, 15, '#5f756a', 600);
-          y += 44;
-        });
-      }
-
-      y += 24;
-      if (safePayouts.length > 0) {
-        fillText('本局结算', 110, y, 22, '#1f8f62', 900);
-        y += 34;
-        safePayouts.forEach(payout => {
-          const fromPlayer = safePlayers.find(p => p.id === payout.fromId);
-          const toPlayer = safePlayers.find(p => p.id === payout.toId);
-          fillText(`${fromPlayer?.name || '???'} → ${toPlayer?.name || '???'}`, 120, y, 18, '#18231d', 700);
-          fillText(`${payout.amount} 分`, width - 160, y, 18, '#4c5d53', 800, 'right');
-          y += 38;
-        });
-      }
-
-      fillText(new Date().toLocaleString(), width / 2, height - 48, 16, 'rgba(24,35,29,0.45)', 600, 'center');
-
-      const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, 'image/png'));
-      if (!blob) throw new Error('canvas blob unavailable');
-      const pngUrl = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.download = `mahjong-settlement-${Date.now()}.png`;
-      link.href = pngUrl;
-      link.click();
-      setTimeout(() => URL.revokeObjectURL(pngUrl), 1000);
-      setShareStatus('结算长图已下载');
-      setTimeout(() => setShareStatus(''), 3000);
-    } catch {
-      setShareStatus('生成失败，可以使用系统截图');
+      const dataUrl = canvas.toDataURL('image/png');
+      download(dataUrl);
+      setShareStatus('已按当前结算页面保存长图');
+      node.scrollTop = previousScrollTop;
+    } catch (error) {
+      console.error('Settlement screenshot failed', error);
+      setShareStatus('结算长图生成失败，请使用系统截图');
+    } finally {
+      cardRef.current?.classList.remove('exporting-settlement');
     }
   }
 

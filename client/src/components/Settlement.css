@@ -448,3 +448,21 @@
 .btn-share { background:rgba(255,255,255,.58); color:var(--am-text); border-color:rgba(40,68,53,.1); }
 .btn-share:hover { background:rgba(255,255,255,.78); } .share-status { color:var(--am-accent); font-weight:760; }
 @media (max-width:480px){ .settlement-overlay{padding:8px;align-items:flex-end}.settlement-container{max-height:94dvh;border-radius:28px 28px 18px 18px}.winner-banner{padding:26px 16px 20px}.winner-detail{flex-wrap:wrap}.settlement-section{padding:16px}.ranking-item{grid-template-columns:42px 1fr 58px}.ranking-score{display:none} }
+
+/* === Settlement export should match the visible settlement page === */
+.settlement-container.exporting-settlement {
+  max-height: none !important;
+  overflow: visible !important;
+  box-shadow: 0 20px 60px rgba(24, 50, 34, 0.18) !important;
+}
+.settlement-container.exporting-settlement .settlement-actions,
+.settlement-container.exporting-settlement .share-status {
+  display: none !important;
+}
+.settlement-container.exporting-settlement .winning-hand-display,
+.settlement-container.exporting-settlement .winning-melds,
+.settlement-container.exporting-settlement .fan-breakdown,
+.settlement-container.exporting-settlement .payouts-list,
+.settlement-container.exporting-settlement .ranking-list {
+  break-inside: avoid;
+}
