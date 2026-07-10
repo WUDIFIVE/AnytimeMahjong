@@ -267,6 +267,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
               isCurrentUser={orderedPlayers[2].id === playerId}
               position="top"
               selectedTileId={selectedTileId}
+              lastDraw={gameState.lastDraw}
             />
           </div>
         )}
@@ -280,6 +281,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
                 isCurrentUser={orderedPlayers[3].id === playerId}
                 position="left"
                 selectedTileId={selectedTileId}
+                lastDraw={gameState.lastDraw}
               />
             </div>
           )}
@@ -376,6 +378,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
                 isCurrentUser={orderedPlayers[1].id === playerId}
                 position="right"
                 selectedTileId={selectedTileId}
+                lastDraw={gameState.lastDraw}
               />
             </div>
           )}
@@ -391,6 +394,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
               onDiscard={handleDiscard}
               onTileClick={handleTileClick}
               selectedTileId={selectedTileId}
+              lastDraw={gameState.lastDraw}
             />
           </div>
         )}

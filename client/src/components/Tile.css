@@ -369,8 +369,8 @@
 .bamboo-4 .stick-2 { grid-column: 1; grid-row: 3; }
 .bamboo-4 .stick-3 { grid-column: 3; grid-row: 3; }
 .bamboo-5 .stick-4 { grid-column: 2; grid-row: 2; }
-.bamboo-6 .stick:nth-child(-n+3) { grid-row: 1; }
-.bamboo-6 .stick:nth-child(n+4) { grid-row: 3; }
+.bamboo-6 .bamboo-stick:nth-child(-n+3) { grid-row: 1; }
+.bamboo-6 .bamboo-stick:nth-child(n+4) { grid-row: 3; }
 .bamboo-7 .stick-6 { grid-column: 2; grid-row: 2; }
 .bamboo-8 .stick-6 { grid-column: 1; grid-row: 2; }
 .bamboo-8 .stick-7 { grid-column: 3; grid-row: 2; }
@@ -829,3 +829,151 @@
 }
 .tile-small .bamboo-stick { width: 5px !important; height: 12px !important; }
 .tile-small .bamboo:not(.bamboo-1) { width: 28px !important; height: 36px !important; gap: 2px !important; }
+
+/* === Final Chinese Mahjong suit art: strict readable dots and bamboos === */
+.tile-content {
+  overflow: visible !important;
+}
+.dots {
+  width: 38px !important;
+  height: 50px !important;
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  grid-template-rows: repeat(4, 1fr) !important;
+  gap: 2px !important;
+  align-items: center !important;
+  justify-items: center !important;
+  padding: 1px !important;
+}
+.dot {
+  width: 10px !important;
+  height: 10px !important;
+  border-radius: 50% !important;
+  border: 1.5px solid currentColor !important;
+  background:
+    radial-gradient(circle at 50% 50%, currentColor 0 18%, transparent 19% 29%, currentColor 30% 42%, transparent 43% 56%, currentColor 57% 100%) !important;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.82), 0 1px 1px rgba(34,24,13,.20) !important;
+}
+.dot i { display: none !important; }
+.dot-red { color: #d32121 !important; }
+.dot-blue { color: #155fb5 !important; }
+.dot-green { color: #118345 !important; }
+.dots-1 .dot { grid-column: 2; grid-row: 2 / span 2; width: 22px !important; height: 22px !important; color: #155fb5 !important; background: radial-gradient(circle, #d32121 0 15%, #fffdf2 16% 28%, #155fb5 29% 48%, #fffdf2 49% 61%, #118345 62% 100%) !important; }
+.dots-2 .dot-0 { grid-column: 1; grid-row: 1; color: #155fb5 !important; }
+.dots-2 .dot-1 { grid-column: 3; grid-row: 4; color: #118345 !important; }
+.dots-3 .dot-0 { grid-column: 1; grid-row: 1; color: #155fb5 !important; }
+.dots-3 .dot-1 { grid-column: 2; grid-row: 2 / span 2; color: #d32121 !important; }
+.dots-3 .dot-2 { grid-column: 3; grid-row: 4; color: #118345 !important; }
+.dots-4 .dot-0 { grid-column: 1; grid-row: 1; color: #155fb5 !important; }
+.dots-4 .dot-1 { grid-column: 3; grid-row: 1; color: #118345 !important; }
+.dots-4 .dot-2 { grid-column: 1; grid-row: 4; color: #118345 !important; }
+.dots-4 .dot-3 { grid-column: 3; grid-row: 4; color: #155fb5 !important; }
+.dots-5 .dot-0 { grid-column: 1; grid-row: 1; color: #155fb5 !important; }
+.dots-5 .dot-1 { grid-column: 3; grid-row: 1; color: #118345 !important; }
+.dots-5 .dot-2 { grid-column: 2; grid-row: 2 / span 2; color: #d32121 !important; }
+.dots-5 .dot-3 { grid-column: 1; grid-row: 4; color: #118345 !important; }
+.dots-5 .dot-4 { grid-column: 3; grid-row: 4; color: #155fb5 !important; }
+.dots-6 .dot:nth-child(1) { grid-column: 1; grid-row: 1; color: #155fb5 !important; }
+.dots-6 .dot:nth-child(2) { grid-column: 3; grid-row: 1; color: #118345 !important; }
+.dots-6 .dot:nth-child(3) { grid-column: 1; grid-row: 2 / span 2; color: #d32121 !important; }
+.dots-6 .dot:nth-child(4) { grid-column: 3; grid-row: 2 / span 2; color: #d32121 !important; }
+.dots-6 .dot:nth-child(5) { grid-column: 1; grid-row: 4; color: #118345 !important; }
+.dots-6 .dot:nth-child(6) { grid-column: 3; grid-row: 4; color: #155fb5 !important; }
+.dots-7 .dot:nth-child(1) { grid-column: 1; grid-row: 1; color: #155fb5 !important; }
+.dots-7 .dot:nth-child(2) { grid-column: 3; grid-row: 1; color: #118345 !important; }
+.dots-7 .dot:nth-child(3) { grid-column: 1; grid-row: 2; color: #155fb5 !important; }
+.dots-7 .dot:nth-child(4) { grid-column: 2; grid-row: 2 / span 2; color: #d32121 !important; }
+.dots-7 .dot:nth-child(5) { grid-column: 3; grid-row: 2; color: #118345 !important; }
+.dots-7 .dot:nth-child(6) { grid-column: 1; grid-row: 4; color: #118345 !important; }
+.dots-7 .dot:nth-child(7) { grid-column: 3; grid-row: 4; color: #155fb5 !important; }
+.dots-8, .dots-9 { grid-template-rows: repeat(4, 1fr) !important; }
+.dots-8 .dot:nth-child(odd) { grid-column: 1; }
+.dots-8 .dot:nth-child(even) { grid-column: 3; }
+.dots-8 .dot:nth-child(1), .dots-8 .dot:nth-child(2) { grid-row: 1; color: #155fb5 !important; }
+.dots-8 .dot:nth-child(3), .dots-8 .dot:nth-child(4) { grid-row: 2; color: #118345 !important; }
+.dots-8 .dot:nth-child(5), .dots-8 .dot:nth-child(6) { grid-row: 3; color: #118345 !important; }
+.dots-8 .dot:nth-child(7), .dots-8 .dot:nth-child(8) { grid-row: 4; color: #d32121 !important; }
+.dots-9 .dot:nth-child(1), .dots-9 .dot:nth-child(4), .dots-9 .dot:nth-child(7) { grid-column: 1; }
+.dots-9 .dot:nth-child(2), .dots-9 .dot:nth-child(5), .dots-9 .dot:nth-child(8) { grid-column: 2; }
+.dots-9 .dot:nth-child(3), .dots-9 .dot:nth-child(6), .dots-9 .dot:nth-child(9) { grid-column: 3; }
+.dots-9 .dot:nth-child(-n+3) { grid-row: 1; color: #155fb5 !important; }
+.dots-9 .dot:nth-child(n+4):nth-child(-n+6) { grid-row: 2 / span 2; color: #d32121 !important; }
+.dots-9 .dot:nth-child(n+7) { grid-row: 4; color: #118345 !important; }
+
+.bamboo:not(.bamboo-1) {
+  width: 38px !important;
+  height: 52px !important;
+  display: grid !important;
+  grid-template-columns: repeat(4, 1fr) !important;
+  grid-template-rows: repeat(4, 1fr) !important;
+  gap: 2px !important;
+  align-items: center !important;
+  justify-items: center !important;
+}
+.bamboo-stick {
+  width: 7px !important;
+  height: 18px !important;
+  border-radius: 999px !important;
+  position: relative !important;
+  background: linear-gradient(90deg, #034421 0%, #0f8d47 22%, #7ae29b 50%, #0f8d47 76%, #034421 100%) !important;
+  border: 1px solid rgba(0,76,38,.55) !important;
+}
+.bamboo-stick::before,
+.bamboo-stick::after,
+.bamboo-stick i {
+  content: '' !important;
+  position: absolute !important;
+  left: -2px !important;
+  right: -2px !important;
+  height: 2px !important;
+  border-radius: 999px !important;
+  background: #d32121 !important;
+  box-shadow: 0 1px 0 rgba(255,255,255,.35) !important;
+}
+.bamboo-stick::before { top: 4px !important; }
+.bamboo-stick i { top: 8px !important; width: auto !important; transform: none !important; }
+.bamboo-stick::after { top: 13px !important; bottom: auto !important; }
+.bamboo-2 .stick-0 { grid-column: 2; grid-row: 1 / span 2; transform: rotate(-3deg) !important; }
+.bamboo-2 .stick-1 { grid-column: 3; grid-row: 3 / span 2; transform: rotate(3deg) !important; }
+.bamboo-3 .stick-0 { grid-column: 1; grid-row: 2 / span 2; transform: rotate(-8deg) !important; }
+.bamboo-3 .stick-1 { grid-column: 2 / span 2; grid-row: 2 / span 2; transform: rotate(0) !important; }
+.bamboo-3 .stick-2 { grid-column: 4; grid-row: 2 / span 2; transform: rotate(8deg) !important; }
+.bamboo-4 .bamboo-stick:nth-child(1), .bamboo-4 .stick-0 { grid-column: 1; grid-row: 1 / span 2; }
+.bamboo-4 .stick-1 { grid-column: 4; grid-row: 1 / span 2; }
+.bamboo-4 .stick-2 { grid-column: 1; grid-row: 3 / span 2; }
+.bamboo-4 .stick-3 { grid-column: 4; grid-row: 3 / span 2; }
+.bamboo-5 .stick-0 { grid-column: 1; grid-row: 1 / span 2; }
+.bamboo-5 .stick-1 { grid-column: 4; grid-row: 1 / span 2; }
+.bamboo-5 .stick-2 { grid-column: 2 / span 2; grid-row: 2 / span 2; background: linear-gradient(90deg, #761010, #e0382f 50%, #761010) !important; border-color: rgba(130,10,10,.5) !important; }
+.bamboo-5 .stick-3 { grid-column: 1; grid-row: 3 / span 2; }
+.bamboo-5 .stick-4 { grid-column: 4; grid-row: 3 / span 2; }
+.bamboo-6 .bamboo-stick:nth-child(odd) { grid-column: 1; }
+.bamboo-6 .bamboo-stick:nth-child(even) { grid-column: 4; }
+.bamboo-6 .bamboo-stick:nth-child(1), .bamboo-6 .bamboo-stick:nth-child(2) { grid-row: 1 / span 1; }
+.bamboo-6 .bamboo-stick:nth-child(3), .bamboo-6 .bamboo-stick:nth-child(4) { grid-row: 2 / span 2; }
+.bamboo-6 .bamboo-stick:nth-child(5), .bamboo-6 .bamboo-stick:nth-child(6) { grid-row: 4; }
+.bamboo-7 .bamboo-stick:nth-child(1), .bamboo-7 .bamboo-stick:nth-child(2), .bamboo-7 .bamboo-stick:nth-child(3) { grid-row: 1 / span 2; }
+.bamboo-7 .bamboo-stick:nth-child(1) { grid-column: 1; }
+.bamboo-7 .bamboo-stick:nth-child(2) { grid-column: 2 / span 2; background: linear-gradient(90deg, #761010, #e0382f 50%, #761010) !important; border-color: rgba(130,10,10,.5) !important; }
+.bamboo-7 .bamboo-stick:nth-child(3) { grid-column: 4; }
+.bamboo-7 .bamboo-stick:nth-child(4), .bamboo-7 .bamboo-stick:nth-child(5), .bamboo-7 .bamboo-stick:nth-child(6), .bamboo-7 .bamboo-stick:nth-child(7) { grid-row: 3 / span 2; }
+.bamboo-7 .bamboo-stick:nth-child(4) { grid-column: 1; }
+.bamboo-7 .bamboo-stick:nth-child(5) { grid-column: 2; }
+.bamboo-7 .bamboo-stick:nth-child(6) { grid-column: 3; }
+.bamboo-7 .bamboo-stick:nth-child(7) { grid-column: 4; }
+.bamboo-8 .bamboo-stick:nth-child(1), .bamboo-8 .bamboo-stick:nth-child(2), .bamboo-8 .bamboo-stick:nth-child(3), .bamboo-8 .bamboo-stick:nth-child(4) { grid-row: 1 / span 2; }
+.bamboo-8 .bamboo-stick:nth-child(5), .bamboo-8 .bamboo-stick:nth-child(6), .bamboo-8 .bamboo-stick:nth-child(7), .bamboo-8 .bamboo-stick:nth-child(8) { grid-row: 3 / span 2; }
+.bamboo-8 .bamboo-stick:nth-child(4n+1) { grid-column: 1; }
+.bamboo-8 .bamboo-stick:nth-child(4n+2) { grid-column: 2; }
+.bamboo-8 .bamboo-stick:nth-child(4n+3) { grid-column: 3; }
+.bamboo-8 .bamboo-stick:nth-child(4n) { grid-column: 4; }
+.bamboo-9 .bamboo-stick:nth-child(-n+3) { grid-row: 1; }
+.bamboo-9 .bamboo-stick:nth-child(n+4):nth-child(-n+6) { grid-row: 2 / span 2; }
+.bamboo-9 .bamboo-stick:nth-child(n+7) { grid-row: 4; }
+.bamboo-9 .bamboo-stick:nth-child(3n+1) { grid-column: 1; }
+.bamboo-9 .bamboo-stick:nth-child(3n+2) { grid-column: 2 / span 2; }
+.bamboo-9 .bamboo-stick:nth-child(3n) { grid-column: 4; }
+.bamboo-1 { width: 39px !important; height: 51px !important; }
+.bird-body { background: linear-gradient(180deg, #1faf5f, #087342) !important; }
+.bird-head { background: linear-gradient(180deg, #e33832, #9f1717) !important; }
+.bird-wing { background: linear-gradient(180deg, #1767b7, #0c4a8e) !important; }

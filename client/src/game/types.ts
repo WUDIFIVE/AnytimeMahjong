@@ -70,6 +70,7 @@ export interface GameState {
   lastDiscard: Tile | null;
   lastDiscardBy?: string;
   lastDiscardPlayerName?: string;
+  lastDraw?: Tile | null;
   pendingClaims: Claim[];
   settings: GameSettings;
   winResult: WinResult | null;

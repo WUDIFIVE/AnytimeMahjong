@@ -1,5 +1,5 @@
 import React from 'react';
-import { PlayerState, Tile as TileType, sortTiles } from '../game/types';
+import { GameState, PlayerState, Tile as TileType, sortTiles } from '../game/types';
 import Tile from './Tile';
 import './PlayerArea.css';
 
@@ -10,6 +10,7 @@ interface PlayerAreaProps {
   onDiscard?: (tile: TileType) => void;
   onTileClick?: (tile: TileType) => void;
   selectedTileId?: string | null;
+  lastDraw?: GameState['lastDraw'];
 }
 
 const WIND_NAMES: Record<string, string> = {
@@ -34,9 +35,14 @@ const PlayerArea: React.FC<PlayerAreaProps> = ({
   onDiscard,
   onTileClick,
   selectedTileId,
+  lastDraw,
 }) => {
   const hand = player.hand ?? [];
-  const sortedHand = sortTiles(hand);
+  const drawnTile = isCurrentUser && lastDraw
+    ? hand.find(tile => String(tile.id) === String(lastDraw.id)) ?? null
+    : null;
+  const baseHand = drawnTile ? hand.filter(tile => String(tile.id) !== String(drawnTile.id)) : hand;
+  const sortedHand = sortTiles(baseHand);
 
   const handleTileClick = (tile: TileType) => {
     if (onTileClick) {
@@ -114,6 +120,16 @@ const PlayerArea: React.FC<PlayerAreaProps> = ({
                 onClick={handleTileClick}
               />
             ))}
+            {drawnTile && (
+              <span className="drawn-tile-slot" title="刚摸到的牌，打出后再整理">
+                <Tile
+                  key={drawnTile.id}
+                  tile={drawnTile}
+                  selected={drawnTile.id === selectedTileId}
+                  onClick={handleTileClick}
+                />
+              </span>
+            )}
           </div>
         ) : null}
       </div>
