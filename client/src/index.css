@@ -66,6 +66,80 @@ body {
   margin: 0;
 }
 
+/* === Anytime Mahjong redesign tokens: Apple-style, calm, glassy === */
+:root {
+  color-scheme: light;
+  --am-font: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Segoe UI', sans-serif;
+  --am-bg-0: #eef4ef;
+  --am-bg-1: #dfeee5;
+  --am-surface: rgba(255, 255, 255, 0.72);
+  --am-surface-strong: rgba(255, 255, 255, 0.9);
+  --am-surface-soft: rgba(255, 255, 255, 0.48);
+  --am-glass-dark: rgba(18, 38, 29, 0.58);
+  --am-text: #18231d;
+  --am-text-muted: rgba(24, 35, 29, 0.62);
+  --am-text-inverse: #f7fbf8;
+  --am-border: rgba(40, 68, 53, 0.12);
+  --am-border-strong: rgba(40, 68, 53, 0.2);
+  --am-accent: #1f8f62;
+  --am-accent-2: #0a84ff;
+  --am-warn: #ff9f0a;
+  --am-danger: #ff453a;
+  --am-gold: #c9952c;
+  --am-radius-xs: 8px;
+  --am-radius-sm: 12px;
+  --am-radius-md: 18px;
+  --am-radius-lg: 24px;
+  --am-radius-xl: 32px;
+  --am-blur: blur(26px) saturate(170%);
+  --am-shadow-soft: 0 18px 55px rgba(28, 49, 39, 0.14);
+  --am-shadow-card: 0 24px 80px rgba(28, 49, 39, 0.18), inset 0 1px 0 rgba(255,255,255,0.75);
+  --am-shadow-float: 0 18px 44px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255,255,255,0.38);
+}
+
+html, body, #root { width: 100%; min-height: 100%; }
+
+#root {
+  max-width: none;
+  margin: 0;
+  border: 0;
+  text-align: initial;
+  background: var(--am-bg-0);
+}
+
+body {
+  min-height: 100svh;
+  background:
+    radial-gradient(circle at 8% 0%, rgba(92, 192, 130, 0.2), transparent 28%),
+    radial-gradient(circle at 92% 10%, rgba(10, 132, 255, 0.12), transparent 32%),
+    linear-gradient(145deg, var(--am-bg-0), var(--am-bg-1));
+  color: var(--am-text);
+  font-family: var(--am-font);
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+}
+
+button, input, select, textarea { font-family: var(--am-font); }
+button { -webkit-tap-highlight-color: transparent; }
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(31, 143, 98, 0.22);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover { background-color: rgba(31, 143, 98, 0.36); }
+::selection { background: rgba(31, 143, 98, 0.24); color: #0b1f15; }
+
+@supports (height: 100dvh) { body { min-height: 100dvh; } }
+
+@media (max-width: 768px) {
+  :root { font-size: 15px; }
+  body { overflow-x: hidden; }
+}
+
 h1,
 h2 {
   font-family: var(--heading);

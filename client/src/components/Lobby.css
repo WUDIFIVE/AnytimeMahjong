@@ -352,3 +352,41 @@
     font-size: 16px;
   }
 }
+
+
+/* === Apple-style lobby redesign === */
+.lobby { min-height: 100dvh; padding: clamp(18px,4vw,48px); background: radial-gradient(circle at 18% 12%, rgba(255,255,255,.92), transparent 22%), radial-gradient(circle at 80% 16%, rgba(10,132,255,.12), transparent 26%), linear-gradient(145deg,#eef6f0,#d9eadf); }
+.lobby-card { max-width: 520px; padding: clamp(24px,4vw,42px); border-radius: var(--am-radius-xl); border: 1px solid rgba(255,255,255,.72); background: linear-gradient(145deg,rgba(255,255,255,.86),rgba(255,255,255,.54)), rgba(255,255,255,.64); color: var(--am-text); box-shadow: var(--am-shadow-card); backdrop-filter: var(--am-blur); -webkit-backdrop-filter: var(--am-blur); }
+.lobby-title { color: var(--am-text); font-size: clamp(30px,5vw,42px); font-weight: 850; letter-spacing: -1.2px; line-height: 1.04; margin-bottom: 8px; }
+.lobby-subtitle { color: var(--am-text-muted); font-size: 15px; margin-bottom: 28px; }
+.mode-tabs { gap: 6px; padding: 5px; border: 1px solid var(--am-border); border-radius: 999px; background: rgba(20,41,29,.06); overflow: visible; }
+.mode-tab { border-radius: 999px; background: transparent; color: var(--am-text-muted); font-weight: 760; padding: 11px 12px; }
+.mode-tab:first-child { border-right: 0; }
+.mode-tab.active { background: rgba(255,255,255,.92); color: var(--am-accent); box-shadow: 0 8px 22px rgba(31,143,98,.12), inset 0 1px 0 rgba(255,255,255,.9); }
+.mode-tab:hover:not(.active) { background: rgba(255,255,255,.42); color: var(--am-text); }
+.form-section { gap: 14px; }
+.form-group label, .room-settings h3, .player-list-section h3 { color: var(--am-text-muted); font-size: 12px; font-weight: 800; letter-spacing: .04em; }
+.form-group input[type="text"], .form-group input[type="password"], .form-group select { min-height: 46px; padding: 12px 15px; border-radius: 16px; border: 1px solid rgba(40,68,53,.14); background: rgba(255,255,255,.72); color: var(--am-text); font-size: 16px; box-shadow: inset 0 1px 0 rgba(255,255,255,.86); }
+.form-group input::placeholder { color: rgba(24,35,29,.36); }
+.form-group input:focus, .form-group select:focus { border-color: rgba(10,132,255,.38); box-shadow: 0 0 0 4px rgba(10,132,255,.12), inset 0 1px 0 rgba(255,255,255,.9); }
+.form-group select option { background: #f7fbf8; color: var(--am-text); }
+.toggle-label { color: var(--am-text-muted); font-weight: 700; }
+.toggle-label input[type="checkbox"] { accent-color: var(--am-accent); }
+.btn-primary, .settlement-btn, .cycle-btn { min-height: 46px; border-radius: 999px; font-weight: 850; letter-spacing: -.01em; }
+.btn-primary { background: linear-gradient(145deg,#31b978,#168052); color: #fff; box-shadow: 0 14px 30px rgba(31,143,98,.22), inset 0 1px 0 rgba(255,255,255,.32); }
+.btn-primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 18px 38px rgba(31,143,98,.28); }
+.btn-primary:disabled { opacity: .38; filter: saturate(.7); }
+.btn-start { background: linear-gradient(145deg,#34c983,#1f8f62); color: #fff; }
+.room-id-display { padding: 10px 18px; border-radius: 18px; background: rgba(255,255,255,.72); border: 1px solid rgba(31,143,98,.2); box-shadow: inset 0 1px 0 rgba(255,255,255,.86), 0 10px 24px rgba(24,50,34,.08); }
+.room-id-display:hover { background: rgba(255,255,255,.9); border-color: rgba(31,143,98,.36); }
+.room-id-label, .copy-hint, .waiting-hint { color: var(--am-text-muted); }
+.room-id-text { color: var(--am-accent); letter-spacing: 1.6px; }
+.setting-item, .player-list-item { border-radius: 16px; border: 1px solid var(--am-border); background: rgba(255,255,255,.56); color: var(--am-text-muted); }
+.player-list-item { padding: 12px 14px; }
+.player-list-item.host { border-color: rgba(31,143,98,.26); background: rgba(31,143,98,.08); }
+.player-list-name { color: var(--am-text); font-weight: 760; }
+.player-seat, .host-badge, .self-badge { border-radius: 999px; }
+.player-seat { background: rgba(24,35,29,.08); color: var(--am-text-muted); }
+.host-badge { background: rgba(201,149,44,.14); color: #9a6a12; }
+.self-badge { background: rgba(31,143,98,.14); color: var(--am-accent); }
+@media (max-width:480px){ .lobby{padding:14px;align-items:flex-start}.lobby-card{border-radius:26px;padding:22px 16px;margin-top:8px}.lobby-title{font-size:31px}.mode-tabs{margin-bottom:16px}.room-id-display{width:100%;justify-content:center;flex-wrap:wrap} }

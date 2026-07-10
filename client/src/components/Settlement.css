@@ -419,3 +419,32 @@
   font-size: 13px;
   padding: 0 20px 18px;
 }
+
+
+/* === Apple-style settlement sheet === */
+.settlement-overlay { background:rgba(218,233,224,.72); backdrop-filter:blur(30px) saturate(150%); -webkit-backdrop-filter:blur(30px) saturate(150%); }
+.settlement-container { max-width:820px; border-radius:32px; border:1px solid rgba(255,255,255,.74); background:linear-gradient(145deg,rgba(255,255,255,.88),rgba(255,255,255,.6)); color:var(--am-text); box-shadow:var(--am-shadow-card); }
+.winner-banner { padding:34px 24px 26px; background:radial-gradient(circle at 50% 0%,rgba(255,255,255,.84),transparent 46%), linear-gradient(180deg,rgba(31,143,98,.1),transparent); border-bottom:1px solid rgba(40,68,53,.08); }
+.winner-stars { filter:drop-shadow(0 8px 18px rgba(255,159,10,.18)); }
+.winner-announcement { color:var(--am-text); font-size:clamp(24px,4vw,34px); font-weight:900; letter-spacing:-.04em; text-shadow:none; }
+.winner-name { color:var(--am-text); font-weight:850; }
+.win-type-badge { border-radius:999px; background:rgba(31,143,98,.12); border-color:rgba(31,143,98,.18); color:var(--am-accent); }
+.total-fan { border-radius:999px; color:#b56a00; background:rgba(255,159,10,.14); }
+.settlement-section { padding:22px; border-bottom:1px solid rgba(40,68,53,.08); }
+.settlement-section h3 { color:var(--am-text-muted); font-weight:850; }
+.winning-hand-display { background:rgba(255,255,255,.56); border:1px solid rgba(40,68,53,.08); border-radius:22px; }
+.winning-tile-wrap { background:rgba(255,159,10,.12); border-color:rgba(255,159,10,.28); }
+.winning-plus,.winning-label { color:var(--am-warn); }
+.melds-label,.winning-hand-summary,.fan-breakdown-table th,.fan-desc-cell { color:var(--am-text-muted)!important; }
+.settlement-meld,.ranking-item,.payout-item { border-radius:18px; background:rgba(255,255,255,.55); border:1px solid rgba(40,68,53,.08); }
+.fan-breakdown-table td,.payout-from,.payout-to,.ranking-name { color:var(--am-text); }
+.fan-value-cell,.total-row td,.ranking-rank,.ranking-score { color:var(--am-accent)!important; }
+.ranking-item.self { border-color:rgba(10,132,255,.24); background:rgba(10,132,255,.08); }
+.ranking-item.winner { border-color:rgba(255,159,10,.26); background:rgba(255,159,10,.08); }
+.ranking-delta.positive { color:var(--am-accent); } .ranking-delta.negative { color:var(--am-danger); } .payout-amount { color:var(--am-accent); }
+.settlement-actions { padding:18px 22px 22px; gap:12px; }
+.settlement-btn { border-radius:999px; min-height:46px; border:1px solid rgba(255,255,255,.55); }
+.btn-new-game { background:linear-gradient(145deg,#34c983,#1f8f62); color:#fff; box-shadow:0 14px 30px rgba(31,143,98,.22), inset 0 1px 0 rgba(255,255,255,.32); }
+.btn-share { background:rgba(255,255,255,.58); color:var(--am-text); border-color:rgba(40,68,53,.1); }
+.btn-share:hover { background:rgba(255,255,255,.78); } .share-status { color:var(--am-accent); font-weight:760; }
+@media (max-width:480px){ .settlement-overlay{padding:8px;align-items:flex-end}.settlement-container{max-height:94dvh;border-radius:28px 28px 18px 18px}.winner-banner{padding:26px 16px 20px}.winner-detail{flex-wrap:wrap}.settlement-section{padding:16px}.ranking-item{grid-template-columns:42px 1fr 58px}.ranking-score{display:none} }
