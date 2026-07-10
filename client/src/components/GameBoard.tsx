@@ -236,8 +236,18 @@ const GameBoard: React.FC<GameBoardProps> = ({
 
 
   const myPendingClaim = gameState.pendingClaims.find(c => c.playerId === playerId);
+  const latestDiscardCandidates = orderedPlayers
+    .map(player => ({ player, tile: (player.discards ?? [])[Math.max(0, (player.discards ?? []).length - 1)] }))
+    .filter((entry): entry is { player: typeof orderedPlayers[number]; tile: TileType } => Boolean(entry.tile));
+  const latestDiscardEntry = latestDiscardCandidates
+    .find(entry => gameState.lastDiscardBy ? entry.player.id === gameState.lastDiscardBy : gameState.lastDiscard?.id === entry.tile.id)
+    || latestDiscardCandidates[latestDiscardCandidates.length - 1]
+    || null;
+  const displayLastDiscard = latestDiscardEntry?.tile ?? gameState.lastDiscard;
+  const displayLastDiscardBy = latestDiscardEntry?.player.id ?? gameState.lastDiscardBy;
   const respondingTile = anyPending ? gameState.lastDiscard : null;
-  const lastDiscardPlayerName = gameState.lastDiscardPlayerName
+  const lastDiscardPlayerName = latestDiscardEntry?.player.name
+    || gameState.lastDiscardPlayerName
     || gameState.players.find(p => p.id === gameState.lastDiscardBy)?.name
     || '上一家';
   const tenpaiHints = computeTenpaiHints(currentPlayer).slice(0, 8);
@@ -298,12 +308,12 @@ const GameBoard: React.FC<GameBoardProps> = ({
                   })()}
                 </div>
 
-                {gameState.lastDiscard && (
+                {displayLastDiscard && (
                   <div className="last-discard-callout">
                     <span className="last-discard-label">刚出</span>
                     <strong>{lastDiscardPlayerName}</strong>
-                    <Tile tile={gameState.lastDiscard} small highlighted />
-                    <span>{formatTile(gameState.lastDiscard)}</span>
+                    <Tile tile={displayLastDiscard} small highlighted />
+                    <span>{formatTile(displayLastDiscard)}</span>
                   </div>
                 )}
               </div>
@@ -340,16 +350,22 @@ const GameBoard: React.FC<GameBoardProps> = ({
                 <div key={player.id} className={`central-discard-row discard-row-${POSITIONS[idx]}`}>
                   <div className="central-discard-name">{player.name}</div>
                   <div className="central-discard-tiles">
-                    {(player.discards ?? []).slice(-18).map((tile, tileIdx, shown) => (
-                      <span className="discard-tile-wrap" key={tile.id} title={`${player.name} 打出 ${formatTile(tile)}`}>
-                        <Tile
-                          tile={tile}
-                          small
-                          highlighted={gameState.lastDiscard?.id === tile.id && gameState.lastDiscardBy === player.id}
-                        />
-                        {tileIdx === shown.length - 1 && <em className="discard-order-dot" />}
-                      </span>
-                    ))}
+                    {(player.discards ?? []).map((tile, tileIdx, shown) => {
+                      const isLatestForPlayer = tileIdx === shown.length - 1;
+                      const isTableLatest = isLatestForPlayer && displayLastDiscard?.id === tile.id && displayLastDiscardBy === player.id;
+                      return (
+                        <span className={`discard-tile-wrap ${isTableLatest ? 'discard-latest' : ''}`} key={tile.id} title={`${player.name} 打出 ${formatTile(tile)}`}>
+                          {isTableLatest && <em className="discard-arrow">↑</em>}
+                          <Tile
+                            tile={tile}
+                            small
+                            highlighted={isTableLatest}
+                          />
+                          {isLatestForPlayer && <em className="discard-order-dot" />}
+                        </span>
+                      );
+                    })}
+                    {(player.discards ?? []).length === 0 && <span className="empty-discards">暂无</span>}
                   </div>
                 </div>
               ))}

@@ -75,39 +75,63 @@ const Settlement: React.FC<SettlementProps> = ({
         ctx.arcTo(x, y, x + w, y, r);
         ctx.closePath();
       };
-      const fillText = (text: string, x: number, y: number, size = 24, color = '#f7ead0', weight = 700, align: CanvasTextAlign = 'left') => {
+      const fillText = (text: string, x: number, y: number, size = 24, color = '#18231d', weight = 700, align: CanvasTextAlign = 'left') => {
         ctx.fillStyle = color;
         ctx.font = `${weight} ${size}px -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif`;
         ctx.textAlign = align;
         ctx.fillText(text, x, y);
       };
+      const wrapText = (text: string, x: number, startY: number, maxWidth: number, lineHeight: number, size = 18, color = '#4c5d53', weight = 650) => {
+        ctx.fillStyle = color;
+        ctx.font = `${weight} ${size}px -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif`;
+        ctx.textAlign = 'left';
+        let yLine = startY;
+        let line = '';
+        for (const char of text) {
+          const test = line + char;
+          if (ctx.measureText(test).width > maxWidth && line) {
+            ctx.fillText(line, x, yLine);
+            yLine += lineHeight;
+            line = char;
+          } else {
+            line = test;
+          }
+        }
+        if (line) ctx.fillText(line, x, yLine);
+        return yLine + lineHeight;
+      };
 
       const bg = ctx.createLinearGradient(0, 0, width, height);
-      bg.addColorStop(0, '#143824');
-      bg.addColorStop(1, '#071d14');
+      bg.addColorStop(0, '#f8fbf8');
+      bg.addColorStop(0.52, '#edf5ef');
+      bg.addColorStop(1, '#dfeee5');
       ctx.fillStyle = bg;
       ctx.fillRect(0, 0, width, height);
-      ctx.fillStyle = 'rgba(240,192,64,0.08)';
+      ctx.fillStyle = 'rgba(31,143,98,0.11)';
       ctx.beginPath();
-      ctx.arc(width / 2, 160, 330, 0, Math.PI * 2);
+      ctx.arc(120, 120, 230, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = 'rgba(10,132,255,0.09)';
+      ctx.beginPath();
+      ctx.arc(width - 80, 70, 260, 0, Math.PI * 2);
       ctx.fill();
 
-      roundedRect(48, 44, width - 96, height - 88, 28);
-      ctx.fillStyle = 'rgba(0,0,0,0.25)';
+      roundedRect(48, 44, width - 96, height - 88, 34);
+      ctx.fillStyle = 'rgba(255,255,255,0.74)';
       ctx.fill();
-      ctx.strokeStyle = 'rgba(240,192,64,0.38)';
+      ctx.strokeStyle = 'rgba(255,255,255,0.92)';
       ctx.lineWidth = 2;
       ctx.stroke();
 
-      fillText('🀄 Anytime Mahjong 结算', width / 2, 96, 30, '#f0c040', 900, 'center');
-      fillText(isDraw ? '荒牌流局，下一把继续！' : isWinner ? '恭喜胡牌！' : `${winner?.name || '某玩家'} 胡牌！`, width / 2, 148, 42, '#fff4d6', 900, 'center');
-      fillText(`${isDraw ? '无人胡牌' : winner?.name || '???'} · ${winTypeLabel} · ${winResult?.totalFan ?? 0} 番`, width / 2, 188, 22, '#e8d3a2', 800, 'center');
+      fillText('Anytime Mahjong 结算长图', width / 2, 96, 30, '#1f8f62', 900, 'center');
+      fillText(isDraw ? '荒牌流局，下一把继续！' : isWinner ? '恭喜胡牌！' : `${winner?.name || '某玩家'} 胡牌！`, width / 2, 148, 42, '#18231d', 900, 'center');
+      fillText(`${isDraw ? '无人胡牌' : winner?.name || '???'} · ${winTypeLabel} · ${winResult?.totalFan ?? 0} 番`, width / 2, 188, 22, '#5f756a', 800, 'center');
 
       let y = 238;
       roundedRect(82, y, width - 164, 54 + ranking.length * rowHeight, 18);
-      ctx.fillStyle = 'rgba(255,255,255,0.07)';
+      ctx.fillStyle = 'rgba(255,255,255,0.78)';
       ctx.fill();
-      fillText('房间累计积分排名', 110, y + 36, 22, '#f0c040', 900);
+      fillText('房间累计积分排名', 110, y + 36, 22, '#1f8f62', 900);
       y += 60;
       ranking.forEach(item => {
         const delta = safePayouts.reduce((sum, payout) => {
@@ -115,54 +139,53 @@ const Settlement: React.FC<SettlementProps> = ({
           if (payout.fromId === item.playerId) return sum - payout.amount;
           return sum;
         }, 0);
-        fillText(`#${item.rank}`, 112, y + 30, 21, '#f7ead0', 900);
-        fillText(item.playerName, 180, y + 30, 21, item.playerId === playerId ? '#f0c040' : '#f7ead0', 800);
-        fillText(`${delta >= 0 ? '+' : ''}${delta}`, width - 260, y + 30, 21, delta >= 0 ? '#6ee08d' : '#ff8075', 900, 'right');
-        fillText(`${item.score} 分`, width - 128, y + 30, 21, '#f7ead0', 800, 'right');
+        fillText(`#${item.rank}`, 112, y + 30, 21, '#18231d', 900);
+        fillText(item.playerName, 180, y + 30, 21, item.playerId === playerId ? '#1f8f62' : '#18231d', 800);
+        fillText(`${delta >= 0 ? '+' : ''}${delta}`, width - 260, y + 30, 21, delta >= 0 ? '#1f8f62' : '#ff453a', 900, 'right');
+        fillText(`${item.score} 分`, width - 128, y + 30, 21, '#4c5d53', 800, 'right');
         y += rowHeight;
       });
 
       if (isDraw) {
         y += 24;
-        fillText('牌墙已摸完，无人胡牌。本局不产生输赢积分。', width / 2, y + 34, 22, '#d9ccb0', 700, 'center');
+        fillText('牌墙已摸完，无人胡牌。本局不产生输赢积分。', width / 2, y + 34, 22, '#5f756a', 700, 'center');
       } else {
         y += 28;
         roundedRect(82, y, width - 164, 132 + meldRows * 42, 18);
-        ctx.fillStyle = 'rgba(255,255,255,0.06)';
+        ctx.fillStyle = 'rgba(255,255,255,0.78)';
         ctx.fill();
-        fillText('胡牌牌型', 110, y + 36, 22, '#f0c040', 900);
-        fillText(`完整牌型：${completeHandText}`, 110, y + 74, 18, '#f7ead0', 700);
-        fillText(`暗手：${sortedConcealed.map(formatTile).join('、') || '暂无'}${winningTile ? `　胡牌张：${formatTile(winningTile)}` : ''}`, 110, y + 108, 17, '#d9ccb0', 650);
-        y += 134;
+        fillText('胡牌牌型', 110, y + 36, 22, '#1f8f62', 900);
+        y = wrapText(`完整牌型：${completeHandText}`, 110, y + 74, width - 220, 25, 18, '#18231d', 700) - 8;
+        y = wrapText(`暗手：${sortedConcealed.map(formatTile).join('、') || '暂无'}${winningTile ? `　胡牌张：${formatTile(winningTile)}` : ''}`, 110, y + 28, width - 220, 24, 17, '#5f756a', 650);
+        y += 12;
         if (melds.length > 0) {
-          fillText(`副露牌面：${meldText}`, 110, y, 17, '#d9ccb0', 650);
-          y += 42 * meldRows;
+          y = wrapText(`副露牌面：${meldText}`, 110, y, width - 220, 24, 17, '#5f756a', 650);
         }
         y += 24;
-        fillText('番型明细', 110, y, 22, '#f0c040', 900);
+        fillText('番型明细', 110, y, 22, '#1f8f62', 900);
         y += 34;
         (safeFans.length ? safeFans : [{ icon: '•', name: '无番型数据', fanValue: 0, description: '' }]).forEach(fan => {
-          fillText(`${fan.icon || '•'} ${fan.name}`, 120, y, 19, '#f7ead0', 800);
-          fillText(`${fan.fanValue} 番`, width - 160, y, 19, '#f0c040', 900, 'right');
-          if (fan.description) fillText(fan.description.slice(0, 34), 300, y, 15, '#cfc2a2', 600);
+          fillText(`${fan.icon || '•'} ${fan.name}`, 120, y, 19, '#18231d', 800);
+          fillText(`${fan.fanValue} 番`, width - 160, y, 19, '#1f8f62', 900, 'right');
+          if (fan.description) fillText(fan.description.slice(0, 34), 300, y, 15, '#5f756a', 600);
           y += 44;
         });
       }
 
       y += 24;
       if (safePayouts.length > 0) {
-        fillText('本局结算', 110, y, 22, '#f0c040', 900);
+        fillText('本局结算', 110, y, 22, '#1f8f62', 900);
         y += 34;
         safePayouts.forEach(payout => {
           const fromPlayer = safePlayers.find(p => p.id === payout.fromId);
           const toPlayer = safePlayers.find(p => p.id === payout.toId);
-          fillText(`${fromPlayer?.name || '???'} → ${toPlayer?.name || '???'}`, 120, y, 18, '#e9dec7', 700);
-          fillText(`${payout.amount} 分`, width - 160, y, 18, '#f7ead0', 800, 'right');
+          fillText(`${fromPlayer?.name || '???'} → ${toPlayer?.name || '???'}`, 120, y, 18, '#18231d', 700);
+          fillText(`${payout.amount} 分`, width - 160, y, 18, '#4c5d53', 800, 'right');
           y += 38;
         });
       }
 
-      fillText(new Date().toLocaleString(), width / 2, height - 48, 16, 'rgba(247,234,208,0.55)', 600, 'center');
+      fillText(new Date().toLocaleString(), width / 2, height - 48, 16, 'rgba(24,35,29,0.45)', 600, 'center');
 
       const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, 'image/png'));
       if (!blob) throw new Error('canvas blob unavailable');

@@ -328,6 +328,8 @@ export function executePong(player: Player, tile: Tile, gameState: GameState): v
       .findIndex(d => tileEquals(d, gameState.pendingDiscard!));
     if (discIdx >= 0) gameState.players[gameState.currentPlayerIndex].discards.splice(discIdx, 1);
   }
+  gameState.lastDiscardBy = undefined;
+  gameState.lastDiscardPlayerName = undefined;
   gameState.pendingDiscard = null;
   gameState.pendingClaims = [];
 }
@@ -352,6 +354,8 @@ export function executeChi(player: Player, tile: Tile, tiles: [Tile, Tile], game
       .findIndex(d => tileEquals(d, gameState.pendingDiscard!));
     if (discIdx >= 0) gameState.players[gameState.currentPlayerIndex].discards.splice(discIdx, 1);
   }
+  gameState.lastDiscardBy = undefined;
+  gameState.lastDiscardPlayerName = undefined;
   gameState.pendingDiscard = null;
   gameState.pendingClaims = [];
 }
@@ -376,6 +380,8 @@ export function executeMingGang(player: Player, tile: Tile, gameState: GameState
       .findIndex(d => tileEquals(d, gameState.pendingDiscard!));
     if (discIdx >= 0) gameState.players[gameState.currentPlayerIndex].discards.splice(discIdx, 1);
   }
+  gameState.lastDiscardBy = undefined;
+  gameState.lastDiscardPlayerName = undefined;
   gameState.pendingDiscard = null;
   gameState.pendingClaims = [];
 

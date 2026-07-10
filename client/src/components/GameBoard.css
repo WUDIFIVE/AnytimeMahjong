@@ -625,3 +625,98 @@
 .settings-hint { top:auto; bottom:8px; right:18px; color:rgba(24,35,29,.42); }
 @media (max-width:900px){ .game-table{grid-template-columns:126px minmax(0,1fr) 126px; padding-inline:10px}.table-center{border-radius:28px} }
 @media (max-width:768px){ .game-info-bar{margin-top:6px;max-width:calc(100% - 12px);padding:5px;gap:4px;overflow-x:auto;justify-content:flex-start}.info-room,.info-wind,.info-wall{font-size:11px;padding:4px 8px;flex:0 0 auto}.game-table{grid-template-columns:72px minmax(0,1fr) 72px;grid-template-rows:62px minmax(0,1fr) minmax(128px,auto);gap:6px;padding:6px 6px calc(78px + env(safe-area-inset-bottom))}.table-center{padding:7px;border-radius:22px}.center-status-row{padding:5px;border-radius:18px;gap:4px}.center-aux-row{padding:5px;border-radius:16px}.wall-indicator.compact,.turn-indicator,.last-discard-callout,.claim-target-callout,.tenpai-hints{padding:5px 7px;font-size:11px}.central-discards{padding:7px;border-radius:20px}.discard-pile{border-radius:14px;padding:5px}.discard-player-name{font-size:10px}.action-bar{left:8px;right:8px;bottom:calc(8px + env(safe-area-inset-bottom));transform:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(68px,1fr));border-radius:24px;gap:7px;padding:8px}.action-btn{min-height:40px;padding:8px 10px;font-size:13px}.settings-hint{display:none} }
+
+/* === Fixed discard box + latest tile arrow polish === */
+.central-discards {
+  height: clamp(360px, 47vh, 520px) !important;
+  min-height: 360px !important;
+  max-height: 520px !important;
+  grid-template-rows: minmax(78px, 1fr) minmax(128px, 1.25fr) minmax(78px, 1fr) !important;
+  overflow: hidden !important;
+}
+.central-discard-row {
+  min-height: 0;
+  overflow: hidden;
+}
+.central-discard-tiles {
+  width: 100%;
+  align-content: flex-start;
+  justify-content: flex-start;
+  max-height: none !important;
+  overflow: auto !important;
+  padding: 4px;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+.discard-row-top .central-discard-tiles,
+.discard-row-bottom .central-discard-tiles {
+  max-height: 92px !important;
+}
+.discard-row-left .central-discard-tiles,
+.discard-row-right .central-discard-tiles {
+  max-width: none !important;
+  max-height: 224px !important;
+}
+.discard-row-left,
+.discard-row-right {
+  align-items: stretch;
+}
+.discard-tile-wrap {
+  margin-top: 12px;
+  isolation: isolate;
+}
+.discard-latest {
+  z-index: 3;
+}
+.discard-latest .mahjong-tile {
+  transform: translateY(-4px) scale(1.06);
+  box-shadow: 0 10px 20px rgba(255,149,0,.22), 0 0 0 3px rgba(255,159,10,.22), inset 0 1px 0 rgba(255,255,255,.92) !important;
+}
+.discard-arrow {
+  position: absolute;
+  left: 50%;
+  top: -18px;
+  transform: translateX(-50%);
+  z-index: 4;
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #ffcc66, #ff8c00);
+  color: #fff;
+  font-style: normal;
+  font-size: 14px;
+  font-weight: 1000;
+  line-height: 1;
+  box-shadow: 0 6px 14px rgba(255,149,0,.34), 0 0 0 4px rgba(255,159,10,.16);
+  animation: discard-arrow-float 1.05s ease-in-out infinite;
+}
+@keyframes discard-arrow-float {
+  0%, 100% { transform: translate(-50%, 0); opacity: .92; }
+  50% { transform: translate(-50%, -7px); opacity: 1; }
+}
+.empty-discards {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  color: rgba(24,35,29,.34);
+  font-size: 12px;
+  font-weight: 700;
+}
+@media (max-width: 768px) {
+  .central-discards {
+    height: clamp(300px, 43svh, 430px) !important;
+    min-height: 300px !important;
+    max-height: 430px !important;
+    grid-template-columns: minmax(52px, .72fr) minmax(120px, 1.45fr) minmax(52px, .72fr) !important;
+    grid-template-rows: minmax(58px, .8fr) minmax(126px, 1.4fr) minmax(58px, .8fr) !important;
+  }
+  .discard-row-top .central-discard-tiles,
+  .discard-row-bottom .central-discard-tiles { max-height: 66px !important; }
+  .discard-row-left .central-discard-tiles,
+  .discard-row-right .central-discard-tiles { max-height: 190px !important; }
+  .discard-tile-wrap { margin-top: 10px; }
+  .discard-arrow { top: -16px; width: 16px; height: 16px; font-size: 12px; }
+}
