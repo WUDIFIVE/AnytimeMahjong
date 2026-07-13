@@ -24,18 +24,23 @@ const Settlement: React.FC<SettlementProps> = ({
   const concealedHand = winResult?.concealedHand ?? winResult?.winningHand ?? [];
   const winningTile = winResult?.winningTile ?? null;
   const winningHand = winResult?.winningHand ?? [...concealedHand, ...(winningTile ? [winningTile] : [])];
+  const winnerIds = new Set([...(winResult?.winners?.map(w => w.playerId) ?? []), ...(winResult?.winnerId ? [winResult.winnerId] : [])]);
+  const winnersText = winResult?.winners?.length
+    ? winResult.winners.map(w => w.playerName).join('、')
+    : '';
   const winner = safePlayers.find(p => p.id === winResult?.winnerId);
   const melds = winResult?.melds ?? winner?.melds ?? [];
   const ranking = winResult?.ranking ?? safePlayers
-    .map((p) => ({ rank: 0, playerId: p.id, playerName: p.name, score: p.score ?? 0, isWinner: p.id === winResult?.winnerId }))
+    .map((p) => ({ rank: 0, playerId: p.id, playerName: p.name, score: p.score ?? 0, isWinner: winnerIds.has(p.id) }))
     .sort((a, b) => b.score - a.score)
     .map((p, index) => ({ ...p, rank: index + 1 }));
   const isDraw = winResult?.winType === 'draw';
-  const isWinner = !isDraw && winResult?.winnerId === playerId;
+  const isWinner = !isDraw && winnerIds.has(playerId);
+  const isMultiWin = !isDraw && (winResult?.winners?.length ?? 0) > 1;
   const sortedHand = sortTiles(winningHand);
   const sortedConcealed = sortTiles(concealedHand);
 
-  const winTypeLabel = winResult?.winType === 'draw' ? '流局' : winResult?.winType === 'zimo' ? '自摸' : '点炮';
+  const winTypeLabel = winResult?.winType === 'draw' ? '流局' : winResult?.winType === 'zimo' ? '自摸' : isMultiWin ? '一炮多响' : '点炮';
   const meldText = melds.length > 0
     ? melds.map((meld) => meld.tiles.map(formatTile).join('、')).join(' / ')
     : '';
@@ -200,10 +205,10 @@ const Settlement: React.FC<SettlementProps> = ({
         <div className="winner-banner">
           <div className="winner-stars">✨✨✨</div>
           <h1 className="winner-announcement">
-            {isDraw ? '荒牌流局，下一把继续！' : isWinner ? '🎉 恭喜胡牌！' : `${winner?.name || '某玩家'} 胡牌！`}
+            {isDraw ? '荒牌流局，下一把继续！' : isWinner ? '🎉 恭喜胡牌！' : isMultiWin ? `${winnersText || '多位玩家'} 胡牌！` : `${winner?.name || '某玩家'} 胡牌！`}
           </h1>
           <div className="winner-detail">
-            <span className="winner-name">{isDraw ? '无人胡牌' : winner?.name || '???'}</span>
+            <span className="winner-name">{isDraw ? '无人胡牌' : isMultiWin ? winnersText || '多位玩家' : winner?.name || '???'}</span>
             <span className="win-type-badge">{winTypeLabel}</span>
             <span className="total-fan">{winResult?.totalFan ?? 0} 番</span>
           </div>
@@ -245,7 +250,7 @@ const Settlement: React.FC<SettlementProps> = ({
         {isDraw && (
           <div className="settlement-section draw-summary">
             <h3>本局流局</h3>
-            <p>牌墙已摸完，无人胡牌。本局不产生输赢积分，点击继续下一局即可。</p>
+            <p>牌墙已摸完，无人胡牌。若有听牌玩家，将执行荒庄查听积分结算。</p>
           </div>
         )}
 

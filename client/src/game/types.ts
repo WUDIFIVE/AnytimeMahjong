@@ -95,6 +95,7 @@ export interface Claim {
 // === Win Result ===
 export interface WinResult {
   winnerId?: string;
+  winners?: { playerId: string; playerName: string; totalFan: number }[];
   loserId?: string;          // dianpao player, if applicable
   winType: 'zimo' | 'dianpao' | 'draw';
   concealedHand?: Tile[];

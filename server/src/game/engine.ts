@@ -60,6 +60,20 @@ export interface Fan {
   value: number;
 }
 
+export const FAN_VALUES: Record<FanType, number> = {
+  '基本胡': 1,
+  '七小对': 4,
+  '十三幺': 13,
+  '碰碰胡': 2,
+  '清一色': 6,
+  '混一色': 3,
+  '杠上开花': 1,
+  '海底捞月': 1,
+  '自摸': 1,
+  '门清': 1,
+  '平胡': 1,
+};
+
 export interface WinResult {
   fans: Fan[];
   totalValue: number;
@@ -181,8 +195,9 @@ export function createWall(): { wall: Tile[]; deadWall: Tile[] } {
   return { wall, deadWall };
 }
 
-export function deal(wall: Tile[]): Tile[][] {
+export function deal(wall: Tile[], dealerIndex = 0): Tile[][] {
   const hands: Tile[][] = [[], [], [], []];
+  const safeDealerIndex = dealerIndex >= 0 && dealerIndex < hands.length ? dealerIndex : 0;
   const tiles = [...wall];
 
   for (let round = 0; round < 3; round++) {
@@ -195,7 +210,7 @@ export function deal(wall: Tile[]): Tile[][] {
   for (let p = 0; p < 4; p++) {
     hands[p].push(tiles.shift()!);
   }
-  hands[0].push(tiles.shift()!);
+  hands[safeDealerIndex].push(tiles.shift()!);
 
   wall.length = 0;
   wall.push(...tiles);
@@ -633,22 +648,22 @@ export function checkWin(
     isSevenPairsWin = isSevenPairs(allTiles);
     isThirteenOrphansWin = isThirteenOrphans(allTiles);
 
-    if (isSevenPairsWin) fans.push({ type: '七小对', value: 4 });
+    if (isSevenPairsWin) fans.push({ type: '七小对', value: FAN_VALUES['七小对'] });
     if (isThirteenOrphansWin) {
-      fans.push({ type: '十三幺', value: 13 });
+      fans.push({ type: '十三幺', value: FAN_VALUES['十三幺'] });
       // 十三幺 includes 基本胡 — max value already achieved
     }
 
     // For 碰碰胡 without melds
     isPengPengHuWin = isPengPengHu(allTiles);
-    if (isPengPengHuWin) fans.push({ type: '碰碰胡', value: 2 });
+    if (isPengPengHuWin) fans.push({ type: '碰碰胡', value: FAN_VALUES['碰碰胡'] });
   } else {
     const allTriplets = melds.every(
       m => m.type === 'pong' || m.type === 'minggang' || m.type === 'angang' || m.type === 'jiagang'
     );
     if (allTriplets && decomposeTiles(remainingHandTiles, totalMelds, false, true)) {
       isPengPengHuWin = true;
-      fans.push({ type: '碰碰胡', value: 2 });
+      fans.push({ type: '碰碰胡', value: FAN_VALUES['碰碰胡'] });
     }
   }
 
@@ -656,22 +671,22 @@ export function checkWin(
     return null;
   }
 
-  if (basicWin) fans.push({ type: '基本胡', value: 1 });
+  if (basicWin) fans.push({ type: '基本胡', value: FAN_VALUES['基本胡'] });
 
   if (isQingYiSe(allTiles)) {
-    fans.push({ type: '清一色', value: 6 });
+    fans.push({ type: '清一色', value: FAN_VALUES['清一色'] });
   }
 
   if (!isQingYiSe(allTiles) && isMixedOneSuit(allTiles)) {
-    fans.push({ type: '混一色', value: 3 });
+    fans.push({ type: '混一色', value: FAN_VALUES['混一色'] });
   }
 
-  if (isZimo) fans.push({ type: '自摸', value: 1 });
+  if (isZimo) fans.push({ type: '自摸', value: FAN_VALUES['自摸'] });
 
   const hasOpenMelds = melds.some(
     m => m.type === 'pong' || m.type === 'chi' || m.type === 'minggang'
   );
-  if (!hasOpenMelds) fans.push({ type: '门清', value: 1 });
+  if (!hasOpenMelds) fans.push({ type: '门清', value: FAN_VALUES['门清'] });
 
   const totalValue = fans.reduce((sum, f) => sum + f.value, 0);
   return { fans, totalValue };
@@ -687,11 +702,14 @@ export function isTing(hand: Tile[], melds: Meld[]): boolean {
 
   const settings: GameSettings = { allowChi: true, allowDianpao: true, maxPlayers: 4 };
 
-  for (let i = 0; i < hand.length; i++) {
-    const reducedHand = hand.filter((_, idx) => idx !== i);
+  const candidateHands = hand.length % 3 === 1
+    ? [hand]
+    : hand.map((_, discardIndex) => hand.filter((_tile, idx) => idx !== discardIndex));
+
+  for (const candidate of candidateHands) {
     for (const { suit, value } of allPossibleTiles) {
       const testTile: Tile = { id: -1, suit, value, name: '' };
-      if (checkWin(reducedHand, melds, testTile, true, settings)) return true;
+      if (checkWin(candidate, melds, testTile, true, settings)) return true;
     }
   }
 

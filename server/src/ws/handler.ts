@@ -30,6 +30,7 @@ import {
   serializeTile,
   serializePlayer,
   serializeMeld,
+  isTing,
   GamePhase,
 } from '../game/engine';
 import {
@@ -128,6 +129,21 @@ export function setupWebSocketHandler(
 
 
   function buildDrawResult(gameState: GameState): any {
+    const readyPlayers = gameState.players.filter(player => isTing(player.hand, player.melds));
+    const notReadyPlayers = gameState.players.filter(player => !readyPlayers.some(ready => ready.id === player.id));
+    const drawReadyAmount = 100;
+    const payouts = readyPlayers.length > 0 && notReadyPlayers.length > 0
+      ? notReadyPlayers.flatMap(from => readyPlayers.map(to => ({ fromId: from.id, toId: to.id, amount: drawReadyAmount })))
+      : [];
+
+    for (const payout of payouts) {
+      const from = gameState.players.find(p => p.id === payout.fromId);
+      const to = gameState.players.find(p => p.id === payout.toId);
+      if (from) from.score = (from.score ?? 0) - payout.amount;
+      if (to) to.score = (to.score ?? 0) + payout.amount;
+    }
+
+    const readyPlayerIds = new Set(readyPlayers.map(player => player.id));
     const ranking = [...gameState.players]
       .sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
       .map((player, index) => ({
@@ -136,6 +152,7 @@ export function setupWebSocketHandler(
         playerName: player.name,
         score: player.score ?? 0,
         isWinner: false,
+        isTing: readyPlayerIds.has(player.id),
       }));
 
     return {
@@ -144,9 +161,71 @@ export function setupWebSocketHandler(
       concealedHand: [],
       winningTile: null,
       melds: [],
-      fans: [],
+      fans: readyPlayers.length > 0 ? [{ type: '荒庄查听', name: '荒庄查听', fanValue: 0, description: '流局时未听牌玩家向听牌玩家支付基础分', icon: '听' }] : [],
       totalFan: 0,
-      payouts: [],
+      payouts,
+      ranking,
+      readyPlayerIds: [...readyPlayerIds],
+    };
+  }
+
+  function buildMultiWinResult(
+    gameState: GameState,
+    winners: { player: Player; result: { fans: { type: string; value: number }[]; totalValue: number } }[],
+    discarder: Player,
+    winningTile: Tile
+  ): any {
+    const primary = winners[0];
+    if (!primary) return null;
+
+    const payouts: { fromId: string; toId: string; amount: number }[] = [];
+    for (const winnerEntry of winners) {
+      const amount = Math.max(1, winnerEntry.result.totalValue) * 100;
+      payouts.push({ fromId: discarder.id, toId: winnerEntry.player.id, amount });
+    }
+
+    for (const payout of payouts) {
+      const from = gameState.players.find(p => p.id === payout.fromId);
+      const to = gameState.players.find(p => p.id === payout.toId);
+      if (from) from.score = (from.score ?? 0) - payout.amount;
+      if (to) to.score = (to.score ?? 0) + payout.amount;
+    }
+
+    const winnerIds = new Set(winners.map(w => w.player.id));
+    const concealedHand = primary.player.hand.map(serializeTile);
+    const serializedWinningTile = serializeTile(winningTile);
+    const ranking = [...gameState.players]
+      .sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
+      .map((player, index) => ({
+        rank: index + 1,
+        playerId: player.id,
+        playerName: player.name,
+        score: player.score ?? 0,
+        isWinner: winnerIds.has(player.id),
+      }));
+
+    return {
+      winnerId: primary.player.id,
+      winners: winners.map(entry => ({
+        playerId: entry.player.id,
+        playerName: entry.player.name,
+        totalFan: entry.result.totalValue,
+      })),
+      loserId: discarder.id,
+      winType: 'dianpao',
+      concealedHand,
+      winningTile: serializedWinningTile,
+      winningHand: [...concealedHand, serializedWinningTile],
+      melds: primary.player.melds.map(serializeMeld),
+      fans: primary.result.fans.map(fan => ({
+        type: String(fan.type),
+        name: String(fan.type),
+        fanValue: fan.value,
+        description: `${fan.value} 番`,
+        icon: '胡',
+      })),
+      totalFan: primary.result.totalValue,
+      payouts,
       ranking,
     };
   }
@@ -235,7 +314,7 @@ export function setupWebSocketHandler(
       const player = gameState.players[i];
       if (!player) continue;
 
-      if (checkWin(player.hand, player.melds, discardTile, false, gameState.settings)) {
+      if (gameState.settings.allowDianpao && checkWin(player.hand, player.melds, discardTile, false, gameState.settings)) {
         gameState.pendingClaims.push({ playerIndex: i, type: 'win' });
         continue;
       }
@@ -422,31 +501,57 @@ export function setupWebSocketHandler(
     }, delayMs));
   }
 
+  function finishDiscardWins(gameState: GameState, roomId: string, acceptedClaim: Claim): boolean {
+    const discard = gameState.pendingDiscard;
+    if (!discard) return false;
+
+    const winnerClaims = gameState.pendingClaims.filter(c => c.type === 'win');
+    const claimsToSettle = winnerClaims.some(c => c.playerIndex === acceptedClaim.playerIndex)
+      ? winnerClaims
+      : [acceptedClaim];
+
+    const winners: { player: Player; result: { fans: { type: string; value: number }[]; totalValue: number } }[] = [];
+    for (const claim of claimsToSettle) {
+      const player = gameState.players[claim.playerIndex];
+      if (!player) continue;
+      const result = checkWin(player.hand, player.melds, discard, false, gameState.settings);
+      if (result) winners.push({ player, result });
+    }
+
+    if (winners.length === 0) return false;
+
+    const primaryWinner = winners[0].player;
+    clearAIClaimTimeout(roomId);
+    clearAITurnTimeout(roomId);
+    gameState.winnerIndex = primaryWinner.seatIndex;
+    setNextDealerToWinner(roomId, primaryWinner);
+    gameState.phase = 'finished';
+    gameState.pendingClaims = [];
+    gameState.pendingDiscard = null;
+
+    const discarder = gameState.players[gameState.currentPlayerIndex];
+    const clientWinResult = winners.length > 1 && discarder
+      ? buildMultiWinResult(gameState, winners, discarder, discard)
+      : buildClientWinResult(gameState, primaryWinner, winners[0].result, false, discard);
+
+    broadcast(roomId, {
+      type: 'game_over',
+      winnerIndex: primaryWinner.seatIndex,
+      winnerName: winners.length > 1 ? winners.map(w => w.player.name).join('、') : primaryWinner.name,
+      isZimo: false,
+      winResult: clientWinResult,
+      gameState: { ...serializeGameState(gameState), winResult: clientWinResult },
+    });
+    return true;
+  }
+
   function executeClaim(gameState: GameState, roomId: string, claim: Claim, source: 'ai' | 'human'): boolean {
     const player = gameState.players[claim.playerIndex];
     const discard = gameState.pendingDiscard;
     if (!player || !discard) return false;
 
     if (claim.type === 'win') {
-      const result = checkWin(player.hand, player.melds, discard, false, gameState.settings);
-      if (!result) return false;
-      clearAIClaimTimeout(roomId);
-      clearAITurnTimeout(roomId);
-      gameState.winnerIndex = player.seatIndex;
-      setNextDealerToWinner(roomId, player);
-      gameState.phase = 'finished';
-      gameState.pendingClaims = [];
-      gameState.pendingDiscard = null;
-      const clientWinResult = buildClientWinResult(gameState, player, result, false, discard);
-      broadcast(roomId, {
-        type: 'game_over',
-        winnerIndex: player.seatIndex,
-        winnerName: player.name,
-        isZimo: false,
-        winResult: clientWinResult,
-        gameState: { ...serializeGameState(gameState), winResult: clientWinResult },
-      });
-      return true;
+      return finishDiscardWins(gameState, roomId, claim);
     }
 
     if (claim.type === 'minggang') {

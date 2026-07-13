@@ -192,9 +192,10 @@ export class RoomManager {
     });
     const dealerPlayerIndex = room.players.findIndex(player => player.seatIndex === dealerSeatIndex);
 
-    // Create wall and deal
+    // Create wall and deal. The dealer receives the 14th tile and discards first.
     const { wall, deadWall } = createWall();
-    const hands = deal(wall);
+    const safeDealerPlayerIndex = dealerPlayerIndex >= 0 ? dealerPlayerIndex : 0;
+    const hands = deal(wall, safeDealerPlayerIndex);
 
     // Assign hands to players
     room.players.forEach((player, i) => {
@@ -216,7 +217,7 @@ export class RoomManager {
       wall,
       deadWall,
       players: room.players,
-      currentPlayerIndex: dealerPlayerIndex >= 0 ? dealerPlayerIndex : 0, // dealer starts
+      currentPlayerIndex: safeDealerPlayerIndex, // dealer starts
       turnCount: 0,
       settings: room.settings,
       pendingDiscard: null,
