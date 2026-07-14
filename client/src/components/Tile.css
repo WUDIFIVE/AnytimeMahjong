@@ -1011,3 +1011,36 @@
   width: 124%;
   height: 124%;
 }
+
+/* === Tile sizing v2: table layout owns tile dimensions through CSS variables === */
+.table-layout-v2 .mahjong-tile:not(.tile-small) {
+  width: var(--tile-width, 52px) !important;
+  height: var(--tile-height, 72px) !important;
+  min-width: var(--tile-width, 52px) !important;
+}
+.table-layout-v2 .mahjong-tile.tile-small {
+  width: var(--side-tile-width, 32px) !important;
+  height: calc(var(--side-tile-width, 32px) * 1.34) !important;
+  min-width: var(--side-tile-width, 32px) !important;
+  border-radius: max(5px, calc(var(--side-tile-width, 32px) * .22)) !important;
+}
+.table-layout-v2 .central-discards .mahjong-tile.tile-small {
+  width: var(--discard-tile-width, 28px) !important;
+  height: calc(var(--discard-tile-width, 28px) * 1.34) !important;
+  min-width: var(--discard-tile-width, 28px) !important;
+}
+.table-layout-v2 .mahjong-tile.tile-small .tile-content {
+  transform: scale(.62) !important;
+}
+.table-layout-v2 .central-discards .mahjong-tile.tile-small .tile-content {
+  transform: scale(.54) !important;
+}
+.table-layout-v2 .hand-row .mahjong-tile .tile-content {
+  transform: scale(clamp(.72, calc(var(--hand-tile-width, 42px) / 52px), 1)) !important;
+}
+@media (max-width: 430px) {
+  .table-layout-v2 .central-discards .mahjong-tile.tile-small .tile-content,
+  .table-layout-v2 .melds-row .mahjong-tile.tile-small .tile-content {
+    transform: scale(.46) !important;
+  }
+}

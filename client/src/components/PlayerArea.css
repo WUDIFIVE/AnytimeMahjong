@@ -796,3 +796,194 @@
     padding-inline: 7px !important;
   }
 }
+
+/* === Player areas v2: separated hand/meld containers and dynamic single-line hands === */
+.table-layout-v2 .player-area {
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  max-width: none !important;
+  max-height: none !important;
+  display: grid !important;
+  grid-template-rows: auto minmax(0, 1fr) !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+  padding: clamp(4px, .55vw, 8px) !important;
+  border-radius: clamp(12px, 1.2vw, 18px) !important;
+}
+.table-layout-v2 .player-info {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  min-height: 22px !important;
+  margin: 0 0 4px !important;
+  overflow: hidden !important;
+  flex-wrap: nowrap !important;
+}
+.table-layout-v2 .player-name { min-width: 0 !important; overflow: hidden !important; text-overflow: ellipsis !important; white-space: nowrap !important; }
+.table-layout-v2 .player-cards {
+  min-width: 0 !important;
+  min-height: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  display: grid !important;
+  grid-template-rows: auto minmax(0, 1fr) !important;
+  align-items: stretch !important;
+  justify-items: center !important;
+  gap: 5px !important;
+  overflow: hidden !important;
+}
+.table-layout-v2 .opponent-hand-summary {
+  max-width: 100% !important;
+  min-width: 0 !important;
+  max-height: 34px !important;
+  padding: 4px 8px !important;
+  overflow: hidden !important;
+  justify-self: center !important;
+}
+.table-layout-v2 .melds-row {
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  max-width: 100% !important;
+  max-height: none !important;
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: var(--meld-gap) !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+.table-layout-v2 .meld-group {
+  position: relative !important;
+  flex: 0 0 auto !important;
+  display: grid !important;
+  grid-template-rows: minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  justify-items: center !important;
+  gap: 3px !important;
+  padding: 4px 5px !important;
+  max-width: 100% !important;
+  overflow: visible !important;
+  contain: none !important;
+  border-radius: 12px !important;
+}
+.table-layout-v2 .meld-tiles {
+  position: relative !important;
+  display: grid !important;
+  grid-template-columns: repeat(4, var(--side-tile-width)) !important;
+  grid-auto-rows: calc(var(--side-tile-width) * 1.34) !important;
+  align-items: end !important;
+  justify-content: center !important;
+  gap: 1px !important;
+  min-width: 0 !important;
+}
+.table-layout-v2 .meld-tile-slot {
+  position: relative !important;
+  width: var(--side-tile-width) !important;
+  height: calc(var(--side-tile-width) * 1.34) !important;
+  display: block !important;
+}
+.table-layout-v2 .meld-tile-slot .mahjong-tile.tile-small {
+  width: var(--side-tile-width) !important;
+  min-width: var(--side-tile-width) !important;
+  height: calc(var(--side-tile-width) * 1.34) !important;
+}
+.table-layout-v2 .meld-peng .meld-tiles,
+.table-layout-v2 .meld-chi .meld-tiles { grid-template-columns: repeat(3, var(--side-tile-width)) !important; }
+.table-layout-v2 .meld-jia-gang .meld-tiles { grid-template-columns: repeat(3, var(--side-tile-width)) !important; }
+.table-layout-v2 .meld-jia-gang .jia-gang-top-tile {
+  position: absolute !important;
+  left: calc(50% - var(--side-tile-width) / 2) !important;
+  bottom: calc(var(--side-tile-width) * .62) !important;
+  z-index: 5 !important;
+  transform: scale(.92) !important;
+  transform-origin: center bottom !important;
+}
+.table-layout-v2 .meld-type-label {
+  position: static !important;
+  grid-row: 2 !important;
+  justify-self: center !important;
+  height: 17px !important;
+  min-height: 17px !important;
+  max-height: 17px !important;
+  line-height: 17px !important;
+  margin: 0 !important;
+  padding: 0 7px !important;
+  transform: none !important;
+  font-size: 9px !important;
+  white-space: nowrap !important;
+}
+.table-layout-v2 .hand-row {
+  --available-hand-width: min(100%, calc(100vw - 28px));
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  min-height: calc(var(--hand-tile-width) * 1.42 + 16px) !important;
+  max-height: none !important;
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  align-items: flex-end !important;
+  justify-content: center !important;
+  gap: var(--hand-gap-dynamic) !important;
+  padding: 4px !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+.table-layout-v2 .hand-row > .mahjong-tile,
+.table-layout-v2 .drawn-tile-slot > .mahjong-tile {
+  width: var(--hand-tile-width) !important;
+  min-width: var(--hand-tile-width) !important;
+  height: calc(var(--hand-tile-width) * 1.38) !important;
+  flex: 0 0 var(--hand-tile-width) !important;
+}
+.table-layout-v2 .drawn-tile-slot {
+  flex: 0 0 var(--hand-tile-width) !important;
+  width: var(--hand-tile-width) !important;
+  margin-left: clamp(3px, .7vw, 10px) !important;
+}
+.table-layout-v2 .position-bottom.current-user .player-cards {
+  grid-template-rows: minmax(0, .9fr) minmax(0, 1.1fr) !important;
+}
+.table-layout-v2 .position-bottom .melds-row {
+  align-self: end !important;
+  justify-content: center !important;
+}
+.table-layout-v2 .position-top .player-cards,
+.table-layout-v2 .position-left .player-cards,
+.table-layout-v2 .position-right .player-cards {
+  grid-template-rows: auto minmax(0, 1fr) !important;
+}
+.table-layout-v2 .position-left,
+.table-layout-v2 .position-right {
+  transform: none !important;
+}
+.table-layout-v2 .position-left .meld-tiles,
+.table-layout-v2 .position-left .opponent-hand-summary .mini-tile-stack { transform: rotate(90deg) !important; }
+.table-layout-v2 .position-right .meld-tiles,
+.table-layout-v2 .position-right .opponent-hand-summary .mini-tile-stack { transform: rotate(-90deg) !important; }
+.table-layout-v2 .position-left .melds-row,
+.table-layout-v2 .position-right .melds-row {
+  flex-direction: column !important;
+  justify-content: center !important;
+  gap: 8px !important;
+}
+.table-layout-v2 .position-left .meld-group,
+.table-layout-v2 .position-right .meld-group { max-width: 100% !important; }
+@media (max-width: 1100px) {
+  .table-layout-v2 .melds-row { gap: 6px !important; }
+  .table-layout-v2 .opponent-hand-summary { padding-inline: 5px !important; }
+}
+@media (max-width: 768px) {
+  .table-layout-v2 .player-area { padding: 4px !important; border-radius: 12px !important; }
+  .table-layout-v2 .player-info { min-height: 18px !important; margin-bottom: 2px !important; }
+  .table-layout-v2 .opponent-hand-summary { max-height: 28px !important; padding: 3px 5px !important; }
+  .table-layout-v2 .meld-type-label { height: 15px !important; min-height: 15px !important; max-height: 15px !important; line-height: 15px !important; font-size: 8px !important; padding-inline: 5px !important; }
+  .table-layout-v2 .hand-row { --available-hand-width: calc(100vw - 24px); min-height: 58px !important; }
+}
+@media (max-width: 430px) {
+  .table-layout-v2 .hand-row { --available-hand-width: calc(100vw - 16px); --tile-width: 38px; min-height: 54px !important; padding-inline: 2px !important; }
+  .table-layout-v2 .player-name { max-width: 54px !important; }
+}
