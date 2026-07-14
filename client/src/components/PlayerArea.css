@@ -512,3 +512,40 @@
 .position-bottom.current-user::after {
   display: none !important;
 }
+
+
+/* === 暗杠牌面: 对其他玩家显示牌背 === */
+.meld-group .mahjong-tile.face-down {
+  background: linear-gradient(145deg, #2a5a3a, #1a3a2a) !important;
+  border: 1px solid rgba(20, 80, 50, 0.6) !important;
+  box-shadow: 0 3px 0 #0a2a1a, 0 5px 8px rgba(0,0,0,0.3) !important;
+}
+.meld-group .mahjong-tile.face-down::before {
+  content: '' !important;
+  background: linear-gradient(135deg, rgba(255,255,255,0.06), rgba(0,0,0,0.12)) !important;
+  border-radius: 4px !important;
+}
+.meld-group .mahjong-tile.face-down .tile-corner,
+.meld-group .mahjong-tile.face-down .tile-art,
+.meld-group .mahjong-tile.face-down .tile-model-image,
+.meld-group .mahjong-tile.face-down .tile-content,
+.meld-group .mahjong-tile.face-down .felt-grain {
+  display: none !important;
+}
+
+/* === 暗杠标签 === */
+.meld-type-label.angang-label {
+  color: #ff9800 !important;
+  font-weight: 900 !important;
+}
+
+/* === Layout stability: prevent opponent actions from shifting my view === */
+.player-area {
+  min-height: 0;
+  overflow: hidden;
+}
+.melds-row {
+  flex-shrink: 0;
+  max-height: 56px;
+  overflow: hidden;
+}

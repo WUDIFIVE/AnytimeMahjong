@@ -104,98 +104,109 @@ const Settlement: React.FC<SettlementProps> = ({
     const node = cardRef.current;
     if (!node) return;
 
+    setShareStatus('正在生成长图...');
+
     try {
-      setShareStatus('正在按当前结算页面生成长图...');
+      // Canvas-based text rendering: stable, no DOM/CORS issues
+      const width = 800;
+      const padding = 40;
+      const lineHeight = 32;
+      const scale = 2;
 
-      const previousScrollTop = node.scrollTop;
-      node.classList.add('exporting-settlement');
-      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      const lines: string[] = [];
+      lines.push('中国大众麻将 · 本局结算');
+      lines.push('');
+      lines.push(isDraw ? '荒牌流局' : `${winner?.name || '玩家'} ${winTypeLabel}`);
+      if (isMultiWin) lines.push(`一炮多响: ${winnersText}`);
+      lines.push(`总番：${winResult?.totalFan ?? 0} 番`);
+      lines.push('');
+      lines.push('排名');
+      for (const r of ranking) {
+        lines.push(`  ${r.rank}. ${r.playerName}  ${r.score}分${r.isWinner ? '  胡牌' : ''}`);
+      }
+      lines.push('');
+      if (!isDraw && completeHandText) {
+        lines.push(`完整牌型：${completeHandText}`);
+        lines.push('');
+      }
+      if (!isDraw && safeFans.length > 0) {
+        lines.push('番型明细');
+        for (const f of safeFans) {
+          lines.push(`  ${f.icon || '•'} ${f.name}  ${f.fanValue}番`);
+        }
+        lines.push('');
+      }
+      if (safePayouts.length > 0) {
+        lines.push('本局结算');
+        for (const payout of safePayouts) {
+          const fromPlayer = safePlayers.find(p => p.id === payout.fromId);
+          const toPlayer = safePlayers.find(p => p.id === payout.toId);
+          lines.push(`  ${fromPlayer?.name || '???'} → ${toPlayer?.name || '???'}  ${payout.amount}分`);
+        }
+      }
+      lines.push('');
+      lines.push(`生成时间: ${new Date().toLocaleString('zh-CN')}`);
 
-      const rect = node.getBoundingClientRect();
-      const width = Math.ceil(Math.max(rect.width, node.scrollWidth));
-      const height = Math.ceil(Math.max(node.scrollHeight, rect.height));
-      const scale = Math.min(2.5, Math.max(2, window.devicePixelRatio || 2));
-
-      const clone = node.cloneNode(true) as HTMLElement;
-      clone.classList.add('exporting-settlement', 'export-clone');
-      clone.style.width = `${width}px`;
-      clone.style.height = `${height}px`;
-      clone.style.maxHeight = 'none';
-      clone.style.overflow = 'visible';
-      clone.style.transform = 'none';
-      clone.style.margin = '0';
-      clone.style.boxSizing = 'border-box';
-
-      const styleSheets = Array.from(document.styleSheets)
-        .map(sheet => {
-          try {
-            return Array.from(sheet.cssRules).map(rule => rule.cssText).join('\n');
-          } catch {
-            return '';
-          }
-        })
-        .join('\n');
-
-      const serialized = new XMLSerializer().serializeToString(clone);
-      const xhtml = `
-        <div xmlns="http://www.w3.org/1999/xhtml">
-          <style>
-            ${styleSheets}
-            body { margin: 0; }
-            .exporting-settlement { max-height: none !important; overflow: visible !important; }
-            .exporting-settlement .settlement-actions,
-            .exporting-settlement .share-status { display: none !important; }
-            .export-clone { position: static !important; }
-          </style>
-          ${serialized}
-        </div>
-      `;
-
-      const svg = `
-        <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
-          <foreignObject x="0" y="0" width="100%" height="100%">
-            ${xhtml}
-          </foreignObject>
-        </svg>
-      `;
-
-      const blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      const image = new Image();
-      image.decoding = 'async';
-
-      await new Promise<void>((resolve, reject) => {
-        image.onload = () => resolve();
-        image.onerror = () => reject(new Error('页面截图渲染失败'));
-        image.src = url;
-      });
-
+      const height = padding * 2 + lines.length * lineHeight + 80;
       const canvas = document.createElement('canvas');
-      canvas.width = Math.ceil(width * scale);
-      canvas.height = Math.ceil(height * scale);
+      canvas.width = width * scale;
+      canvas.height = height * scale;
       const ctx = canvas.getContext('2d');
       if (!ctx) throw new Error('canvas context unavailable');
       ctx.scale(scale, scale);
-      ctx.drawImage(image, 0, 0, width, height);
-      URL.revokeObjectURL(url);
+
+      // Background
+      const rr = (x: number, y: number, w: number, h: number, r: number) => {
+        ctx.beginPath();
+        ctx.moveTo(x + r, y);
+        ctx.arcTo(x + w, y, x + w, y + h, r);
+        ctx.arcTo(x + w, y + h, x, y + h, r);
+        ctx.arcTo(x, y + h, x, y, r);
+        ctx.arcTo(x, y, x + r, y, r);
+        ctx.closePath();
+      };
+      ctx.fillStyle = '#faf8f0';
+      rr(10, 10, width - 20, height - 20, 16);
+      ctx.fill();
+      ctx.strokeStyle = '#d4c89a';
+      ctx.lineWidth = 2;
+      rr(10, 10, width - 20, height - 20, 16);
+      ctx.stroke();
+
+      // Title
+      ctx.fillStyle = '#2a4a2a';
+      ctx.font = 'bold 24px "PingFang SC", "Microsoft YaHei", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('中国大众麻将 · 本局结算', width / 2, padding + 24);
+
+      // Content
+      ctx.textAlign = 'left';
+      ctx.font = '16px "PingFang SC", "Microsoft YaHei", sans-serif';
+      ctx.fillStyle = '#333';
+      let y = padding + 64;
+      for (const line of lines) {
+        if (line === '') {
+          y += 12;
+        } else {
+          ctx.fillText(line, padding, y);
+          y += lineHeight;
+        }
+      }
 
       const dataUrl = canvas.toDataURL('image/png');
       downloadImage(dataUrl);
-      setShareStatus('已按当前结算页面保存长图');
-      node.scrollTop = previousScrollTop;
+      setShareStatus('✅ 已保存结算长图');
     } catch (error) {
-      console.error('Settlement DOM screenshot failed', error);
+      console.error('Settlement screenshot failed', error);
       try {
-        setShareStatus('页面截图失败，请在弹窗中选择当前标签页以保存真实界面截图...');
+        setShareStatus('请在弹窗中选择当前标签页以保存真实界面截图...');
         const dataUrl = await captureVisibleSettlementFromScreen(node);
         downloadImage(dataUrl);
-        setShareStatus('已保存当前界面截图');
+        setShareStatus('✅ 已保存当前界面截图');
       } catch (screenError) {
         console.error('Settlement screen capture failed', screenError);
-        setShareStatus('当前界面截图失败，请使用系统截图；不会再生成兼容版');
+        setShareStatus('截图失败，请使用系统截图');
       }
-    } finally {
-      cardRef.current?.classList.remove('exporting-settlement');
     }
   }
 

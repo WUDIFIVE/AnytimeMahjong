@@ -107,19 +107,20 @@ function estimateFan(tiles: TileType[], meldCount: number): { fan: number; label
   return { fan: 1, label: '基本胡' };
 }
 
-function computeTenpaiHints(player?: { hand?: TileType[]; melds?: { tiles: TileType[] }[] }): { tile: TileType; fan: number; label: string }[] {
+function computeTenpaiHints(player?: { hand?: TileType[]; melds?: { tiles: TileType[] }[] }): { tile: TileType; fan: number; label: string; winType: string }[] {
   if (!player?.hand) return [];
   const hand = player.hand;
   const meldCount = player.melds?.length ?? 0;
   const concealedNeedBeforeWin = 13 - meldCount * 3;
   if (hand.length !== concealedNeedBeforeWin) return [];
 
-  const hints: { tile: TileType; fan: number; label: string }[] = [];
+  const hints: { tile: TileType; fan: number; label: string; winType: string }[] = [];
   for (const candidate of TILE_TYPES) {
     const trial = [...hand, candidate];
     if (canDecomposeBasic(trial, meldCount) || (meldCount === 0 && isSevenPairs(trial))) {
       const fan = estimateFan(trial, meldCount);
-      hints.push({ tile: candidate, ...fan });
+      // 自摸: can win by drawing this tile; 点炮: can win if someone discards this tile
+      hints.push({ tile: candidate, ...fan, winType: '自摸/点炮' });
     }
   }
   return hints;
@@ -228,10 +229,24 @@ const GameBoard: React.FC<GameBoardProps> = ({
     return Array.from(counts.values()).some(c => c >= 4);
   })();
 
-  // Check if can jia-gang (hand tile matches existing peng meld)
+  // Check if can jia-gang (selected hand tile matches an existing peng meld)
   const canJiaGang = isMyTurn && !anyPending && (() => {
     if (!currentPlayer) return false;
-    return currentPlayer.melds.some(m => m.type === 'peng');
+    if (!selectedTileId) return false;
+    const selectedTile = currentPlayer.hand.find(t => t.id === selectedTileId);
+    if (!selectedTile) return false;
+    return currentPlayer.melds.some(m =>
+      m.type === 'peng' &&
+      m.tiles.some(t => t.suit === selectedTile.suit && t.value === selectedTile.value)
+    );
+  })();
+
+  // Check if can self-win (自摸): my turn, just drew, and hand is complete
+  const canSelfWin = isMyTurn && !anyPending && gameState.lastDraw !== null && (() => {
+    if (!currentPlayer) return false;
+    const trial = [...currentPlayer.hand];
+    const meldCount = currentPlayer.melds?.length ?? 0;
+    return canDecomposeBasic(trial, meldCount) || (meldCount === 0 && isSevenPairs(trial));
   })();
 
 
@@ -336,7 +351,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
                       <div className="tenpai-list">
                         {tenpaiHints.map(hint => (
                           <span className="tenpai-item" key={tileKey(hint.tile)}>
-                            {formatTile(hint.tile)} · {hint.label}{hint.fan}番
+                            {formatTile(hint.tile)} → {hint.label}{hint.fan}番 ({hint.winType})
                           </span>
                         ))}
                       </div>
@@ -410,7 +425,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
             出牌
           </button>
         )}
-        {canJiaGang && selectedTileId && (
+        {canJiaGang && (
           <button className="action-btn btn-gang" onClick={() => handleAction('jia-gang')}>
             加杠
           </button>
@@ -442,6 +457,11 @@ const GameBoard: React.FC<GameBoardProps> = ({
         {hasHu && (
           <button className="action-btn btn-win" onClick={() => handleAction('hu')}>
             胡
+          </button>
+        )}
+        {canSelfWin && (
+          <button className="action-btn btn-win" onClick={() => handleAction('hu')}>
+            自摸胡
           </button>
         )}
         {anyPending && (

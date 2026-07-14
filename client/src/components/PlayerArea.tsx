@@ -93,19 +93,29 @@ const PlayerArea: React.FC<PlayerAreaProps> = ({
         {/* Melds Row */}
         {player.melds.length > 0 && (
           <div className="melds-row">
-            {player.melds.map((meld, i) => (
-              <div key={`meld-${i}`} className="meld-group">
-                {meld.tiles.map((t, j) => (
-                  <Tile
-                    key={`meld-${i}-${j}`}
-                    tile={t}
-                    small
-                    highlighted={meld.type.includes('gang')}
-                  />
-                ))}
-                <span className="meld-type-label">{getMeldLabel(meld.type)}</span>
-              </div>
-            ))}
+            {player.melds.map((meld, i) => {
+              const isAnGang = meld.type === 'an-gang';
+              const showFaceDown = isAnGang && !isCurrentUser;
+              return (
+                <div key={`meld-${i}`} className="meld-group">
+                  {meld.tiles.map((t, j) => {
+                    const isHidden = String(t.id).startsWith('hidden-ang');
+                    return (
+                      <Tile
+                        key={`meld-${i}-${j}`}
+                        tile={t}
+                        small
+                        faceDown={showFaceDown || isHidden}
+                        highlighted={meld.type.includes('gang') && !isAnGang}
+                      />
+                    );
+                  })}
+                  <span className={`meld-type-label ${isAnGang ? 'angang-label' : ''}`}>
+                    {showFaceDown ? '暗杠' : getMeldLabel(meld.type)}
+                  </span>
+                </div>
+              );
+            })}
           </div>
         )}
 

@@ -2079,3 +2079,33 @@
     height: 26px !important;
   }
 }
+
+
+/* === Layout stability: prevent opponent pong from shifting player areas === */
+.slot-top {
+  min-height: 88px !important;
+  max-height: 120px !important;
+  overflow: hidden !important;
+  flex-shrink: 0 !important;
+}
+.slot-left,
+.slot-right {
+  min-height: 100px !important;
+  max-height: 140px !important;
+  overflow: hidden !important;
+  flex-shrink: 0 !important;
+}
+.slot-top .player-area,
+.slot-left .player-area,
+.slot-right .player-area {
+  min-height: 88px !important;
+  max-height: 140px !important;
+  overflow: hidden !important;
+}
+.slot-top .melds-row,
+.slot-left .melds-row,
+.slot-right .melds-row {
+  flex-wrap: nowrap !important;
+  overflow: hidden !important;
+  max-height: 50px !important;
+}

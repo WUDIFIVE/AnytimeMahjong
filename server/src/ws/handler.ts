@@ -43,6 +43,26 @@ import {
   shouldWin as aiShouldWin,
 } from '../game/ai';
 
+function sanitizeStateForPlayer(state: any, viewerId: string): any {
+  if (!state?.players) return state;
+  const copy = { ...state };
+  copy.players = state.players.map((p: any) => {
+    if (p.id === viewerId) return p;
+    const cp = { ...p };
+    cp.melds = (cp.melds || []).map((m: any) => {
+      if (m.type === 'an-gang') {
+        return {
+          ...m,
+          tiles: m.tiles.map((_t: any, i: number) => ({ id: `hidden-ang-${p.id}-${i}`, suit: 'wan', value: 1, name: '' }))
+        };
+      }
+      return m;
+    });
+    return cp;
+  });
+  return copy;
+}
+
 interface ClientInfo {
   ws: WebSocket;
   playerId: string;
@@ -258,6 +278,17 @@ export function setupWebSocketHandler(
       if (to) to.score = (to.score ?? 0) + payout.amount;
     }
 
+    // Include angang settlement info for display (scoring already done immediately)
+    const angangMelds = winner.melds.filter(m => m.type === 'angang');
+    const angangPayouts: { fromId: string; toId: string; amount: number }[] = [];
+    for (const _ of angangMelds) {
+      for (const otherPlayer of gameState.players) {
+        if (otherPlayer.id !== winner.id) {
+          angangPayouts.push({ fromId: otherPlayer.id, toId: winner.id, amount: 100 });
+        }
+      }
+    }
+
     const ranking = [...gameState.players]
       .sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
       .map((player, index) => ({
@@ -284,7 +315,8 @@ export function setupWebSocketHandler(
         icon: fan.type === '自摸' ? '🀄' : fan.type === '清一色' ? '🎨' : fan.type === '碰碰胡' ? '💥' : '✨',
       })),
       totalFan: result.totalValue,
-      payouts,
+      payouts: [...payouts, ...angangPayouts],
+      angangPayouts,
       ranking,
     };
   }
@@ -713,6 +745,16 @@ export function setupWebSocketHandler(
           .filter(t => tileEquals(t, anGangOptions[0]))
           .map(t => t.id);
         executeAnGang(player, tileIds.map((id: number | string) => Number(id)), gameState);
+
+        // AI暗杠即时结算：三家各付100分
+        const _aiAngangAmt = 100;
+        for (const _other of gameState.players) {
+          if (_other.id !== player.id) {
+            _other.score = (_other.score ?? 0) - _aiAngangAmt;
+            player.score = (player.score ?? 0) + _aiAngangAmt;
+          }
+        }
+
         broadcast(roomId, {
           type: 'angang_executed',
           playerIndex: gameState.currentPlayerIndex,
@@ -905,6 +947,16 @@ export function setupWebSocketHandler(
             if (p.id !== player.id) {
               sp.hand = Array.from({ length: p.hand.length }, (_unused, idx) => ({ id: `hidden-${p.id}-${idx}`, suit: 'wan', value: 1 }));
               sp.handSize = p.hand.length;
+              // Hide angang tiles from other players
+              sp.melds = sp.melds.map((m: any) => {
+                if (m.type === 'an-gang') {
+                  return {
+                    ...m,
+                    tiles: m.tiles.map((_t: any, i: number) => ({ id: `hidden-ang-${p.id}-${i}`, suit: 'wan', value: 1, name: '' }))
+                  };
+                }
+                return m;
+              });
             }
             return sp;
           });
@@ -1141,6 +1193,16 @@ export function setupWebSocketHandler(
         }
 
         executeAnGang(player, tileIds.map((id: number | string) => Number(id)), gameState);
+
+        // 暗杠即时结算：三家各付100分
+        const angangAmount = 100;
+        for (const other of gameState.players) {
+          if (other.id !== player.id) {
+            other.score = (other.score ?? 0) - angangAmount;
+            player.score = (player.score ?? 0) + angangAmount;
+          }
+        }
+
         broadcast(info.roomId, {
           type: 'angang_executed',
           playerIndex: gameState.currentPlayerIndex,
