@@ -2225,3 +2225,144 @@
     max-width: 142px !important;
   }
 }
+
+/* === Final z-layer and spacing correction: prevent player panels/melds from covering table zones === */
+.game-table {
+  isolation: isolate !important;
+  grid-template-rows: minmax(112px, auto) minmax(460px, 1fr) minmax(122px, auto) !important;
+  align-items: stretch !important;
+  overflow: hidden !important;
+}
+.player-slot {
+  position: relative !important;
+  z-index: 3 !important;
+  pointer-events: none !important;
+}
+.player-slot .player-area {
+  pointer-events: auto !important;
+}
+.table-center {
+  position: relative !important;
+  z-index: 1 !important;
+  padding: 8px 0 !important;
+  overflow: hidden !important;
+}
+.central-discards {
+  position: relative !important;
+  z-index: 1 !important;
+  overflow: hidden !important;
+}
+.central-discard-row,
+.central-discard-tiles {
+  overflow: hidden !important;
+}
+.slot-top {
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 112px !important;
+  max-height: 132px !important;
+  overflow: hidden !important;
+  z-index: 3 !important;
+}
+.slot-top .player-area {
+  width: min(820px, 100%) !important;
+  max-width: min(820px, 100%) !important;
+  max-height: 128px !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+.slot-top .player-cards,
+.slot-top .melds-row {
+  overflow: visible !important;
+}
+.slot-top .melds-row {
+  max-height: 72px !important;
+  flex-wrap: wrap !important;
+  align-content: flex-start !important;
+}
+.slot-left,
+.slot-right {
+  z-index: 3 !important;
+  overflow: hidden !important;
+}
+.slot-left .player-area,
+.slot-right .player-area {
+  max-height: 180px !important;
+  overflow: visible !important;
+}
+.slot-bottom {
+  z-index: 4 !important;
+  overflow: visible !important;
+}
+.action-bar,
+.hand-action-bar {
+  z-index: 72 !important;
+}
+
+@media (min-width: 1200px) {
+  .game-table {
+    grid-template-rows: minmax(118px, auto) minmax(510px, 1fr) minmax(124px, auto) !important;
+  }
+  .slot-top {
+    min-height: 118px !important;
+    max-height: 140px !important;
+  }
+  .slot-top .player-area {
+    max-height: 136px !important;
+  }
+}
+
+@media (max-height: 760px) and (min-width: 769px) {
+  .game-table {
+    grid-template-rows: minmax(96px, auto) minmax(380px, 1fr) minmax(104px, auto) !important;
+  }
+  .slot-top {
+    min-height: 96px !important;
+    max-height: 112px !important;
+  }
+  .slot-top .player-area {
+    max-height: 110px !important;
+  }
+  .slot-top .melds-row {
+    max-height: 58px !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .game-table {
+    grid-template-rows: minmax(106px, auto) minmax(430px, auto) minmax(140px, auto) !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+  }
+  .slot-top {
+    min-height: 106px !important;
+    max-height: 124px !important;
+  }
+  .slot-top .player-area {
+    width: min(96vw, 100%) !important;
+    max-height: 120px !important;
+  }
+  .slot-top .melds-row {
+    flex-wrap: nowrap !important;
+    max-height: none !important;
+    overflow-x: auto !important;
+    overflow-y: visible !important;
+  }
+  .table-center,
+  .central-discards {
+    overflow: hidden !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .game-table {
+    grid-template-rows: minmax(96px, auto) minmax(408px, auto) minmax(146px, auto) !important;
+  }
+  .slot-top {
+    min-height: 96px !important;
+    max-height: 116px !important;
+  }
+  .slot-top .player-area {
+    max-height: 112px !important;
+  }
+}

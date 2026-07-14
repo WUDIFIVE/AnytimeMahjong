@@ -627,3 +627,68 @@
     font-size: 9px !important;
   }
 }
+
+/* === Final meld layer correction: badges are in-flow, never covering tiles/table === */
+.melds-row {
+  align-items: flex-start !important;
+  overflow: visible !important;
+  padding: 4px 3px 6px !important;
+}
+.meld-group {
+  display: grid !important;
+  grid-template-columns: repeat(4, auto) !important;
+  grid-template-rows: auto auto !important;
+  justify-content: center !important;
+  align-items: end !important;
+  gap: 2px 1px !important;
+  padding: 4px 5px 5px !important;
+  overflow: hidden !important;
+  contain: paint !important;
+}
+.meld-group .mahjong-tile {
+  grid-row: 1 !important;
+}
+.meld-type-label {
+  position: static !important;
+  grid-column: 1 / -1 !important;
+  grid-row: 2 !important;
+  justify-self: center !important;
+  transform: none !important;
+  margin-top: 3px !important;
+  z-index: 1 !important;
+  height: 18px !important;
+  min-height: 18px !important;
+  max-height: 18px !important;
+  line-height: 18px !important;
+  box-sizing: border-box !important;
+}
+.position-top .melds-row {
+  align-content: flex-start !important;
+  justify-content: center !important;
+  row-gap: 6px !important;
+}
+.position-left .melds-row,
+.position-right .melds-row {
+  row-gap: 6px !important;
+}
+.position-top .meld-group,
+.position-left .meld-group,
+.position-right .meld-group {
+  flex-direction: initial !important;
+}
+
+@media (max-width: 768px) {
+  .melds-row {
+    padding-bottom: 5px !important;
+  }
+  .meld-group {
+    padding: 3px 4px 5px !important;
+  }
+  .meld-type-label {
+    height: 16px !important;
+    min-height: 16px !important;
+    max-height: 16px !important;
+    line-height: 16px !important;
+    font-size: 9px !important;
+  }
+}
