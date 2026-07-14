@@ -549,3 +549,81 @@
   max-height: 56px;
   overflow: hidden;
 }
+
+/* === Final meld readability pass: visible groups + colored operation badges === */
+.melds-row {
+  gap: 10px !important;
+  align-items: flex-end !important;
+  padding: 3px 3px 18px !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+.meld-group {
+  flex: 0 0 auto !important;
+  gap: 2px !important;
+  padding: 4px 5px 14px !important;
+  border-radius: 14px !important;
+  overflow: visible !important;
+  background: rgba(255, 255, 255, .68) !important;
+  border: 1px solid rgba(31, 143, 98, .16) !important;
+  box-shadow: 0 8px 18px rgba(24, 50, 34, .08), inset 0 1px 0 rgba(255,255,255,.82) !important;
+}
+.meld-type-label {
+  position: absolute !important;
+  left: 50% !important;
+  bottom: -7px !important;
+  transform: translateX(-50%) !important;
+  z-index: 6 !important;
+  min-width: 22px !important;
+  height: 18px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 7px !important;
+  border-radius: 999px !important;
+  font-size: 10px !important;
+  line-height: 1 !important;
+  font-weight: 1000 !important;
+  letter-spacing: .04em !important;
+  color: #fff !important;
+  white-space: nowrap !important;
+  text-shadow: 0 1px 1px rgba(0,0,0,.18) !important;
+  border: 1px solid rgba(255,255,255,.56) !important;
+  box-shadow: 0 5px 12px rgba(24,50,34,.18), inset 0 1px 0 rgba(255,255,255,.32) !important;
+}
+.meld-type-chi { background: linear-gradient(145deg, #35c76f, #168a46) !important; }
+.meld-type-peng { background: linear-gradient(145deg, #1aa4ff, #0868c8) !important; }
+.meld-type-minggang { background: linear-gradient(145deg, #9b6dff, #6736c9) !important; }
+.meld-type-jiagang { background: linear-gradient(145deg, #ff9f2f, #dc6d00) !important; }
+.meld-type-angang,
+.meld-type-label.angang-label {
+  background: linear-gradient(145deg, #32343a, #111318) !important;
+  color: #ffd36a !important;
+}
+
+.position-top .melds-row,
+.position-left .melds-row,
+.position-right .melds-row {
+  max-width: 100% !important;
+}
+.position-top .meld-group,
+.position-left .meld-group,
+.position-right .meld-group {
+  flex-direction: row !important;
+}
+
+@media (max-width: 768px) {
+  .melds-row {
+    gap: 7px !important;
+    padding-bottom: 17px !important;
+  }
+  .meld-group {
+    padding: 3px 4px 13px !important;
+  }
+  .meld-type-label {
+    height: 17px !important;
+    min-width: 20px !important;
+    padding-inline: 6px !important;
+    font-size: 9px !important;
+  }
+}

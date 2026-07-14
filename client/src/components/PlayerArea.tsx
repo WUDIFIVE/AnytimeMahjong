@@ -28,6 +28,10 @@ function getMeldLabel(type: string): string {
     type === 'jia-gang' ? '加杠' : '';
 }
 
+function getMeldTypeClass(type: string): string {
+  return `meld-type-${type.replace(/-/g, '')}`;
+}
+
 const PlayerArea: React.FC<PlayerAreaProps> = ({
   player,
   isCurrentUser,
@@ -110,7 +114,7 @@ const PlayerArea: React.FC<PlayerAreaProps> = ({
                       />
                     );
                   })}
-                  <span className={`meld-type-label ${isAnGang ? 'angang-label' : ''}`}>
+                  <span className={`meld-type-label ${getMeldTypeClass(meld.type)} ${isAnGang ? 'angang-label' : ''}`}>
                     {showFaceDown ? '暗杠' : getMeldLabel(meld.type)}
                   </span>
                 </div>

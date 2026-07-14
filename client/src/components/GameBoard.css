@@ -2149,3 +2149,79 @@
     flex-direction: row !important;
   }
 }
+
+/* === Final opponent meld visibility: top player must show full melds and vivid labels === */
+.slot-top {
+  min-height: 104px !important;
+  max-height: none !important;
+  overflow: visible !important;
+  align-items: flex-start !important;
+  z-index: 4 !important;
+}
+.slot-top .player-area {
+  width: min(720px, 100%) !important;
+  max-width: min(720px, 100%) !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: visible !important;
+  padding: 5px 10px 12px !important;
+}
+.slot-top .player-cards {
+  width: 100% !important;
+  align-items: center !important;
+  overflow: visible !important;
+  gap: 5px !important;
+}
+.slot-top .melds-row {
+  width: 100% !important;
+  max-width: 100% !important;
+  max-height: none !important;
+  overflow: visible !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+  padding-bottom: 20px !important;
+}
+.slot-top .meld-group {
+  flex-direction: row !important;
+  flex-shrink: 0 !important;
+  overflow: visible !important;
+}
+.slot-top .opponent-hand-summary {
+  max-width: 188px !important;
+}
+
+@media (min-width: 1200px) {
+  .game-table {
+    grid-template-rows: minmax(78px, auto) minmax(500px, 1fr) minmax(108px, auto) !important;
+  }
+  .slot-top .player-area {
+    max-width: min(820px, 100%) !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .slot-top {
+    min-height: 92px !important;
+  }
+  .slot-top .player-area {
+    width: min(96vw, 100%) !important;
+    padding: 4px 7px 11px !important;
+  }
+  .slot-top .melds-row {
+    flex-wrap: nowrap !important;
+    justify-content: flex-start !important;
+    overflow-x: auto !important;
+    overflow-y: visible !important;
+    scrollbar-width: none !important;
+  }
+  .slot-top .melds-row::-webkit-scrollbar { display: none; }
+}
+
+@media (max-width: 480px) {
+  .slot-top {
+    min-height: 86px !important;
+  }
+  .slot-top .opponent-hand-summary {
+    max-width: 142px !important;
+  }
+}
