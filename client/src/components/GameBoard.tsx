@@ -272,7 +272,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
   const tenpaiHints = computeTenpaiHints(currentPlayer).slice(0, 8);
 
   return (
-    <div className="game-board table-layout-v2">
+    <div className="game-board">
       {/* Info Bar */}
       <div className="game-info-bar">
         <span className="info-room">房间: {gameState.roomId}</span>
@@ -284,7 +284,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
       <div className="game-table">
         {/* Top Player */}
         {orderedPlayers[2] && (
-          <div className="player-slot slot-top" data-seat="top">
+          <div className="player-slot slot-top">
             <PlayerArea
               player={orderedPlayers[2]}
               isCurrentUser={orderedPlayers[2].id === playerId}
@@ -298,7 +298,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
         <div className="table-middle">
           {/* Left Player */}
           {orderedPlayers[3] && (
-            <div className="player-slot slot-left" data-seat="left">
+            <div className="player-slot slot-left">
               <PlayerArea
                 player={orderedPlayers[3]}
                 isCurrentUser={orderedPlayers[3].id === playerId}
@@ -371,7 +371,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
 
             <div className="central-discards" aria-label="中央弃牌区">
               {orderedPlayers.map((player, idx) => (
-                <div key={player.id} className={`central-discard-row discard-row-${POSITIONS[idx]}`} data-seat={POSITIONS[idx]}>
+                <div key={player.id} className={`central-discard-row discard-row-${POSITIONS[idx]}`}>
                   <div className="central-discard-name">{player.name}</div>
                   <div className="central-discard-tiles">
                     {(player.discards ?? []).map((tile, tileIdx, shown) => {
@@ -398,7 +398,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
 
           {/* Right Player */}
           {orderedPlayers[1] && (
-            <div className="player-slot slot-right" data-seat="right">
+            <div className="player-slot slot-right">
               <PlayerArea
                 player={orderedPlayers[1]}
                 isCurrentUser={orderedPlayers[1].id === playerId}
@@ -412,7 +412,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
 
         {/* Bottom Player (Current User) */}
         {orderedPlayers[0] && (
-          <div className="player-slot slot-bottom" data-seat="bottom">
+          <div className="player-slot slot-bottom">
             <PlayerArea
               player={orderedPlayers[0]}
               isCurrentUser={orderedPlayers[0].id === playerId}
