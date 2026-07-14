@@ -1910,7 +1910,7 @@
 
 /* === Table space rebalance: bigger center table, less wasted opponent top space === */
 .game-table {
-  grid-template-columns: minmax(136px, 176px) minmax(620px, 1fr) minmax(136px, 176px) !important;
+  grid-template-columns: minmax(160px, 200px) minmax(580px, 1fr) minmax(160px, 200px) !important;
   grid-template-rows: minmax(44px, auto) minmax(470px, 1fr) minmax(108px, auto) !important;
   gap: 6px !important;
   padding: 6px 10px 8px !important;
@@ -2108,4 +2108,44 @@
   flex-wrap: nowrap !important;
   overflow: hidden !important;
   max-height: 50px !important;
+}
+
+/* === Ensure left/right player melds are fully visible === */
+.slot-left,
+.slot-right {
+  overflow: visible !important;
+  min-height: 0 !important;
+}
+.slot-left .player-area,
+.slot-right .player-area {
+  overflow: visible !important;
+  max-height: none !important;
+  height: auto !important;
+}
+.slot-left .player-cards,
+.slot-right .player-cards {
+  overflow: visible !important;
+  max-height: none !important;
+}
+.slot-left .melds-row,
+.slot-right .melds-row {
+  overflow: visible !important;
+  max-height: none !important;
+}
+.slot-left .meld-group,
+.slot-right .meld-group {
+  overflow: visible !important;
+  flex-shrink: 0 !important;
+}
+/* On mobile keep left/right melds visible */
+@media (max-width: 768px) {
+  .slot-left .melds-row,
+  .slot-right .melds-row {
+    flex-wrap: wrap !important;
+    overflow: visible !important;
+  }
+  .slot-left .meld-group,
+  .slot-right .meld-group {
+    flex-direction: row !important;
+  }
 }

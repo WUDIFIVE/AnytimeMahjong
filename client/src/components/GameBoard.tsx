@@ -50,7 +50,7 @@ function canDecomposeBasic(tiles: TileType[], meldCount: number): boolean {
     return true;
   }
 
-  function search(map: Map<string, number>, setsLeft: number, pairUsed: boolean): boolean {
+  function tryDecompose(map: Map<string, number>, setsLeft: number, pairUsed: boolean): boolean {
     if (setsLeft === 0) {
       if (pairUsed) return [...map.values()].every(v => v === 0);
       return [...map.values()].filter(v => v > 0).length === 1 && [...map.values()][0] === 2;
@@ -60,16 +60,10 @@ function canDecomposeBasic(tiles: TileType[], meldCount: number): boolean {
     const [suit, rawValue] = first.split('-');
     const value = Number(rawValue);
 
-    if (!pairUsed && (map.get(first) || 0) >= 2) {
-      const next = new Map(map);
-      removeSet(next, first, 2);
-      if (search(next, setsLeft, true)) return true;
-    }
-
     if ((map.get(first) || 0) >= 3) {
       const next = new Map(map);
       removeSet(next, first, 3);
-      if (search(next, setsLeft - 1, pairUsed)) return true;
+      if (tryDecompose(next, setsLeft - 1, pairUsed)) return true;
     }
 
     if ((suit === 'wan' || suit === 'tiao' || suit === 'tong') && value <= 7) {
@@ -80,11 +74,25 @@ function canDecomposeBasic(tiles: TileType[], meldCount: number): boolean {
         removeSet(next, first, 1);
         removeSet(next, k2, 1);
         removeSet(next, k3, 1);
-        if (search(next, setsLeft - 1, pairUsed)) return true;
+        if (tryDecompose(next, setsLeft - 1, pairUsed)) return true;
       }
     }
 
     return false;
+  }
+
+  function search(map: Map<string, number>, setsLeft: number, pairUsed: boolean): boolean {
+    if (!pairUsed) {
+      for (const [key, count] of map) {
+        if (count >= 2) {
+          const next = new Map(map);
+          removeSet(next, key, 2);
+          if (tryDecompose(next, setsLeft, true)) return true;
+        }
+      }
+      return false;
+    }
+    return tryDecompose(map, setsLeft, true);
   }
 
   return search(counts, needSets, false);
