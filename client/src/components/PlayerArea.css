@@ -692,3 +692,107 @@
     font-size: 9px !important;
   }
 }
+
+/* === Final meld visibility: no clipping, brighter operation badges === */
+.position-top .melds-row,
+.position-left .melds-row,
+.position-right .melds-row {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: wrap !important;
+  align-items: flex-start !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  max-width: 100% !important;
+  max-height: none !important;
+  overflow: visible !important;
+  padding: 4px 4px 8px !important;
+}
+
+.position-left .melds-row,
+.position-right .melds-row {
+  justify-content: flex-start !important;
+}
+
+.meld-group {
+  position: relative !important;
+  flex: 0 0 auto !important;
+  display: grid !important;
+  grid-template-columns: repeat(4, auto) !important;
+  grid-template-rows: auto auto !important;
+  overflow: visible !important;
+  contain: none !important;
+  padding: 5px 6px 6px !important;
+  background: rgba(255, 255, 255, .82) !important;
+  border: 1px solid rgba(255, 255, 255, .72) !important;
+  box-shadow: 0 7px 16px rgba(0,0,0,.16), inset 0 1px 0 rgba(255,255,255,.82) !important;
+}
+
+.meld-group .mahjong-tile {
+  grid-row: 1 !important;
+  flex: 0 0 auto !important;
+}
+
+.meld-type-label {
+  grid-column: 1 / -1 !important;
+  grid-row: 2 !important;
+  justify-self: center !important;
+  height: 20px !important;
+  min-height: 20px !important;
+  max-height: 20px !important;
+  line-height: 20px !important;
+  padding: 0 9px !important;
+  margin-top: 4px !important;
+  border-radius: 999px !important;
+  font-size: 11px !important;
+  font-weight: 1000 !important;
+  letter-spacing: .08em !important;
+  color: #fff !important;
+  opacity: 1 !important;
+  text-shadow: 0 1px 2px rgba(0,0,0,.38) !important;
+  border: 1px solid rgba(255,255,255,.78) !important;
+  box-shadow: 0 4px 10px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.4) !important;
+}
+
+.meld-type-chi { background: linear-gradient(145deg, #3ee67e, #088b42) !important; }
+.meld-type-peng { background: linear-gradient(145deg, #32b8ff, #0757d7) !important; }
+.meld-type-minggang { background: linear-gradient(145deg, #b58cff, #5d25c8) !important; }
+.meld-type-jiagang { background: linear-gradient(145deg, #ffb13b, #d95b00) !important; }
+.meld-type-angang,
+.meld-type-label.angang-label {
+  background: linear-gradient(145deg, #3b3f48, #07080a) !important;
+  color: #ffd86f !important;
+}
+
+@media (max-width: 900px) {
+  .position-top .melds-row {
+    flex-wrap: nowrap !important;
+    justify-content: flex-start !important;
+    overflow-x: auto !important;
+    overflow-y: visible !important;
+    scrollbar-width: none !important;
+  }
+  .position-top .melds-row::-webkit-scrollbar {
+    display: none !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .position-top .melds-row,
+  .position-left .melds-row,
+  .position-right .melds-row {
+    gap: 6px !important;
+    padding-bottom: 7px !important;
+  }
+  .meld-group {
+    padding: 4px 5px 6px !important;
+  }
+  .meld-type-label {
+    height: 18px !important;
+    min-height: 18px !important;
+    max-height: 18px !important;
+    line-height: 18px !important;
+    font-size: 10px !important;
+    padding-inline: 7px !important;
+  }
+}
