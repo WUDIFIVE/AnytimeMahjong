@@ -796,3 +796,29 @@
     padding-inline: 7px !important;
   }
 }
+
+/* === Conservative hand completeness fix: no new boxes, only stop clipping the current player's tiles === */
+.position-bottom.player-area,
+.position-bottom .player-cards,
+.position-bottom .hand-row,
+.current-user.player-area,
+.current-user .player-cards,
+.current-user .hand-row {
+  overflow: visible !important;
+}
+
+.position-bottom .hand-row:not(.opponent-hand-summary),
+.current-user .hand-row:not(.opponent-hand-summary) {
+  min-height: 92px !important;
+  padding-top: 8px !important;
+  padding-bottom: 14px !important;
+  align-items: flex-end !important;
+}
+
+@media (max-width: 768px) {
+  .position-bottom .hand-row:not(.opponent-hand-summary),
+  .current-user .hand-row:not(.opponent-hand-summary) {
+    min-height: 86px !important;
+    padding-bottom: 16px !important;
+  }
+}

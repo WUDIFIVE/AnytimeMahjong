@@ -2534,3 +2534,130 @@
     max-width: 54px !important;
   }
 }
+
+/* === Conservative complete-visibility fix: keep current desktop look, stop clipping arrows/cards === */
+.game-table {
+  overflow: visible !important;
+}
+.table-center,
+.central-discards,
+.central-discard-row,
+.central-discard-tiles {
+  overflow: visible !important;
+}
+.central-discards {
+  padding-top: 18px !important;
+  padding-bottom: 12px !important;
+}
+.central-discard-row {
+  min-height: 0 !important;
+  padding-top: 12px !important;
+}
+.discard-row-bottom {
+  padding-bottom: 14px !important;
+}
+.central-discard-tiles {
+  align-content: flex-start !important;
+  gap: 4px !important;
+}
+.discard-tile-wrap {
+  margin-top: 18px !important;
+  overflow: visible !important;
+  position: relative !important;
+  z-index: 1 !important;
+}
+.discard-latest {
+  z-index: 8 !important;
+}
+.discard-arrow {
+  top: -22px !important;
+  z-index: 12 !important;
+  overflow: visible !important;
+  pointer-events: none !important;
+}
+.slot-bottom,
+.slot-bottom .player-area,
+.slot-bottom .player-cards,
+.slot-bottom .hand-row {
+  overflow: visible !important;
+}
+.slot-bottom {
+  min-height: 154px !important;
+}
+.hand-action-bar {
+  bottom: calc(126px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+@media (min-width: 1200px) {
+  .slot-bottom {
+    min-height: 162px !important;
+  }
+  .hand-action-bar {
+    bottom: calc(136px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
+
+@media (max-height: 760px) and (min-width: 769px) {
+  .central-discards {
+    padding-top: 16px !important;
+  }
+  .discard-tile-wrap {
+    margin-top: 16px !important;
+  }
+  .discard-arrow {
+    top: -20px !important;
+  }
+  .slot-bottom {
+    min-height: 142px !important;
+  }
+  .hand-action-bar {
+    bottom: calc(116px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .game-table {
+    overflow-y: auto !important;
+    overflow-x: visible !important;
+    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+  .table-center,
+  .central-discards,
+  .central-discard-row,
+  .central-discard-tiles {
+    overflow: visible !important;
+  }
+  .central-discards {
+    padding-top: 16px !important;
+  }
+  .discard-tile-wrap {
+    margin-top: 16px !important;
+  }
+  .discard-arrow {
+    top: -20px !important;
+  }
+  .slot-bottom {
+    min-height: 162px !important;
+  }
+  .hand-action-bar {
+    bottom: calc(146px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .central-discards {
+    padding-top: 14px !important;
+  }
+  .discard-tile-wrap {
+    margin-top: 14px !important;
+  }
+  .discard-arrow {
+    top: -18px !important;
+    width: 16px !important;
+    height: 16px !important;
+    font-size: 12px !important;
+  }
+  .slot-bottom {
+    min-height: 166px !important;
+  }
+}
