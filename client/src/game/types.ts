@@ -136,6 +136,7 @@ export type WSMessageType =
   | 'player_join'
   | 'player_left'
   | 'player_leave'
+  | 'player_disconnected'
   | 'settings_updated'
   | 'game_start'
   | 'turn_change'

@@ -56,8 +56,16 @@ const Lobby: React.FC<LobbyProps> = ({ onSend, roomState, playerId }) => {
   }, [onSend]);
 
   const handleCopyRoomId = useCallback(async () => {
-    const text = roomState?.roomId?.trim();
-    if (!text) return;
+    const roomId = roomState?.roomId?.trim();
+    if (!roomId || !roomState) return;
+
+    // Build a shareable URL that auto-joins the room
+    const playerName = roomState.players.find(p => p.id === playerId)?.name || '';
+    const base = `${window.location.origin}${window.location.pathname}`;
+    const params = new URLSearchParams();
+    params.set('room', roomId);
+    if (playerName) params.set('player', playerName);
+    const text = `${base}?${params.toString()}`;
 
     const fallbackCopy = () => {
       const textarea = document.createElement('textarea');
@@ -91,7 +99,7 @@ const Lobby: React.FC<LobbyProps> = ({ onSend, roomState, playerId }) => {
     }
 
     window.setTimeout(() => setCopyStatus('idle'), 2000);
-  }, [roomState?.roomId]);
+  }, [roomState?.roomId, roomState?.players, playerId]);
 
   // Room view (after joining/creating)
   if (roomState) {
@@ -106,9 +114,18 @@ const Lobby: React.FC<LobbyProps> = ({ onSend, roomState, playerId }) => {
             <div className="room-id-display" onClick={handleCopyRoomId}>
               <span className="room-id-text">{roomState.roomId}</span>
               <span className={`copy-hint copy-${copyStatus}`}>
-                {copyStatus === 'success' ? '已复制 ✓' : copyStatus === 'failed' ? '复制失败，长按手动复制' : '点击复制'}
+                {copyStatus === 'success' ? '已复制链接 ✓' : copyStatus === 'failed' ? '复制失败，长按手动复制' : '点击复制链接'}
               </span>
             </div>
+            {(() => {
+              const playerName = roomState.players.find(p => p.id === playerId)?.name || '';
+              const shareUrl = `${window.location.origin}${window.location.pathname}?room=${encodeURIComponent(roomState.roomId)}&player=${encodeURIComponent(playerName)}`;
+              return (
+                <div className="share-url-hint" title={shareUrl}>
+                  <span className="share-url-text">{shareUrl}</span>
+                </div>
+              );
+            })()}
           </div>
 
           {/* Settings */}

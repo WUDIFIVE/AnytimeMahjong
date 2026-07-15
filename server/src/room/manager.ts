@@ -82,6 +82,13 @@ export class RoomManager {
 
     if (room.roomKey && room.roomKey !== roomKey) return null; // wrong roomKey
 
+    // Reconnection: if a player with the same name already exists, return them.
+    // This allows refreshing the page and rejoining a running game.
+    const existing = room.players.find(p => p.name === playerName && !p.isAI);
+    if (existing) {
+      return existing;
+    }
+
     // Check if game already started
     if (room.gameState && room.gameState.phase === 'playing') return null;
 

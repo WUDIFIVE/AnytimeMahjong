@@ -66,6 +66,7 @@ function sanitizeStateForPlayer(state: any, viewerId: string): any {
 interface ClientInfo {
   ws: WebSocket;
   playerId: string;
+  playerName: string;
   roomId: string;
 }
 
@@ -861,7 +862,7 @@ export function setupWebSocketHandler(
         }
         const room = roomManager.createRoom(playerName, key, allowChi, allowDianpao, maxPlayers);
         const player = room.players[0];
-        clients.set(ws, { ws, playerId: player.id, roomId: room.id });
+        clients.set(ws, { ws, playerId: player.id, playerName: player.name, roomId: room.id });
         ws.send(JSON.stringify({
           type: 'room_state',
           roomId: room.id,
@@ -888,7 +889,7 @@ export function setupWebSocketHandler(
           ws.send(JSON.stringify({ type: 'error', message: 'Failed to join room' }));
           return;
         }
-        clients.set(ws, { ws, playerId: player.id, roomId });
+        clients.set(ws, { ws, playerId: player.id, playerName: player.name, roomId });
         const r = roomManager.getRoom(roomId)!;
         ws.send(JSON.stringify({
           type: 'room_state',
@@ -899,15 +900,41 @@ export function setupWebSocketHandler(
           settings: r.settings,
           hostId: r.hostId,
         }));
-        broadcastExcept(roomId, ws, {
-          type: 'player_join',
-          roomId: r.id,
-          joinedPlayerId: player.id,
-          playerName: player.name,
-          players: r.players.map(serializePlayer),
-          settings: r.settings,
-          hostId: r.hostId,
-        });
+        // If game is in progress, send current game state for reconnection
+        if (r.gameState && r.gameState.phase === 'playing') {
+          const playerView = serializeGameState(r.gameState);
+          playerView.players = r.gameState.players.map((p: any) => {
+            const sp = serializePlayer(p);
+            sp.isCurrentTurn = r.gameState!.players[r.gameState!.currentPlayerIndex]?.id === p.id;
+            if (p.id !== player.id) {
+              sp.hand = Array.from({ length: p.hand.length }, (_unused: any, idx: number) => ({ id: `hidden-${p.id}-${idx}`, suit: 'wan', value: 1 }));
+              sp.handSize = p.hand.length;
+              sp.melds = sp.melds.map((m: any) => {
+                if (m.type === 'an-gang') {
+                  return { ...m, tiles: m.tiles.map((_t: any, i: number) => ({ id: `hidden-ang-${p.id}-${i}`, suit: 'wan', value: 1, name: '' })) };
+                }
+                return m;
+              });
+            }
+            return sp;
+          });
+          ws.send(JSON.stringify({
+            type: 'game_state',
+            selfPlayerId: player.id,
+            playerId: player.id,
+            gameState: playerView,
+          }));
+        } else {
+          broadcastExcept(roomId, ws, {
+            type: 'player_join',
+            roomId: r.id,
+            joinedPlayerId: player.id,
+            playerName: player.name,
+            players: r.players.map(serializePlayer),
+            settings: r.settings,
+            hostId: r.hostId,
+          });
+        }
         return;
       }
 
@@ -1341,11 +1368,21 @@ export function setupWebSocketHandler(
     ws.on('close', () => {
       const info = clients.get(ws);
       if (info) {
-        roomManager.removePlayer(info.roomId, info.playerId);
-        broadcast(info.roomId, {
-          type: 'player_left',
-          playerId: info.playerId,
-        });
+        const gameState = getGameState(info.roomId);
+        if (gameState && gameState.phase === 'playing') {
+          // Don't remove player during active game - allow reconnection
+          broadcast(info.roomId, {
+            type: 'player_disconnected',
+            playerId: info.playerId,
+            playerName: info.playerName,
+          });
+        } else {
+          roomManager.removePlayer(info.roomId, info.playerId);
+          broadcast(info.roomId, {
+            type: 'player_left',
+            playerId: info.playerId,
+          });
+        }
         clients.delete(ws);
       }
     });

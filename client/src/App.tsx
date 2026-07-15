@@ -9,6 +9,36 @@ import './App.css';
 
 type AppView = 'lobby' | 'game' | 'settlement';
 
+const STORAGE_KEY_ROOM = 'mahjong_last_room';
+
+function saveRoomToStorage(roomId: string, playerName: string, roomPwd: string) {
+  try {
+    localStorage.setItem(STORAGE_KEY_ROOM, JSON.stringify({ roomId, playerName, roomPwd, ts: Date.now() }));
+  } catch { /* ignore */ }
+}
+
+function getRoomFromStorage(): { roomId: string; playerName: string; roomPwd: string } | null {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_ROOM);
+    if (!raw) return null;
+    const data = JSON.parse(raw);
+    if (data.roomId && data.playerName && (Date.now() - data.ts) < 24 * 3600_000) {
+      return { roomId: data.roomId, playerName: data.playerName, roomPwd: data.roomPwd || '' };
+    }
+  } catch { /* ignore */ }
+  return null;
+}
+
+function getRoomFromURL(): { roomId: string; playerName: string } | null {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const roomId = params.get('room');
+    const playerName = params.get('player');
+    if (roomId && playerName) return { roomId, playerName };
+  } catch { /* ignore */ }
+  return null;
+}
+
 function App() {
   const { send, connected, lastMessage } = useWebSocket();
 
@@ -26,6 +56,26 @@ function App() {
 
   const sendRef = useRef(send);
   sendRef.current = send;
+  const hasAutoJoinedRef = useRef(false);
+  const playerNameRef = useRef('');
+
+  // Auto-join on WebSocket connect: check URL params first, then localStorage
+  useEffect(() => {
+    if (!connected || hasAutoJoinedRef.current) return;
+    const urlRoom = getRoomFromURL();
+    if (urlRoom) {
+      hasAutoJoinedRef.current = true;
+      playerNameRef.current = urlRoom.playerName;
+      sendRef.current({ type: 'join_room' as any, payload: { roomId: urlRoom.roomId, nickname: urlRoom.playerName } });
+      return;
+    }
+    const stored = getRoomFromStorage();
+    if (stored) {
+      hasAutoJoinedRef.current = true;
+      playerNameRef.current = stored.playerName;
+      sendRef.current({ type: 'join_room' as any, payload: { roomId: stored.roomId, nickname: stored.playerName, password: stored.roomPwd } });
+    }
+  }, [connected]);
 
   // Handle incoming WS messages
   useEffect(() => {
@@ -50,6 +100,11 @@ function App() {
           // Only direct room_state carries this client's identity.
           if (type === 'room_state' && (payload.selfPlayerId || payload.playerId)) {
             setPlayerId(payload.selfPlayerId || payload.playerId);
+            const p = payload.players.find((p: any) => p.id === (payload.selfPlayerId || payload.playerId));
+            const name = p?.name || playerNameRef.current;
+            if (name) {
+              saveRoomToStorage(payload.roomId, name, '');
+            }
           }
         }
         break;
@@ -70,6 +125,10 @@ function App() {
           }
           setGameState(payload.gameState);
           setView('game');
+          // Keep room info in storage for reconnection
+          if (payload.gameState.roomId && playerNameRef.current) {
+            saveRoomToStorage(payload.gameState.roomId, playerNameRef.current, '');
+          }
         } else if (payload.roomId && payload.players) {
           setGameState(payload as GameState);
           setView('game');
@@ -87,6 +146,10 @@ function App() {
         }
         break;
 
+      case 'player_disconnected':
+        // A player's browser disconnected but can reconnect; no state change needed
+        break;
+
       case 'error':
         setError(payload?.message || '发生错误');
         setTimeout(() => setError(null), 4000);
@@ -99,6 +162,9 @@ function App() {
 
   // Send helper
   const handleSend = useCallback((type: string, payload: any) => {
+    if ((type === 'join_room' || type === 'create_room') && payload.nickname) {
+      playerNameRef.current = payload.nickname;
+    }
     sendRef.current({ type: type as any, payload });
   }, []);
 
