@@ -356,19 +356,6 @@ const GameBoard: React.FC<GameBoardProps> = ({
               </div>
             </div>
 
-            {tenpaiHints.length > 0 && (
-              <aside className="tenpai-side-panel" title="当前手牌已听牌">
-                <span className="tenpai-title">听牌</span>
-                <div className="tenpai-list">
-                  {tenpaiHints.map(hint => (
-                    <span className="tenpai-item" key={tileKey(hint.tile)}>
-                      {formatTile(hint.tile)} → {hint.label}{hint.fan}番 ({hint.winType})
-                    </span>
-                  ))}
-                </div>
-              </aside>
-            )}
-
             <div className="central-discards" aria-label="中央弃牌区">
               {orderedPlayers.map((player, idx) => (
                 <div key={player.id} className={`central-discard-row discard-row-${POSITIONS[idx]}`}>
@@ -425,6 +412,19 @@ const GameBoard: React.FC<GameBoardProps> = ({
           </div>
         )}
       </div>
+
+      {tenpaiHints.length > 0 && (
+        <aside className="tenpai-side-panel" title="当前手牌已听牌">
+          <span className="tenpai-title">听牌</span>
+          <div className="tenpai-list">
+            {tenpaiHints.map(hint => (
+              <span className="tenpai-item" key={tileKey(hint.tile)}>
+                {formatTile(hint.tile)} → {hint.label}{hint.fan}番 ({hint.winType})
+              </span>
+            ))}
+          </div>
+        </aside>
+      )}
 
       {/* Hand Action Bar: actions tied to the selected hand tile */}
       <div className="hand-action-bar">
