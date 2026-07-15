@@ -29,12 +29,10 @@ function getRoomFromStorage(): { roomId: string; playerName: string; roomPwd: st
   return null;
 }
 
-function getRoomFromURL(): { roomId: string; playerName: string } | null {
+function getRoomIdFromURL(): string | null {
   try {
     const params = new URLSearchParams(window.location.search);
-    const roomId = params.get('room');
-    const playerName = params.get('player');
-    if (roomId && playerName) return { roomId, playerName };
+    return params.get('room')?.trim() || null;
   } catch { /* ignore */ }
   return null;
 }
@@ -59,14 +57,12 @@ function App() {
   const hasAutoJoinedRef = useRef(false);
   const playerNameRef = useRef('');
 
-  // Auto-join on WebSocket connect: check URL params first, then localStorage
+  // A room-only invitation must never reuse this browser's previous identity.
+  // Normal refreshes without an invitation URL still reconnect from localStorage.
   useEffect(() => {
     if (!connected || hasAutoJoinedRef.current) return;
-    const urlRoom = getRoomFromURL();
-    if (urlRoom) {
+    if (getRoomIdFromURL()) {
       hasAutoJoinedRef.current = true;
-      playerNameRef.current = urlRoom.playerName;
-      sendRef.current({ type: 'join_room' as any, payload: { roomId: urlRoom.roomId, nickname: urlRoom.playerName } });
       return;
     }
     const stored = getRoomFromStorage();
@@ -104,6 +100,9 @@ function App() {
             const name = p?.name || playerNameRef.current;
             if (name) {
               saveRoomToStorage(payload.roomId, name, '');
+              if (getRoomIdFromURL()) {
+                window.history.replaceState(null, '', `${window.location.pathname}${window.location.hash}`);
+              }
             }
           }
         }

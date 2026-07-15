@@ -16,9 +16,10 @@ interface LobbyProps {
 }
 
 const Lobby: React.FC<LobbyProps> = ({ onSend, roomState, playerId }) => {
-  const [mode, setMode] = useState<LobbyMode>('create');
+  const invitedRoomId = new URLSearchParams(window.location.search).get('room')?.trim() || '';
+  const [mode, setMode] = useState<LobbyMode>(invitedRoomId ? 'join' : 'create');
   const [nickname, setNickname] = useState('');
-  const [roomIdInput, setRoomIdInput] = useState('');
+  const [roomIdInput, setRoomIdInput] = useState(invitedRoomId);
   const [password, setPassword] = useState('');
   const [settings, setSettings] = useState<GameSettings>({
     allowChi: true,
@@ -59,12 +60,10 @@ const Lobby: React.FC<LobbyProps> = ({ onSend, roomState, playerId }) => {
     const roomId = roomState?.roomId?.trim();
     if (!roomId || !roomState) return;
 
-    // Build a shareable URL that auto-joins the room
-    const playerName = roomState.players.find(p => p.id === playerId)?.name || '';
+    // Invitation identifies only the room; every visitor supplies their own nickname.
     const base = `${window.location.origin}${window.location.pathname}`;
     const params = new URLSearchParams();
     params.set('room', roomId);
-    if (playerName) params.set('player', playerName);
     const text = `${base}?${params.toString()}`;
 
     const fallbackCopy = () => {
@@ -99,7 +98,7 @@ const Lobby: React.FC<LobbyProps> = ({ onSend, roomState, playerId }) => {
     }
 
     window.setTimeout(() => setCopyStatus('idle'), 2000);
-  }, [roomState?.roomId, roomState?.players, playerId]);
+  }, [roomState?.roomId]);
 
   // Room view (after joining/creating)
   if (roomState) {
@@ -118,8 +117,7 @@ const Lobby: React.FC<LobbyProps> = ({ onSend, roomState, playerId }) => {
               </span>
             </div>
             {(() => {
-              const playerName = roomState.players.find(p => p.id === playerId)?.name || '';
-              const shareUrl = `${window.location.origin}${window.location.pathname}?room=${encodeURIComponent(roomState.roomId)}&player=${encodeURIComponent(playerName)}`;
+              const shareUrl = `${window.location.origin}${window.location.pathname}?room=${encodeURIComponent(roomState.roomId)}`;
               return (
                 <div className="share-url-hint" title={shareUrl}>
                   <span className="share-url-text">{shareUrl}</span>
@@ -299,8 +297,10 @@ const Lobby: React.FC<LobbyProps> = ({ onSend, roomState, playerId }) => {
                 placeholder="输入房间号"
                 value={roomIdInput}
                 onChange={e => setRoomIdInput(e.target.value)}
+                readOnly={Boolean(invitedRoomId)}
                 autoComplete="off"
               />
+              {invitedRoomId && <small className="invitation-room-hint">房间号已由邀请链接填写，请输入你自己的昵称</small>}
             </div>
 
             <div className="form-group">
