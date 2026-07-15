@@ -117,6 +117,7 @@ export type WSMessage =
   | { type: 'create_room'; nickname: string; password: string; allowChi: boolean; allowDianpao: boolean }
   | { type: 'join_room'; roomId: string; nickname: string; password: string }
   | { type: 'toggle_setting'; roomId: string; setting: 'allowChi' | 'allowDianpao'; value: boolean }
+  | { type: 'dissolve_room'; roomId: string }
   | { type: 'start_game'; roomId: string }
   | { type: 'discard'; roomId: string; tileId: string }
   | { type: 'pong'; roomId: string }
@@ -139,6 +140,7 @@ export type ServerMessage =
   | { type: 'claim_result'; action: string; playerIndex: number; gameState: SerializedGameState }
   | { type: 'game_over'; winResult: SerializedWinResult; gameState: SerializedGameState }
   | { type: 'error'; message: string }
+  | { type: 'room_dissolved'; roomId: string; message: string }
   | { type: 'player_disconnected'; playerId: string };
 
 export interface SerializedTile {

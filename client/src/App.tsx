@@ -149,6 +149,18 @@ function App() {
         // A player's browser disconnected but can reconnect; no state change needed
         break;
 
+      case 'room_dissolved':
+        try {
+          localStorage.removeItem(STORAGE_KEY_ROOM);
+        } catch { /* ignore */ }
+        setRoomState(null);
+        setGameState(null);
+        setPlayerId('');
+        setView('lobby');
+        setError(payload?.message || '房间已解散');
+        setTimeout(() => setError(null), 4000);
+        break;
+
       case 'error':
         setError(payload?.message || '发生错误');
         setTimeout(() => setError(null), 4000);
@@ -210,6 +222,10 @@ function App() {
     setGameState(null);
   }, []);
 
+  const handleDissolveRoom = useCallback(() => {
+    handleSend('dissolve_room', {});
+  }, [handleSend]);
+
   return (
     <div className="app">
       {/* Connection Status */}
@@ -256,6 +272,8 @@ function App() {
           onJiaGang={handleJiaGang}
           onWin={handleWin}
           onPass={handlePass}
+          hostId={roomState?.hostId}
+          onDissolveRoom={handleDissolveRoom}
         />
       )}
 

@@ -162,6 +162,18 @@ export class RoomManager {
   }
 
   /**
+   * Dissolve a room (host only)
+   */
+  dissolveRoom(roomId: string, hostId: string): boolean {
+    const room = this.rooms.get(roomId);
+    if (!room) return false;
+    if (room.hostId !== hostId) return false;
+
+    this.rooms.delete(roomId);
+    return true;
+  }
+
+  /**
    * Start the game in a room (host only)
    */
   startGame(roomId: string, hostId: string): GameState | null {

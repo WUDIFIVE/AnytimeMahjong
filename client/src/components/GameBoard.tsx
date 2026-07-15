@@ -15,6 +15,8 @@ interface GameBoardProps {
   onJiaGang: (tile: TileType) => void;
   onWin: () => void;
   onPass: () => void;
+  hostId?: string;
+  onDissolveRoom?: () => void;
 }
 
 const POSITIONS: ('bottom' | 'right' | 'top' | 'left')[] = ['bottom', 'right', 'top', 'left'];
@@ -158,6 +160,8 @@ const GameBoard: React.FC<GameBoardProps> = ({
   onJiaGang,
   onWin,
   onPass,
+  hostId,
+  onDissolveRoom,
 }) => {
   const [selectedTileId, setSelectedTileId] = useState<string | null>(null);
 
@@ -222,6 +226,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
   const anyPending = pendingActionTypes.length > 0;
 
   const activePlayer = gameState.players[gameState.currentPlayerIndex];
+  const isHost = !!hostId && hostId === playerId;
   const isMyTurn = activePlayer?.id === playerId;
   const canDiscard = isMyTurn && !anyPending;
 
@@ -278,6 +283,24 @@ const GameBoard: React.FC<GameBoardProps> = ({
         <span className="info-room">房间: {gameState.roomId}</span>
         <span className="info-wind">场风: {WIND_NAMES[gameState.currentWind] || gameState.currentWind}</span>
         <span className="info-wall">剩余: {gameState.wallCount}张</span>
+        {activePlayer && (
+          <span className="info-turn" title={`轮到 ${activePlayer.name}`}>
+            轮到: {activePlayer.name}
+          </span>
+        )}
+        {isHost && onDissolveRoom && (
+          <button
+            className="dissolve-room-btn"
+            type="button"
+            onClick={() => {
+              if (window.confirm('确定要解散房间吗？所有玩家会回到大厅。')) {
+                onDissolveRoom();
+              }
+            }}
+          >
+            解散房间
+          </button>
+        )}
       </div>
 
       {/* Game Table */}
@@ -313,25 +336,6 @@ const GameBoard: React.FC<GameBoardProps> = ({
           <div className="table-center">
             <div className="table-dashboard">
               <div className="dashboard-main-row">
-                <div className="wall-indicator compact">
-                  <div className="wall-icon">🀄</div>
-                  <div className="wall-count">{gameState.wallCount}</div>
-                  <div className="wall-label">剩余</div>
-                </div>
-
-                <div className="turn-indicator">
-                  <div className="turn-dot" />
-                  {(() => {
-                    const turnPlayer = gameState.players[gameState.currentPlayerIndex];
-                    return turnPlayer ? (
-                      <span className="turn-name" title={`轮到 ${turnPlayer.name}`}>
-                        <span className="turn-label">轮到</span>
-                        <span className="turn-player-name">{turnPlayer.name}</span>
-                      </span>
-                    ) : null;
-                  })()}
-                </div>
-
                 {displayLastDiscard && (
                   <div className="last-discard-callout">
                     <span className="last-discard-label">刚出</span>

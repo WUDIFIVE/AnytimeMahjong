@@ -126,6 +126,7 @@ export interface RankingInfo {
 export type WSMessageType =
   | 'create_room'
   | 'join_room'
+  | 'dissolve_room'
   | 'start_game'
   | 'discard'
   | 'claim'
@@ -137,6 +138,7 @@ export type WSMessageType =
   | 'player_left'
   | 'player_leave'
   | 'player_disconnected'
+  | 'room_dissolved'
   | 'settings_updated'
   | 'game_start'
   | 'turn_change'

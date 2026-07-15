@@ -957,6 +957,35 @@ export function setupWebSocketHandler(
         return;
       }
 
+      if (type === 'dissolve_room') {
+        const info = clients.get(ws);
+        if (!info) return;
+        const r = roomManager.getRoom(info.roomId);
+        if (!r) {
+          ws.send(JSON.stringify({ type: 'error', message: 'Room not found' }));
+          return;
+        }
+        if (r.hostId !== info.playerId) {
+          ws.send(JSON.stringify({ type: 'error', message: 'Only host can dissolve room' }));
+          return;
+        }
+
+        const roomId = info.roomId;
+        broadcast(roomId, {
+          type: 'room_dissolved',
+          roomId,
+          message: '房主已解散房间',
+        });
+
+        roomManager.dissolveRoom(roomId, info.playerId);
+        for (const [clientWs, clientInfo] of clients) {
+          if (clientInfo.roomId === roomId) {
+            clients.delete(clientWs);
+          }
+        }
+        return;
+      }
+
       if (type === 'start_game') {
         const info = clients.get(ws);
         if (!info) return;

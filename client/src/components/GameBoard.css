@@ -40,7 +40,34 @@
   font-weight: 600;
 }
 
-.info-wall { color: #f0c040; }
+.info-wall,
+.info-turn { color: #f0c040; }
+
+.info-turn {
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(240, 192, 64, 0.12);
+  border: 1px solid rgba(240, 192, 64, 0.28);
+}
+
+.dissolve-room-btn {
+  position: absolute;
+  right: 52px;
+  top: 6px;
+  padding: 5px 12px;
+  border: 1px solid rgba(255, 120, 120, 0.45);
+  border-radius: 999px;
+  color: #ffe6e6;
+  background: rgba(160, 36, 36, 0.78);
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.dissolve-room-btn:hover {
+  filter: brightness(1.12);
+}
 
 .game-table {
   flex: 1;
@@ -2849,15 +2876,12 @@
   }
 }
 
-/* === Lower the local hand and keep latest-discard arrows uncropped === */
+/* === Raise the local hand back into view and keep latest-discard arrows uncropped === */
 .slot-bottom {
-  align-items: flex-end !important;
-  padding-top: 12px !important;
+  align-items: flex-start !important;
+  padding-top: 0 !important;
   padding-bottom: 0 !important;
-  transform: translateY(14px) !important;
-}
-.slot-bottom .position-bottom {
-  padding-bottom: 0 !important;
+  transform: translateY(-34px) !important;
 }
 .slot-bottom .hand-row:not(.opponent-hand-summary) {
   min-height: 104px !important;
@@ -2884,21 +2908,18 @@
 @media (min-width: 1024px) and (max-height: 900px) {
   .slot-bottom {
     min-height: 208px !important;
-    transform: translateY(18px) !important;
-  }
-  .slot-bottom .hand-row:not(.opponent-hand-summary) {
-    min-height: 108px !important;
+    transform: translateY(-42px) !important;
   }
 }
 
 @media (max-width: 900px) {
   .slot-bottom {
-    transform: translateY(8px) !important;
+    transform: translateY(-26px) !important;
   }
 }
 
 @media (max-width: 480px) {
   .slot-bottom {
-    transform: translateY(4px) !important;
+    transform: translateY(-18px) !important;
   }
 }
