@@ -2661,3 +2661,190 @@
     min-height: 166px !important;
   }
 }
+
+/* === Layout v3: compact dashboard, shrink discards, expand hand zone, arrows visible === */
+
+/* 1. Compress central dashboard so it doesn't eat into player areas */
+.table-dashboard {
+  padding: 6px 8px !important;
+  gap: 6px !important;
+  max-height: 88px !important;
+  overflow: visible !important;
+}
+.dashboard-main-row {
+  gap: 6px !important;
+  grid-template-columns: minmax(60px, auto) minmax(100px, 1fr) minmax(140px, auto) !important;
+}
+.wall-indicator.compact {
+  padding: 3px 8px !important;
+  min-width: 56px !important;
+}
+.wall-count { font-size: 14px !important; }
+.turn-indicator { padding-inline: 6px !important; }
+.turn-player-name { font-size: 12px !important; }
+.last-discard-callout {
+  padding-inline: 6px !important;
+  gap: 4px !important;
+}
+.dashboard-sub-row {
+  gap: 5px !important;
+  padding-top: 2px !important;
+}
+.dashboard-sub-row .tenpai-item {
+  font-size: 9px !important;
+  padding: 2px 5px !important;
+}
+
+/* 2. Central discards: shrink height to give hand more space */
+.central-discards {
+  height: clamp(280px, 38vh, 440px) !important;
+  min-height: 240px !important;
+  max-height: 440px !important;
+  padding: 10px !important;
+  gap: 6px !important;
+}
+.central-discard-row {
+  padding: 4px !important;
+  min-height: 0 !important;
+}
+.central-discard-name {
+  font-size: 10px !important;
+  padding: 1px 4px !important;
+}
+
+/* 3. Bottom hand: more height for visibility */
+.slot-bottom {
+  min-height: 180px !important;
+  padding-top: 4px !important;
+}
+.slot-bottom .hand-row:not(.opponent-hand-summary) {
+  min-height: 96px !important;
+  padding: 8px 4px 16px !important;
+  gap: 3px !important;
+  overflow: visible !important;
+}
+
+/* 4. Left/right opponent areas: give vertical space for melds */
+.slot-left,
+.slot-right {
+  min-width: 180px !important;
+  max-width: 220px !important;
+  overflow: visible !important;
+}
+.slot-left .player-area,
+.slot-right .player-area {
+  min-height: 140px !important;
+  overflow: visible !important;
+}
+
+/* 5. Top opponent: enough room for melds without crowding */
+.slot-top {
+  min-height: 110px !important;
+  overflow: visible !important;
+}
+.slot-top .player-area {
+  min-height: 100px !important;
+  overflow: visible !important;
+}
+
+/* 6. Keep discard arrows fully visible (not clipped by any container) */
+.discard-tile-wrap {
+  margin-top: 22px !important;
+  overflow: visible !important;
+}
+.discard-arrow {
+  top: -24px !important;
+  z-index: 20 !important;
+  overflow: visible !important;
+  width: 20px !important;
+  height: 20px !important;
+  font-size: 14px !important;
+}
+
+/* 7. Hand action bar: clear of the hand area */
+.hand-action-bar {
+  bottom: calc(150px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+/* 8. Mac laptop: give hand even more space */
+@media (min-width: 1024px) and (max-height: 900px) {
+  .table-dashboard {
+    max-height: 56px !important;
+    padding: 4px 8px !important;
+  }
+  .central-discards {
+    height: clamp(240px, 32vh, 380px) !important;
+    min-height: 200px !important;
+  }
+  .slot-bottom {
+    min-height: 200px !important;
+  }
+  .hand-action-bar {
+    bottom: calc(168px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
+
+/* 9. Compact responsive adjustments */
+@media (max-width: 900px) {
+  .table-dashboard {
+    max-height: 76px !important;
+    padding: 4px 6px !important;
+  }
+  .central-discards {
+    height: clamp(260px, 36vh, 400px) !important;
+    min-height: 220px !important;
+  }
+  .slot-bottom {
+    min-height: 190px !important;
+  }
+  .slot-bottom .hand-row:not(.opponent-hand-summary) {
+    min-height: 88px !important;
+    padding-bottom: 14px !important;
+  }
+  .slot-left,
+  .slot-right {
+    min-width: 90px !important;
+    max-width: 120px !important;
+  }
+  .discard-tile-wrap {
+    margin-top: 20px !important;
+  }
+  .discard-arrow {
+    top: -22px !important;
+  }
+  .hand-action-bar {
+    bottom: calc(142px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .table-dashboard {
+    max-height: 68px !important;
+    padding: 3px 6px !important;
+  }
+  .central-discards {
+    height: clamp(220px, 32vh, 340px) !important;
+    min-height: 180px !important;
+  }
+  .slot-bottom {
+    min-height: 200px !important;
+  }
+  .slot-bottom .hand-row:not(.opponent-hand-summary) {
+    min-height: 82px !important;
+    padding: 6px 2px 12px !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+  }
+  .discard-tile-wrap {
+    margin-top: 18px !important;
+  }
+  .discard-arrow {
+    top: -20px !important;
+    width: 18px !important;
+    height: 18px !important;
+    font-size: 12px !important;
+  }
+  .hand-action-bar {
+    bottom: calc(148px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
