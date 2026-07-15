@@ -58,19 +58,11 @@ function App() {
   const playerNameRef = useRef('');
 
   // A room-only invitation must never reuse this browser's previous identity.
-  // Normal refreshes without an invitation URL still reconnect from localStorage.
+  // Direct root visits should stay in the lobby and must not auto-join a stale
+  // cached room, otherwise an old/removed room shows "Failed to join room".
   useEffect(() => {
     if (!connected || hasAutoJoinedRef.current) return;
-    if (getRoomIdFromURL()) {
-      hasAutoJoinedRef.current = true;
-      return;
-    }
-    const stored = getRoomFromStorage();
-    if (stored) {
-      hasAutoJoinedRef.current = true;
-      playerNameRef.current = stored.playerName;
-      sendRef.current({ type: 'join_room' as any, payload: { roomId: stored.roomId, nickname: stored.playerName, password: stored.roomPwd } });
-    }
+    hasAutoJoinedRef.current = true;
   }, [connected]);
 
   // Handle incoming WS messages
