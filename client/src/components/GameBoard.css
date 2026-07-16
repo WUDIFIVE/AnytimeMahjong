@@ -3722,14 +3722,19 @@
     flex: 0 1 auto !important;
     margin-left: 0 !important;
     width: max-content !important;
-    max-width: min(760px, calc(100vw - 520px)) !important;
-    min-width: 0 !important;
+    max-width: min(980px, calc(100vw - 360px)) !important;
+    min-width: min(880px, calc(100vw - 420px)) !important;
     min-height: 108px !important;
     max-height: none !important;
-    overflow-x: auto !important;
+    overflow-x: hidden !important;
     overflow-y: visible !important;
+    scrollbar-width: none !important;
     position: relative !important;
     z-index: 30 !important;
+  }
+
+  .slot-bottom .hand-row:not(.opponent-hand-summary)::-webkit-scrollbar {
+    display: none !important;
   }
 }
 
@@ -3748,7 +3753,8 @@
   }
 
   .slot-bottom .hand-row:not(.opponent-hand-summary) {
-    max-width: min(700px, calc(100vw - 390px)) !important;
+    max-width: min(900px, calc(100vw - 320px)) !important;
+    min-width: min(760px, calc(100vw - 360px)) !important;
     min-height: 100px !important;
     max-height: none !important;
   }
