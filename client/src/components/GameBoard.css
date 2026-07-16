@@ -3618,3 +3618,134 @@
     max-height: 106px !important;
   }
 }
+
+/* === Final desktop meld visibility fix: vertical meld rails, no hand overlap === */
+@media (min-width: 769px) {
+  .game-table,
+  .player-slot,
+  .player-slot .player-area,
+  .player-slot .player-cards {
+    overflow: visible !important;
+  }
+
+  .slot-top .melds-row,
+  .slot-left .melds-row,
+  .slot-right .melds-row {
+    display: flex !important;
+    flex-direction: column !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 8px !important;
+    max-width: none !important;
+    max-height: none !important;
+    overflow: visible !important;
+    padding: 4px !important;
+  }
+
+  .slot-left .melds-row,
+  .slot-right .melds-row {
+    align-items: flex-start !important;
+  }
+
+  .slot-top .meld-group,
+  .slot-left .meld-group,
+  .slot-right .meld-group {
+    display: grid !important;
+    grid-template-columns: repeat(4, auto) !important;
+    grid-template-rows: auto auto !important;
+    flex: 0 0 auto !important;
+    width: max-content !important;
+    max-width: none !important;
+  }
+
+  .slot-bottom {
+    min-height: 190px !important;
+    overflow: visible !important;
+    transform: translateY(-52px) !important;
+  }
+
+  .slot-bottom .position-bottom {
+    width: min(100%, 1180px) !important;
+    min-height: 150px !important;
+    padding: 12px 10px 10px !important;
+    overflow: visible !important;
+  }
+
+  .slot-bottom .player-cards {
+    position: relative !important;
+    display: block !important;
+    min-height: 132px !important;
+    overflow: visible !important;
+  }
+
+  .slot-bottom .melds-row {
+    position: absolute !important;
+    left: 0 !important;
+    top: -10px !important;
+    bottom: auto !important;
+    transform: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+    flex-wrap: nowrap !important;
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+    gap: 8px !important;
+    width: clamp(190px, 18vw, 238px) !important;
+    max-width: clamp(190px, 18vw, 238px) !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: calc(100vh - 270px) !important;
+    padding: 20px 8px 10px !important;
+    overflow-x: visible !important;
+    overflow-y: auto !important;
+    scrollbar-width: thin !important;
+    pointer-events: none !important;
+    z-index: 20 !important;
+  }
+
+  .slot-bottom .meld-group {
+    display: grid !important;
+    grid-template-columns: repeat(4, auto) !important;
+    grid-template-rows: auto auto !important;
+    flex: 0 0 auto !important;
+    width: max-content !important;
+    max-width: none !important;
+    pointer-events: none !important;
+  }
+
+  .slot-bottom .hand-row:not(.opponent-hand-summary) {
+    margin-left: clamp(224px, 21vw, 282px) !important;
+    width: calc(100% - clamp(224px, 21vw, 282px)) !important;
+    min-height: 108px !important;
+    max-height: none !important;
+    overflow-x: auto !important;
+    overflow-y: visible !important;
+    position: relative !important;
+    z-index: 30 !important;
+  }
+}
+
+@media (min-width: 769px) and (max-height: 760px) {
+  .slot-bottom .melds-row {
+    max-height: 250px !important;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1100px) {
+  .slot-bottom .melds-row {
+    width: 190px !important;
+    max-width: 190px !important;
+    height: auto !important;
+    max-height: calc(100vh - 260px) !important;
+    gap: 7px !important;
+    padding: 20px 7px 9px !important;
+  }
+
+  .slot-bottom .hand-row:not(.opponent-hand-summary) {
+    margin-left: 216px !important;
+    width: calc(100% - 216px) !important;
+    min-height: 100px !important;
+    max-height: none !important;
+  }
+}

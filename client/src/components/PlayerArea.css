@@ -908,3 +908,57 @@
     padding-bottom: 16px !important;
   }
 }
+
+/* === Final desktop meld stack direction: every exposed set stacks downward === */
+@media (min-width: 769px) {
+  .player-area,
+  .player-cards,
+  .melds-row {
+    overflow: visible !important;
+  }
+
+  .position-top .melds-row,
+  .position-left .melds-row,
+  .position-right .melds-row {
+    display: flex !important;
+    flex-direction: column !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 8px !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  .position-left .melds-row,
+  .position-right .melds-row {
+    align-items: flex-start !important;
+  }
+
+  .position-bottom .melds-row {
+    flex-direction: column !important;
+    flex-wrap: nowrap !important;
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+    gap: 8px !important;
+    overflow-x: visible !important;
+  }
+
+  .meld-group {
+    display: grid !important;
+    grid-template-columns: repeat(4, auto) !important;
+    grid-template-rows: auto auto !important;
+    flex: 0 0 auto !important;
+    width: max-content !important;
+    max-width: none !important;
+  }
+
+  .meld-group .mahjong-tile {
+    grid-row: 1 !important;
+  }
+
+  .meld-type-label {
+    grid-row: 2 !important;
+    grid-column: 1 / -1 !important;
+  }
+}
