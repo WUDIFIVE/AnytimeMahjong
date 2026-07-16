@@ -3759,3 +3759,24 @@
     max-height: none !important;
   }
 }
+
+/* === Final action controls lift: keep claim/win/pass buttons clear of the local hand === */
+@media (min-width: 769px) {
+  .action-bar {
+    bottom: calc(72px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  .hand-action-bar {
+    bottom: calc(124px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .action-bar {
+    bottom: calc(18px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  .hand-action-bar {
+    bottom: calc(160px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
