@@ -86,6 +86,37 @@
   gap: 4px;
 }
 
+/* Local player's melds should read as a fixed, non-playable block on the left */
+.position-bottom .player-cards {
+  flex-direction: row;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.position-bottom .melds-row {
+  flex: 0 0 auto;
+  order: 0;
+  padding: 6px 8px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.18);
+  border: 1px solid rgba(240, 192, 64, 0.12);
+}
+
+.position-bottom .hand-row {
+  flex: 1 1 auto;
+  order: 1;
+  justify-content: flex-start;
+}
+
+.position-bottom .meld-group {
+  opacity: 0.92;
+}
+
+.position-bottom .meld-group .tile,
+.position-bottom .meld-group .tile * {
+  cursor: default;
+}
+
 .position-left .player-cards,
 .position-right .player-cards {
   flex-direction: column;
@@ -410,6 +441,61 @@
 .opponent-mini-tile { width:10px; height:16px; border-radius:4px; background:linear-gradient(145deg,#d8f3e4,#6ec493 56%,#23865b); box-shadow:0 2px 3px rgba(24,50,34,.14), inset 0 1px 0 rgba(255,255,255,.45); }
 .hand-row:not(.opponent-hand-summary) { padding:6px; border-radius:18px; background:rgba(255,255,255,.38); border:1px solid rgba(255,255,255,.5); }
 @media (max-width:768px){ .player-area{border-radius:16px;padding:5px}.player-info{padding:3px 5px;gap:3px;margin-bottom:4px}.player-name{max-width:54px;overflow:hidden;text-overflow:ellipsis;font-size:10px}.player-wind,.player-score{font-size:9px;padding:1px 4px}.opponent-hand-summary{padding:5px;border-radius:12px}.hand-count{font-size:10px}.opponent-mini-tile{width:7px;height:12px;border-radius:3px}.position-bottom.current-user{width:100%;background:rgba(255,255,255,.5)}.position-bottom .hand-row:not(.opponent-hand-summary){width:100%;overflow-x:auto;justify-content:flex-start;padding:5px;border-radius:16px}.position-top .melds-row,.position-left .melds-row,.position-right .melds-row{max-width:100%;overflow-x:auto;flex-wrap:nowrap} }
+
+/* === B variant: fixed local meld rail / locked tiles === */
+.position-bottom .player-cards {
+  flex-direction: row !important;
+  align-items: flex-end !important;
+  gap: 10px !important;
+  width: 100% !important;
+}
+
+.position-bottom .melds-row {
+  position: relative;
+  flex: 0 0 auto !important;
+  order: 0 !important;
+  align-self: flex-end;
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 5px;
+  min-height: 58px;
+  padding: 14px 7px 7px !important;
+  border-radius: 15px;
+  background: linear-gradient(145deg, rgba(224, 244, 232, .78), rgba(193, 226, 207, .54));
+  border: 1px solid rgba(31, 143, 98, .22);
+  box-shadow: 0 5px 14px rgba(24, 80, 53, .10), inset 0 1px 0 rgba(255,255,255,.78);
+}
+
+.position-bottom .melds-row::before {
+  content: '固定副露';
+  position: absolute;
+  top: 4px;
+  left: 8px;
+  color: var(--am-accent, #1f8f62);
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .04em;
+}
+
+.position-bottom .meld-group {
+  opacity: .96;
+  pointer-events: none;
+  filter: saturate(.86);
+}
+
+.position-bottom .meld-group .mahjong-tile,
+.position-bottom .meld-group .tile,
+.position-bottom .meld-group * {
+  cursor: default !important;
+  user-select: none;
+}
+
+.position-bottom .hand-row {
+  order: 1 !important;
+  flex: 1 1 auto !important;
+  min-width: 0;
+  justify-content: flex-start !important;
+}
 
 /* === Final mobile hand usability: keep tiles above action bar and tappable === */
 .player-area,
