@@ -34,7 +34,12 @@ export type FanType =
   | 'longfengpei'      // 龙凤配
   | 'quanshuangke'     // 全双刻
   | 'quandanke'        // 全单刻
-  | 'danlongyitiaolong'; // 单龙一条龙
+  | 'danlongyitiaolong' // 单龙一条龙
+  | 'gangshangkaihua'  // 杠上开花
+  | 'haidilaoyue'      // 海底捞月
+  | 'zimo'             // 自摸
+  | 'menqing'          // 门清
+  | 'jibenhu';         // 基本胡
 
 export interface FanInfo {
   type: FanType;
@@ -71,6 +76,7 @@ export interface GameState {
   lastDiscardBy?: string;
   lastDiscardPlayerName?: string;
   lastDraw?: Tile | null;
+  lastDrawFromGang?: boolean;
   pendingClaims: Claim[];
   settings: GameSettings;
   winResult: WinResult | null;
@@ -329,6 +335,41 @@ export const FAN_DEFINITIONS: FanInfo[] = [
     fanValue: 5,
     description: '单数一条龙（1,3,5,7,9）',
     icon: '🐍',
+  },
+  {
+    type: 'gangshangkaihua',
+    name: '杠上开花',
+    fanValue: 8,
+    description: '开杠后摸补牌，并用这张补牌自摸胡牌，属于自摸类大胡',
+    icon: '🌸',
+  },
+  {
+    type: 'haidilaoyue',
+    name: '海底捞月',
+    fanValue: 8,
+    description: '牌墙最后一张牌自摸胡牌，属于自摸类大胡',
+    icon: '🌊',
+  },
+  {
+    type: 'zimo',
+    name: '自摸',
+    fanValue: 1,
+    description: '自己摸进的牌使手牌成胡，不依赖他人点炮',
+    icon: '🀄',
+  },
+  {
+    type: 'menqing',
+    name: '门清',
+    fanValue: 1,
+    description: '没有吃、碰、明杠；暗杠不破门清',
+    icon: '🚪',
+  },
+  {
+    type: 'jibenhu',
+    name: '基本胡',
+    fanValue: 1,
+    description: '四组面子加一对将牌的普通和牌结构',
+    icon: '✅',
   },
 ];
 

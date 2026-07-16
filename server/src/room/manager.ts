@@ -242,6 +242,7 @@ export class RoomManager {
       pendingDiscard: null,
       pendingClaims: [],
       lastDraw: null,
+      lastDrawFromGang: false,
       lastDiscard: null,
       lastDiscardBy: undefined,
       lastDiscardPlayerName: undefined,

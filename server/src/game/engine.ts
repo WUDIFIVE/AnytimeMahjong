@@ -67,8 +67,8 @@ export const FAN_VALUES: Record<FanType, number> = {
   '碰碰胡': 2,
   '清一色': 6,
   '混一色': 3,
-  '杠上开花': 1,
-  '海底捞月': 1,
+  '杠上开花': 8,
+  '海底捞月': 8,
   '自摸': 1,
   '门清': 1,
   '平胡': 1,
@@ -103,6 +103,7 @@ export interface GameState {
   pendingDiscard: Tile | null;
   pendingClaims: Claim[];
   lastDraw: Tile | null;
+  lastDrawFromGang: boolean;
   lastDiscard: Tile | null;
   lastDiscardBy?: string;
   lastDiscardPlayerName?: string;
@@ -409,6 +410,7 @@ export function executeMingGang(player: Player, tile: Tile, gameState: GameState
   if (replacement) {
     player.hand.push(replacement);
     gameState.lastDraw = replacement;
+    gameState.lastDrawFromGang = true;
   }
 }
 
@@ -438,6 +440,7 @@ export function executeAnGang(player: Player, tileIds: number[], gameState: Game
   if (replacement) {
     player.hand.push(replacement);
     gameState.lastDraw = replacement;
+    gameState.lastDrawFromGang = true;
   }
 }
 
@@ -460,6 +463,7 @@ export function executeJiaGang(player: Player, tile: Tile, gameState: GameState)
   if (replacement) {
     player.hand.push(replacement);
     gameState.lastDraw = replacement;
+    gameState.lastDrawFromGang = true;
   }
 }
 
@@ -624,7 +628,8 @@ export function checkWin(
   melds: Meld[],
   newTile: Tile | null,
   isZimo: boolean,
-  settings: GameSettings
+  settings: GameSettings,
+  context: { isGangShangKaiHua?: boolean; isHaidiLaoyue?: boolean } = {}
 ): WinResult | null {
   const allTiles: Tile[] = [...hand];
   if (newTile) allTiles.push(newTile);
@@ -682,6 +687,12 @@ export function checkWin(
   }
 
   if (isZimo) fans.push({ type: '自摸', value: FAN_VALUES['自摸'] });
+  if (isZimo && context.isGangShangKaiHua) {
+    fans.push({ type: '杠上开花', value: FAN_VALUES['杠上开花'] });
+  }
+  if (isZimo && context.isHaidiLaoyue) {
+    fans.push({ type: '海底捞月', value: FAN_VALUES['海底捞月'] });
+  }
 
   const hasOpenMelds = melds.some(
     m => m.type === 'pong' || m.type === 'chi' || m.type === 'minggang'
@@ -796,6 +807,7 @@ export function serializeGameState(state: GameState): any {
       chiOptions: c.chiOptions?.map(option => option.map(serializeTile)),
     })),
     lastDraw: state.lastDraw ? serializeTile(state.lastDraw) : null,
+    lastDrawFromGang: state.lastDrawFromGang,
     winnerIndex: state.winnerIndex,
   };
 }

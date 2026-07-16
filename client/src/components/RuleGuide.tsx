@@ -14,6 +14,8 @@ const FAN_TABS: { type: FanType; label: string }[] = [
   { type: 'yitiaolong', label: '一条龙' },
   { type: 'qingyise', label: '清一色' },
   { type: 'pengpenghu', label: '碰碰胡' },
+  { type: 'gangshangkaihua', label: '杠上开花' },
+  { type: 'haidilaoyue', label: '海底捞月' },
   { type: 'danshuang', label: '单双' },
 ];
 
@@ -69,6 +71,8 @@ const RuleGuide: React.FC<RuleGuideProps> = ({ isOpen, onClose }) => {
                 {activeTab === 'yitiaolong' && <YitiaolongExample />}
                 {activeTab === 'qingyise' && <QingyiseExample />}
                 {activeTab === 'pengpenghu' && <PengpenghuExample />}
+                {activeTab === 'gangshangkaihua' && <GangshangKaihuaExample />}
+                {activeTab === 'haidilaoyue' && <HaidiLaoyueExample />}
                 {activeTab === 'danshuang' && <DanshuangExample />}
               </div>
             </div>
@@ -88,6 +92,17 @@ const RuleGuide: React.FC<RuleGuideProps> = ({ isOpen, onClose }) => {
             </div>
           </div>
         )}
+
+        <div className="rule-extra-section">
+          <h4>和牌方式补充</h4>
+          <ul>
+            <li><strong>自摸：</strong>自己摸进的牌组成合法胡牌，按钮显示“自摸胡”。</li>
+            <li><strong>点炮：</strong>他人打出的牌使你成胡，开启点炮规则时可响应“胡”。</li>
+            <li><strong>杠上开花：</strong>明杠、暗杠或加杠后摸补牌，若补牌成胡，按自摸结算，并额外计大胡。</li>
+            <li><strong>海底捞月：</strong>牌墙最后一张牌自摸成胡，按自摸结算，并额外计大胡。</li>
+            <li><strong>门清：</strong>未吃、未碰、未明杠可计门清；暗杠不破门清。</li>
+          </ul>
+        </div>
       </div>
     </div>
   );
@@ -216,6 +231,62 @@ const PengpenghuExample: React.FC = () => {
       </div>
       <p className="example-note">
         四组刻子（三张相同）或杠子，加一对将牌。
+      </p>
+    </div>
+  );
+};
+
+const GangshangKaihuaExample: React.FC = () => {
+  const tiles: TileType[] = [
+    { suit: 'tong', value: 3, id: 'gskh-3a' },
+    { suit: 'tong', value: 3, id: 'gskh-3b' },
+    { suit: 'tong', value: 3, id: 'gskh-3c' },
+    { suit: 'tiao', value: 4, id: 'gskh-4' },
+    { suit: 'tiao', value: 5, id: 'gskh-5' },
+    { suit: 'tiao', value: 6, id: 'gskh-6' },
+    { suit: 'wan', value: 7, id: 'gskh-7' },
+    { suit: 'wan', value: 8, id: 'gskh-8' },
+    { suit: 'wan', value: 9, id: 'gskh-9' },
+    { suit: 'jian', value: 2, id: 'gskh-fa1' },
+    { suit: 'jian', value: 2, id: 'gskh-fa2' },
+  ];
+  return (
+    <div className="example-container">
+      <div className="example-grid">
+        {tiles.map(t => <Tile key={t.id} tile={t} small />)}
+        <span className="example-plus">杠后补牌</span>
+        <Tile tile={{ suit: 'jian', value: 2, id: 'gskh-win' }} small highlighted />
+      </div>
+      <p className="example-note">
+        例如开杠后摸到“发”，正好组成将牌或完成最后一组牌，即为杠上开花；它本质是自摸胡，并额外计大胡。
+      </p>
+    </div>
+  );
+};
+
+const HaidiLaoyueExample: React.FC = () => {
+  const tiles: TileType[] = [
+    { suit: 'wan', value: 1, id: 'hdl-1' },
+    { suit: 'wan', value: 2, id: 'hdl-2' },
+    { suit: 'wan', value: 3, id: 'hdl-3' },
+    { suit: 'tong', value: 4, id: 'hdl-4' },
+    { suit: 'tong', value: 5, id: 'hdl-5' },
+    { suit: 'tong', value: 6, id: 'hdl-6' },
+    { suit: 'tiao', value: 7, id: 'hdl-7' },
+    { suit: 'tiao', value: 8, id: 'hdl-8' },
+    { suit: 'tiao', value: 9, id: 'hdl-9' },
+    { suit: 'feng', value: 1, id: 'hdl-dong1' },
+    { suit: 'feng', value: 1, id: 'hdl-dong2' },
+  ];
+  return (
+    <div className="example-container">
+      <div className="example-grid">
+        {tiles.map(t => <Tile key={t.id} tile={t} small />)}
+        <span className="example-plus">海底牌</span>
+        <Tile tile={{ suit: 'feng', value: 1, id: 'hdl-win' }} small highlighted />
+      </div>
+      <p className="example-note">
+        牌墙剩最后一张时摸牌，如果这张牌正好成胡，就是海底捞月；按自摸结算，并额外计大胡。
       </p>
     </div>
   );

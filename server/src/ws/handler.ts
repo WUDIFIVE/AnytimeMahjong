@@ -417,6 +417,7 @@ export function setupWebSocketHandler(
     player.hand.push(tile);
     player.hand.sort(tileSort);
     gameState.lastDraw = tile;
+    gameState.lastDrawFromGang = false;
     logHandSizeAnomalies(gameState, `draw:${player.name}`);
     return true;
   }
@@ -427,6 +428,7 @@ export function setupWebSocketHandler(
     gameState.currentPlayerIndex = getNextTurnIndex(gameState);
     gameState.turnCount++;
     gameState.lastDraw = null;
+    gameState.lastDrawFromGang = false;
     return drawForCurrentPlayer(gameState, roomId);
   }
 
@@ -434,6 +436,7 @@ export function setupWebSocketHandler(
     gameState.currentPlayerIndex = playerIndex;
     gameState.turnCount++;
     gameState.lastDraw = null;
+    gameState.lastDrawFromGang = false;
     clearAIClaimTimeout(roomId);
     clearAITurnTimeout(roomId);
     logHandSizeAnomalies(gameState, `claim:${gameState.players[playerIndex]?.name ?? playerIndex}`);
@@ -722,7 +725,10 @@ export function setupWebSocketHandler(
       logHandSizeAnomalies(gameState, `ai-turn:${player.name}`);
 
       if (aiShouldWin(player.hand, player.melds, null, gameState.settings)) {
-        const result = checkWin(player.hand, player.melds, null, true, gameState.settings);
+        const result = checkWin(player.hand, player.melds, null, true, gameState.settings, {
+          isGangShangKaiHua: gameState.lastDrawFromGang,
+          isHaidiLaoyue: gameState.wall.length === 0,
+        });
         if (!result) return;
         clearAITurnTimeout(roomId);
         gameState.winnerIndex = player.seatIndex;
@@ -1367,7 +1373,10 @@ export function setupWebSocketHandler(
           newTile = gameState.pendingDiscard;
         }
 
-        const result = checkWin(player.hand, player.melds, newTile, isZimo, gameState.settings);
+        const result = checkWin(player.hand, player.melds, newTile, isZimo, gameState.settings, {
+          isGangShangKaiHua: isZimo && gameState.lastDrawFromGang,
+          isHaidiLaoyue: isZimo && gameState.wall.length === 0,
+        });
         if (!result) {
           ws.send(JSON.stringify({ type: 'error', message: 'Not a winning hand' }));
           return;

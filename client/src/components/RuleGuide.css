@@ -228,6 +228,44 @@
   text-align: center;
 }
 
+.example-plus {
+  align-self: center;
+  color: #f0c040;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(240, 192, 64, 0.12);
+  border: 1px solid rgba(240, 192, 64, 0.28);
+}
+
+.rule-extra-section {
+  margin: 0 20px 20px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: rgba(240, 192, 64, 0.08);
+  border: 1px solid rgba(240, 192, 64, 0.18);
+  color: #d8cf9a;
+  flex-shrink: 0;
+}
+
+.rule-extra-section h4 {
+  margin: 0 0 8px;
+  color: #f0c040;
+  font-size: 14px;
+}
+
+.rule-extra-section ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.rule-extra-section li {
+  margin: 6px 0;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
 /* Fans Summary Table */
 .fans-summary {
   margin-top: 8px;

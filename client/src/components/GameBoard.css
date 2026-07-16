@@ -3683,21 +3683,21 @@
     overflow: visible !important;
   }
 
-  /* Self area is two independent boxes: left meld rail, right playable hand. */
+  /* Self area: meld rail is docked left and does NOT participate in centering the hand. */
   .slot-bottom .player-cards {
     position: relative !important;
-    display: grid !important;
-    grid-template-columns: clamp(300px, 31vw, 430px) minmax(0, 1fr) !important;
-    column-gap: 26px !important;
-    align-items: end !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: flex-end !important;
     min-height: 126px !important;
     width: 100% !important;
     overflow: visible !important;
   }
 
   .slot-bottom .melds-row {
-    position: static !important;
-    grid-column: 1 !important;
+    position: absolute !important;
+    left: 0 !important;
+    bottom: 0 !important;
     align-self: end !important;
     justify-self: start !important;
     transform: none !important;
@@ -3707,8 +3707,8 @@
     align-items: flex-end !important;
     justify-content: flex-start !important;
     gap: 8px !important;
-    width: 100% !important;
-    max-width: none !important;
+    width: clamp(300px, 31vw, 430px) !important;
+    max-width: clamp(300px, 31vw, 430px) !important;
     height: auto !important;
     min-height: 0 !important;
     max-height: none !important;
@@ -3719,9 +3719,10 @@
   }
 
   .slot-bottom .hand-row:not(.opponent-hand-summary) {
-    grid-column: 2 !important;
+    flex: 0 1 auto !important;
     margin-left: 0 !important;
-    width: 100% !important;
+    width: max-content !important;
+    max-width: min(760px, calc(100vw - 520px)) !important;
     min-width: 0 !important;
     min-height: 108px !important;
     max-height: none !important;
@@ -3734,8 +3735,12 @@
 
 @media (min-width: 769px) and (max-width: 1100px) {
   .slot-bottom .player-cards {
-    grid-template-columns: 284px minmax(0, 1fr) !important;
-    column-gap: 20px !important;
+    justify-content: center !important;
+  }
+
+  .slot-bottom .melds-row {
+    width: 284px !important;
+    max-width: 284px !important;
   }
 
   .slot-top .melds-row {
@@ -3743,6 +3748,7 @@
   }
 
   .slot-bottom .hand-row:not(.opponent-hand-summary) {
+    max-width: min(700px, calc(100vw - 390px)) !important;
     min-height: 100px !important;
     max-height: none !important;
   }
