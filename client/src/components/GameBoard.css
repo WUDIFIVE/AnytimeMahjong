@@ -3619,7 +3619,7 @@
   }
 }
 
-/* === Final desktop meld visibility fix: vertical meld rails, no hand overlap === */
+/* === Final desktop meld visibility fix: independent lanes, no hand overlap === */
 @media (min-width: 769px) {
   .game-table,
   .player-slot,
@@ -3628,13 +3628,28 @@
     overflow: visible !important;
   }
 
-  .slot-top .melds-row,
+  /* Opposite player has enough horizontal space: keep melds in one row so they do not drop into discards. */
+  .slot-top .melds-row {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: flex-end !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    width: auto !important;
+    max-width: min(620px, 62vw) !important;
+    max-height: none !important;
+    overflow: visible !important;
+    padding: 4px !important;
+  }
+
+  /* Side players have narrow lanes: stack their exposed sets downward. */
   .slot-left .melds-row,
   .slot-right .melds-row {
     display: flex !important;
     flex-direction: column !important;
     flex-wrap: nowrap !important;
-    align-items: center !important;
+    align-items: flex-start !important;
     justify-content: flex-start !important;
     gap: 8px !important;
     max-width: none !important;
@@ -3643,14 +3658,10 @@
     padding: 4px !important;
   }
 
-  .slot-left .melds-row,
-  .slot-right .melds-row {
-    align-items: flex-start !important;
-  }
-
   .slot-top .meld-group,
   .slot-left .meld-group,
-  .slot-right .meld-group {
+  .slot-right .meld-group,
+  .slot-bottom .meld-group {
     display: grid !important;
     grid-template-columns: repeat(4, auto) !important;
     grid-template-rows: auto auto !important;
@@ -3660,63 +3671,58 @@
   }
 
   .slot-bottom {
-    min-height: 190px !important;
+    min-height: 180px !important;
     overflow: visible !important;
     transform: translateY(-52px) !important;
   }
 
   .slot-bottom .position-bottom {
-    width: min(100%, 1180px) !important;
-    min-height: 150px !important;
+    width: min(100%, 1240px) !important;
+    min-height: 142px !important;
     padding: 12px 10px 10px !important;
     overflow: visible !important;
   }
 
+  /* Self area is two independent boxes: left meld rail, right playable hand. */
   .slot-bottom .player-cards {
     position: relative !important;
-    display: block !important;
-    min-height: 132px !important;
+    display: grid !important;
+    grid-template-columns: clamp(300px, 31vw, 430px) minmax(0, 1fr) !important;
+    column-gap: 26px !important;
+    align-items: end !important;
+    min-height: 126px !important;
+    width: 100% !important;
     overflow: visible !important;
   }
 
   .slot-bottom .melds-row {
-    position: absolute !important;
-    left: 0 !important;
-    top: -10px !important;
-    bottom: auto !important;
+    position: static !important;
+    grid-column: 1 !important;
+    align-self: end !important;
+    justify-self: start !important;
     transform: none !important;
     display: flex !important;
-    flex-direction: column !important;
+    flex-direction: row !important;
     flex-wrap: nowrap !important;
-    align-items: flex-start !important;
+    align-items: flex-end !important;
     justify-content: flex-start !important;
     gap: 8px !important;
-    width: clamp(190px, 18vw, 238px) !important;
-    max-width: clamp(190px, 18vw, 238px) !important;
+    width: 100% !important;
+    max-width: none !important;
     height: auto !important;
     min-height: 0 !important;
-    max-height: calc(100vh - 270px) !important;
-    padding: 20px 8px 10px !important;
-    overflow-x: visible !important;
-    overflow-y: auto !important;
-    scrollbar-width: thin !important;
+    max-height: none !important;
+    padding: 8px 0 12px !important;
+    overflow: visible !important;
     pointer-events: none !important;
     z-index: 20 !important;
   }
 
-  .slot-bottom .meld-group {
-    display: grid !important;
-    grid-template-columns: repeat(4, auto) !important;
-    grid-template-rows: auto auto !important;
-    flex: 0 0 auto !important;
-    width: max-content !important;
-    max-width: none !important;
-    pointer-events: none !important;
-  }
-
   .slot-bottom .hand-row:not(.opponent-hand-summary) {
-    margin-left: clamp(224px, 21vw, 282px) !important;
-    width: calc(100% - clamp(224px, 21vw, 282px)) !important;
+    grid-column: 2 !important;
+    margin-left: 0 !important;
+    width: 100% !important;
+    min-width: 0 !important;
     min-height: 108px !important;
     max-height: none !important;
     overflow-x: auto !important;
@@ -3726,25 +3732,17 @@
   }
 }
 
-@media (min-width: 769px) and (max-height: 760px) {
-  .slot-bottom .melds-row {
-    max-height: 250px !important;
-  }
-}
-
 @media (min-width: 769px) and (max-width: 1100px) {
-  .slot-bottom .melds-row {
-    width: 190px !important;
-    max-width: 190px !important;
-    height: auto !important;
-    max-height: calc(100vh - 260px) !important;
-    gap: 7px !important;
-    padding: 20px 7px 9px !important;
+  .slot-bottom .player-cards {
+    grid-template-columns: 284px minmax(0, 1fr) !important;
+    column-gap: 20px !important;
+  }
+
+  .slot-top .melds-row {
+    max-width: min(520px, 58vw) !important;
   }
 
   .slot-bottom .hand-row:not(.opponent-hand-summary) {
-    margin-left: 216px !important;
-    width: calc(100% - 216px) !important;
     min-height: 100px !important;
     max-height: none !important;
   }
