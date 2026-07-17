@@ -1289,17 +1289,17 @@ export function setupWebSocketHandler(
 
         const player = gameState.players[gameState.currentPlayerIndex];
         const { tileId } = payload;
-        const drawnTile = gameState.lastDraw;
-        if (!drawnTile || String(drawnTile.id) !== String(tileId)) {
-          ws.send(JSON.stringify({ type: 'error', message: 'Can only jia gang drawn tile' }));
+        const tile = player.hand.find(t => String(t.id) === String(tileId));
+        if (!tile) {
+          ws.send(JSON.stringify({ type: 'error', message: 'Selected tile is not in hand' }));
           return;
         }
-        if (!canJiaGang(player, drawnTile)) {
+        if (!canJiaGang(player, tile)) {
           ws.send(JSON.stringify({ type: 'error', message: 'No matching pong meld' }));
           return;
         }
 
-        executeJiaGang(player, drawnTile, gameState);
+        executeJiaGang(player, tile, gameState);
         broadcast(info.roomId, {
           type: 'jiagang_executed',
           playerIndex: gameState.currentPlayerIndex,

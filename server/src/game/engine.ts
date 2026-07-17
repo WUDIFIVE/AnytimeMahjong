@@ -317,9 +317,9 @@ export function canAnGang(hand: Tile[]): Tile[] {
   return result;
 }
 
-export function canJiaGang(player: Player, drawnTile: Tile): boolean {
+export function canJiaGang(player: Player, tile: Tile): boolean {
   for (const meld of player.melds) {
-    if (meld.type === 'pong' && tileEquals(meld.tiles[0], drawnTile)) {
+    if (meld.type === 'pong' && tileEquals(meld.tiles[0], tile)) {
       return true;
     }
   }
