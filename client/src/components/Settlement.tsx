@@ -10,6 +10,21 @@ interface SettlementProps {
   onNewGame: () => void;
 }
 
+const WIND_NAMES: Record<string, string> = {
+  east: '东',
+  south: '南',
+  west: '西',
+  north: '北',
+};
+
+const MELD_LABELS: Record<string, string> = {
+  chi: '吃',
+  peng: '碰',
+  'ming-gang': '明杠',
+  'an-gang': '暗杠',
+  'jia-gang': '加杠',
+};
+
 const Settlement: React.FC<SettlementProps> = ({
   winResult,
   players,
@@ -39,6 +54,15 @@ const Settlement: React.FC<SettlementProps> = ({
   const isMultiWin = !isDraw && (winResult?.winners?.length ?? 0) > 1;
   const sortedHand = sortTiles(winningHand);
   const sortedConcealed = sortTiles(concealedHand);
+  const playerSnapshots = [...safePlayers]
+    .sort((a, b) => (a.seatIndex ?? 0) - (b.seatIndex ?? 0))
+    .map(player => ({
+      player,
+      hand: sortTiles(player.hand ?? []),
+      melds: player.melds ?? [],
+      isSelf: player.id === playerId,
+      isWinner: winnerIds.has(player.id),
+    }));
 
   const winTypeLabel = winResult?.winType === 'draw' ? '流局' : winResult?.winType === 'zimo' ? '自摸' : isMultiWin ? '一炮多响' : '点炮';
   const meldText = melds.length > 0
@@ -127,6 +151,19 @@ const Settlement: React.FC<SettlementProps> = ({
       lines.push('');
       if (!isDraw && completeHandText) {
         lines.push(`完整牌型：${completeHandText}`);
+        lines.push('');
+      }
+      if (playerSnapshots.length > 0) {
+        lines.push('全员牌况');
+        for (const snapshot of playerSnapshots) {
+          const handText = snapshot.hand.length > 0 ? snapshot.hand.map(formatTile).join('、') : '无剩余手牌';
+          const meldTextForPlayer = snapshot.melds.length > 0
+            ? snapshot.melds.map(meld => `${MELD_LABELS[meld.type] || '副露'}(${meld.tiles.map(formatTile).join('、')})`).join(' / ')
+            : '无副露';
+          lines.push(`  ${WIND_NAMES[snapshot.player.wind] || snapshot.player.wind || ''} ${snapshot.player.name}${snapshot.isWinner ? ' 胡牌' : ''}:`);
+          lines.push(`    副露：${meldTextForPlayer}`);
+          lines.push(`    手牌：${handText}`);
+        }
         lines.push('');
       }
       if (!isDraw && safeFans.length > 0) {
@@ -264,6 +301,54 @@ const Settlement: React.FC<SettlementProps> = ({
             <p>牌墙已摸完，无人胡牌。若有听牌玩家，将执行荒庄查听积分结算。</p>
           </div>
         )}
+
+        <div className="settlement-section all-hands-section">
+          <h3>全员牌况</h3>
+          <div className="settlement-all-hands">
+            {playerSnapshots.map(({ player, hand, melds: playerMelds, isSelf, isWinner: playerIsWinner }) => (
+              <div key={player.id} className={`player-hand-snapshot ${isSelf ? 'self' : ''} ${playerIsWinner ? 'winner' : ''}`}>
+                <div className="snapshot-header">
+                  <div className="snapshot-identity">
+                    <span className="snapshot-wind">{WIND_NAMES[player.wind] || player.wind}</span>
+                    <span className="snapshot-name">{player.name}</span>
+                    {isSelf && <span className="snapshot-badge self-badge">我</span>}
+                    {playerIsWinner && <span className="snapshot-badge winner-badge">胡牌</span>}
+                  </div>
+                  <span className="snapshot-score">{player.score ?? 0} 分</span>
+                </div>
+
+                <div className="snapshot-row">
+                  <span className="snapshot-label">副露</span>
+                  {playerMelds.length > 0 ? (
+                    <div className="snapshot-melds">
+                      {playerMelds.map((meld, idx) => (
+                        <div key={`${player.id}-meld-${idx}`} className="snapshot-meld">
+                          <span className="snapshot-meld-label">{MELD_LABELS[meld.type] || '副露'}</span>
+                          <div className="snapshot-tiles">
+                            {meld.tiles.map(tile => <Tile key={tile.id} tile={tile} small />)}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <span className="snapshot-empty">无副露</span>
+                  )}
+                </div>
+
+                <div className="snapshot-row">
+                  <span className="snapshot-label">手牌</span>
+                  {hand.length > 0 ? (
+                    <div className="snapshot-tiles snapshot-hand-tiles">
+                      {hand.map(tile => <Tile key={tile.id} tile={tile} small />)}
+                    </div>
+                  ) : (
+                    <span className="snapshot-empty">无剩余手牌</span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
 
         <div className="settlement-section">
           <h3>房间累计积分排名</h3>

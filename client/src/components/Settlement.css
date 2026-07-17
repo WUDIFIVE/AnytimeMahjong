@@ -420,6 +420,144 @@
   padding: 0 20px 18px;
 }
 
+/* All players' final hand snapshots */
+.settlement-all-hands {
+  display: grid;
+  gap: 12px;
+}
+
+.player-hand-snapshot {
+  padding: 12px;
+  border-radius: 18px;
+  background: rgba(0, 0, 0, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.player-hand-snapshot.self {
+  border-color: rgba(10, 132, 255, 0.28);
+  background: rgba(10, 132, 255, 0.08);
+}
+
+.player-hand-snapshot.winner {
+  border-color: rgba(255, 159, 10, 0.34);
+  background: rgba(255, 159, 10, 0.09);
+}
+
+.snapshot-header,
+.snapshot-identity,
+.snapshot-row,
+.snapshot-meld,
+.snapshot-tiles {
+  display: flex;
+  align-items: center;
+}
+
+.snapshot-header {
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.snapshot-identity {
+  gap: 7px;
+  min-width: 0;
+}
+
+.snapshot-wind {
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  color: #fff;
+  background: rgba(31, 143, 98, 0.86);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.snapshot-name {
+  color: #e8dcc8;
+  font-weight: 850;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.snapshot-score {
+  color: #f0c040;
+  font-size: 12px;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.snapshot-badge {
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.self-badge {
+  color: #0a84ff;
+  background: rgba(10, 132, 255, 0.12);
+}
+
+.winner-badge {
+  color: #b56a00;
+  background: rgba(255, 159, 10, 0.16);
+}
+
+.snapshot-row {
+  align-items: flex-start;
+  gap: 9px;
+  margin-top: 8px;
+}
+
+.snapshot-label {
+  flex: 0 0 34px;
+  color: #a0a080;
+  font-size: 11px;
+  font-weight: 850;
+  line-height: 34px;
+}
+
+.snapshot-empty {
+  color: rgba(232, 220, 200, 0.58);
+  font-size: 12px;
+  line-height: 34px;
+}
+
+.snapshot-melds,
+.snapshot-hand-tiles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  min-width: 0;
+}
+
+.snapshot-meld {
+  gap: 4px;
+  padding: 4px 6px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.snapshot-meld-label {
+  color: #c0b87a;
+  font-size: 10px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.snapshot-tiles {
+  flex-wrap: wrap;
+  gap: 2px;
+}
+
 
 /* === Apple-style settlement sheet === */
 .settlement-overlay { background:rgba(218,233,224,.72); backdrop-filter:blur(30px) saturate(150%); -webkit-backdrop-filter:blur(30px) saturate(150%); }
@@ -447,7 +585,12 @@
 .btn-new-game { background:linear-gradient(145deg,#34c983,#1f8f62); color:#fff; box-shadow:0 14px 30px rgba(31,143,98,.22), inset 0 1px 0 rgba(255,255,255,.32); }
 .btn-share { background:rgba(255,255,255,.58); color:var(--am-text); border-color:rgba(40,68,53,.1); }
 .btn-share:hover { background:rgba(255,255,255,.78); } .share-status { color:var(--am-accent); font-weight:760; }
-@media (max-width:480px){ .settlement-overlay{padding:8px;align-items:flex-end}.settlement-container{max-height:94dvh;border-radius:28px 28px 18px 18px}.winner-banner{padding:26px 16px 20px}.winner-detail{flex-wrap:wrap}.settlement-section{padding:16px}.ranking-item{grid-template-columns:42px 1fr 58px}.ranking-score{display:none} }
+.player-hand-snapshot { background:rgba(255,255,255,.54); border-color:rgba(40,68,53,.08); }
+.snapshot-name { color:var(--am-text); }
+.snapshot-score { color:var(--am-accent); }
+.snapshot-label,.snapshot-empty,.snapshot-meld-label { color:var(--am-text-muted); }
+.snapshot-meld { background:rgba(255,255,255,.58); border-color:rgba(40,68,53,.08); }
+@media (max-width:480px){ .settlement-overlay{padding:8px;align-items:flex-end}.settlement-container{max-height:94dvh;border-radius:28px 28px 18px 18px}.winner-banner{padding:26px 16px 20px}.winner-detail{flex-wrap:wrap}.settlement-section{padding:16px}.ranking-item{grid-template-columns:42px 1fr 58px}.ranking-score{display:none}.snapshot-header{align-items:flex-start}.snapshot-row{display:block}.snapshot-label{display:block;line-height:1;margin-bottom:6px}.snapshot-melds,.snapshot-hand-tiles{gap:5px} }
 
 /* === Settlement export should match the visible settlement page === */
 .settlement-container.exporting-settlement {
@@ -461,6 +604,7 @@
 }
 .settlement-container.exporting-settlement .winning-hand-display,
 .settlement-container.exporting-settlement .winning-melds,
+.settlement-container.exporting-settlement .all-hands-section,
 .settlement-container.exporting-settlement .fan-breakdown,
 .settlement-container.exporting-settlement .payouts-list,
 .settlement-container.exporting-settlement .ranking-list {
